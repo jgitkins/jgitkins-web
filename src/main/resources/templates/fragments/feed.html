@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="panel"
+		 th:fragment="list"
+		 hx-get="/fragments/feed"
+		 hx-trigger="load, every 15s"
+		 hx-swap="outerHTML">
+	<div class="panel__header">
+		<div>
+			<h2>Feed</h2>
+			<p>관심 저장소의 최신 커밋 흐름을 모았습니다.</p>
+		</div>
+		<div class="panel__meta">
+			<button class="ghost" hx-get="/fragments/feed" hx-swap="outerHTML">새로고침</button>
+		</div>
+	</div>
+
+	<div class="panel__body">
+		<div class="empty" th:if="${#lists.isEmpty(dashboard.feed())}">
+			<p>표시할 피드가 없습니다.</p>
+		</div>
+		<ul class="feed-list" th:if="${!#lists.isEmpty(dashboard.feed())}">
+			<li class="feed-item" th:each="item : ${dashboard.feed()}">
+				<div>
+					<p class="feed-repo">[[${item.namespace()}]] / [[${item.repoName()}]]</p>
+					<h3>[[${item.commitMessage()}]]</h3>
+					<p class="feed-meta">
+						[[${item.authorName()}]] · [[${#temporals.format(item.commitTime(), 'yyyy-MM-dd HH:mm')}]]
+					</p>
+				</div>
+				<span class="tag">NEW</span>
+			</li>
+		</ul>
+	</div>
+</section>
+</body>
+</html>

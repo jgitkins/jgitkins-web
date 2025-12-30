@@ -1,0 +1,26 @@
+spring:
+  config:
+    import: optional:classpath:auth.properties
+---
+
+server:
+  port: 8081
+
+spring:
+  thymeleaf:
+    cache: false
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH_GOOGLE_CLIENT_ID:}
+            client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET:}
+#            scope: profile, email
+
+jgitkins:
+  server:
+    base-url: http://localhost:8080
+  web:
+    pr-url-template: ""
+    issue-url-template: ""

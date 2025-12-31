@@ -8,17 +8,16 @@
 		 hx-swap="outerHTML">
 	<div class="panel__header">
 		<div>
-			<h2>Feed</h2>
-			<p>관심 저장소의 최신 커밋 흐름을 모았습니다.</p>
+			<p>Recent commits from repositories you follow.</p>
 		</div>
 		<div class="panel__meta">
-			<button class="ghost" hx-get="/fragments/feed" hx-swap="outerHTML">새로고침</button>
+			<button class="ghost" hx-get="/fragments/feed" hx-swap="outerHTML">Refresh</button>
 		</div>
 	</div>
 
 	<div class="panel__body">
 		<div class="empty" th:if="${#lists.isEmpty(dashboard.feed())}">
-			<p>표시할 피드가 없습니다.</p>
+			<p>No feed items to display.</p>
 		</div>
 		<ul class="feed-list" th:if="${!#lists.isEmpty(dashboard.feed())}">
 			<li class="feed-item" th:each="item : ${dashboard.feed()}">

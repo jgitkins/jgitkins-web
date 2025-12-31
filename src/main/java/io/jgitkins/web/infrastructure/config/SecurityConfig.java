@@ -13,15 +13,15 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/css/**", "/login", "/error").permitAll()
+						.requestMatchers("/", "/explore", "/css/**", "/img/**", "/svg/**","/login", "/error").permitAll()
 						.anyRequest().authenticated()
 				)
 				.oauth2Login(login -> login
-						.loginPage("/login")
+						.loginPage("/oauth2/authorization/google")
 						.defaultSuccessUrl("/dashboard", true)
 				)
 				.logout(logout -> logout
-						.logoutSuccessUrl("/login")
+						.logoutSuccessUrl("/")
 				)
 				.csrf(Customizer.withDefaults());
 		return http.build();

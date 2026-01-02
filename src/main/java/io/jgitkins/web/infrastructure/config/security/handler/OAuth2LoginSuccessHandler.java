@@ -1,0 +1,54 @@
+package io.jgitkins.web.infrastructure.config.security.handler;
+
+import io.jgitkins.web.application.common.SessionKeys;
+import io.jgitkins.web.application.dto.OAuthLoginRequest;
+import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
+import io.jgitkins.web.application.port.out.JgitkinsServerPort;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
+
+	private final JgitkinsServerPort serverPort;
+
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request,
+										HttpServletResponse response,
+										Authentication authentication) throws IOException {
+		if (!(authentication instanceof OAuth2AuthenticationToken oauthToken)) {
+			log.warn("Unsupported authentication type: {}", authentication.getClass().getName());
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid authentication");
+			return;
+		}
+
+		Object principal = oauthToken.getPrincipal();
+		if (!(principal instanceof OidcUser oidcUser)) {
+			log.warn("OIDC principal missing for provider {}", oauthToken.getAuthorizedClientRegistrationId());
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "OIDC principal required");
+			return;
+		}
+
+		OAuthLoginRequest tokenRequest = new OAuthLoginRequest(
+				oauthToken.getAuthorizedClientRegistrationId(),
+				oidcUser.getSubject(),
+				oidcUser.getEmail(),
+				oidcUser.getFullName(),
+				oidcUser.getEmailVerified() != null && oidcUser.getEmailVerified(),
+				oidcUser.getPicture() != null ? oidcUser.getPicture().toString() : null
+		);
+		ServerOAuthLoginResult result = serverPort.issueOAuthLoginToken(tokenRequest);
+		request.getSession(true).setAttribute(SessionKeys.APP_TOKEN, result.appToken());
+		response.sendRedirect("/dashboard");
+	}
+}

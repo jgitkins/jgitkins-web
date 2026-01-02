@@ -2,9 +2,13 @@ package io.jgitkins.web.infrastructure.client;
 
 import io.jgitkins.web.presentation.common.ApiResponse;
 import io.jgitkins.web.application.dto.CommitSummary;
+import io.jgitkins.web.application.dto.OAuthLoginRequest;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.OrganizeSummary;
+import io.jgitkins.web.application.dto.RepositoryCreateRequest;
+import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
+import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -15,7 +19,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JgitkinsServerClient {
+public class JGitkinsServerClient {
 
 	private static final ParameterizedTypeReference<ApiResponse<List<OrganizeSummary>>> ORGANIZE_LIST_TYPE =
 			new ParameterizedTypeReference<>() {
@@ -24,6 +28,12 @@ public class JgitkinsServerClient {
 			new ParameterizedTypeReference<>() {
 			};
 	private static final ParameterizedTypeReference<ApiResponse<List<CommitSummary>>> COMMIT_LIST_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
+	private static final ParameterizedTypeReference<ApiResponse<ServerOAuthLoginResult>> OAUTH_LOGIN_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
+	private static final ParameterizedTypeReference<ApiResponse<RepositorySummary>> REPOSITORY_CREATE_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
 
@@ -75,6 +85,40 @@ public class JgitkinsServerClient {
 			return response.data();
 		} catch (RestClientException ex) {
 			return List.of();
+		}
+	}
+
+	public ServerOAuthLoginResult issueOAuthLoginToken(OAuthLoginRequest request) {
+		ApiResponse<ServerOAuthLoginResult> response = restClient.post()
+				.uri("/api/auth/oauth/login")
+				.body(request)
+				.retrieve()
+				.body(OAUTH_LOGIN_TYPE);
+		if (response == null || response.error() != null || response.data() == null) {
+			throw new RestClientException("OAuth login failed");
+		}
+		return response.data();
+	}
+
+	public RepositoryCreateResult createRepository(RepositoryCreateRequest request) {
+		try {
+			ApiResponse<RepositorySummary> response = restClient.post()
+					.uri("/api/repositories")
+					.body(request)
+					.retrieve()
+					.body(REPOSITORY_CREATE_TYPE);
+			if (response == null) {
+				return new RepositoryCreateResult(null, "API 응답이 비어 있습니다.");
+			}
+			if (response.error() != null) {
+				return new RepositoryCreateResult(null, response.error().message());
+			}
+			if (response.data() == null) {
+				return new RepositoryCreateResult(null, "저장소 생성 응답이 비어 있습니다.");
+			}
+			return new RepositoryCreateResult(response.data(), null);
+		} catch (RestClientException ex) {
+			return new RepositoryCreateResult(null, "API 서버에 연결할 수 없습니다.");
 		}
 	}
 }

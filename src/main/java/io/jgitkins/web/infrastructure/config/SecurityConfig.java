@@ -1,5 +1,6 @@
 package io.jgitkins.web.infrastructure.config;
 
+import io.jgitkins.web.infrastructure.config.security.handler.OAuth2LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -10,7 +11,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http,
+												   OAuth2LoginSuccessHandler successHandler) throws Exception {
 		http
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers("/", "/explore", "/css/**", "/img/**", "/svg/**","/login", "/error").permitAll()
@@ -18,7 +20,7 @@ public class SecurityConfig {
 				)
 				.oauth2Login(login -> login
 						.loginPage("/oauth2/authorization/google")
-						.defaultSuccessUrl("/dashboard", true)
+						.successHandler(successHandler)
 				)
 				.logout(logout -> logout
 						.logoutSuccessUrl("/")

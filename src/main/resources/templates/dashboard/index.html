@@ -58,7 +58,8 @@
 			</div>
 			<div class="repo-widget__list" th:if="${!#lists.isEmpty(dashboard.repositories())}">
 				<a class="repo-widget__item" th:each="repo, iterStat : ${dashboard.repositories()}" th:if="${iterStat.index &lt; 5}">
-					<span>[[${repo.namespace()}]] / [[${repo.repoName()}]]</span>
+<!--					<span>[[${repo.namespace()}]] / [[${repo.repoName()}]]</span>-->
+					<span>[[${repo.repoName()}]]</span>
 					<span class="chip" th:text="${repo.repository().visibility()}">PRIVATE</span>
 				</a>
 			</div>

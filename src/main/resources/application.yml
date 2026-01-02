@@ -1,6 +1,15 @@
 spring:
   config:
     import: optional:classpath:auth.properties
+  session:
+    store-type: redis
+    redis:
+      namespace: jgitkins:web:sessions
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 ---
 
 server:
@@ -26,7 +35,7 @@ spring:
 
 jgitkins:
   server:
-    base-url: http://localhost:8080
+    base-url: http://localhost:8084
   web:
     pr-url-template: ""
     issue-url-template: ""

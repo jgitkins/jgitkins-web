@@ -7,6 +7,7 @@ import java.util.List;
 
 public record RepositoryDashboardItem(
 		String namespace,
+		String ownerSlug,
 		String repoName,
 		RepositorySummary repository,
 		List<CommitSummary> recentCommits,

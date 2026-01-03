@@ -25,8 +25,10 @@ public class DashboardViewMapper {
 		List<RepositoryDashboardItem> items = new ArrayList<>();
 		List<FeedItem> feed = new ArrayList<>();
 		for (RepositoryCommits repository : data.repositories()) {
+			String ownerSlug = resolveOwnerSlug(repository.namespace());
 			items.add(new RepositoryDashboardItem(
 					repository.namespace(),
+					ownerSlug,
 					repository.repoName(),
 					repository.repository(),
 					repository.commits(),
@@ -66,5 +68,17 @@ public class DashboardViewMapper {
 		return template
 				.replace("{namespace}", repository.namespace())
 				.replace("{repo}", repository.repoName());
+	}
+
+	private String resolveOwnerSlug(String namespace) {
+		if (!StringUtils.hasText(namespace)) {
+			return "unknown";
+		}
+		String trimmed = namespace.replaceAll("/+$", "");
+		int index = trimmed.lastIndexOf('/');
+		if (index < 0) {
+			return trimmed;
+		}
+		return trimmed.substring(index + 1);
 	}
 }

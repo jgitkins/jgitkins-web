@@ -1,12 +1,13 @@
 package io.jgitkins.web.application.service;
 
-import io.jgitkins.web.application.port.in.DashboardUseCase;
-import io.jgitkins.web.application.port.out.JgitkinsServerPort;
 import io.jgitkins.web.application.dto.CommitSummary;
 import io.jgitkins.web.application.dto.DashboardData;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.RepositoryCommits;
 import io.jgitkins.web.application.dto.RepositorySummary;
+import io.jgitkins.web.application.port.in.DashboardUseCase;
+import io.jgitkins.web.application.port.out.OrganizePort;
+import io.jgitkins.web.application.port.out.RepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -18,12 +19,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardService implements DashboardUseCase {
 
-	private final JgitkinsServerPort serverPort;
+	private final OrganizePort organizePort;
+	private final RepositoryPort repositoryPort;
 
 	@Override
 	public DashboardData buildDashboard() {
-		OrganizeFetchResult organizeResult = serverPort.fetchOrganizes();
-		List<RepositorySummary> repositories = serverPort.fetchRepositories();
+		OrganizeFetchResult organizeResult = organizePort.fetchOrganizes();
+		List<RepositorySummary> repositories = repositoryPort.fetchRepositories();
 		List<RepositoryCommits> items = new ArrayList<>();
 		for (RepositorySummary repository : repositories) {
 			RepositoryKey key = resolveRepositoryKey(repository);
@@ -31,7 +33,7 @@ public class DashboardService implements DashboardUseCase {
 				continue;
 			}
 			String branch = StringUtils.hasText(repository.defaultBranch()) ? repository.defaultBranch() : "main";
-			List<CommitSummary> commits = serverPort.fetchCommits(key.namespace(), key.repoName(), branch).stream()
+			List<CommitSummary> commits = repositoryPort.fetchCommits(key.namespace(), key.repoName(), branch).stream()
 					.limit(10)
 					.toList();
 			items.add(new RepositoryCommits(

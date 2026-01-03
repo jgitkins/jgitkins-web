@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Personal Access Tokens</title>
+	<link rel="icon" type="image/png" th:href="@{/img/ci.png}">
+	<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="fragments/topbar :: topbar('settings')"></div>
+<div class="page">
+	<header class="header-bar">
+		<div>
+			<h1>Personal Access Tokens</h1>
+			<p>Create and manage tokens for API access.</p>
+		</div>
+		<div class="header-bar__meta">
+			<a class="primary" href="/settings/personal-access-tokens/new">New token</a>
+		</div>
+	</header>
+
+	<div class="settings-layout">
+		<nav class="settings-nav">
+			<a class="settings-nav__link" href="/settings/profile">Profile</a>
+			<a class="settings-nav__link is-active" href="/settings/personal-access-tokens">Personal access tokens</a>
+		</nav>
+
+		<section class="panel settings-panel">
+			<h2>Tokens</h2>
+			<p class="settings-muted">Use tokens to authenticate API requests on your behalf.</p>
+			<div class="settings-table">
+				<div class="settings-table__row settings-table__head">
+					<span>Name</span>
+					<span>Scopes</span>
+					<span>Last used</span>
+					<span>Expires</span>
+				</div>
+				<div class="settings-table__row">
+					<span>CI Runner</span>
+					<span>repo:read, job:write</span>
+					<span>2 days ago</span>
+					<span>2026-02-01</span>
+				</div>
+				<div class="settings-table__row">
+					<span>Automation</span>
+					<span>repo:read</span>
+					<span>Never</span>
+					<span>2026-12-31</span>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>
+</body>
+</html>

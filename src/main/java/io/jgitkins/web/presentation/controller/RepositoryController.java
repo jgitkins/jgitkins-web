@@ -2,9 +2,13 @@ package io.jgitkins.web.presentation.controller;
 
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.OrganizeSummary;
+import io.jgitkins.web.application.dto.BranchSummary;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
+import io.jgitkins.web.application.dto.RepositoryDetailData;
+import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
+import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.presentation.dto.RepositoryCreateForm;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +21,16 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
 public class RepositoryController {
 
 	private final RepositoryCreateUseCase repositoryCreateUseCase;
+	private final RepositoryDetailUseCase repositoryDetailUseCase;
 
 	@GetMapping("/repositories/new")
 	public String newRepository(Authentication authentication, Model model) {
@@ -73,6 +80,59 @@ public class RepositoryController {
 		}
 
 		return "redirect:/dashboard";
+	}
+
+	@GetMapping("/repositories/{namespace}/{repoName}")
+	public String repositoryDetail(@PathVariable("namespace") String namespace,
+							@PathVariable("repoName") String repoName,
+							@RequestParam(name = "branch", required = false) String branch,
+							Model model) {
+		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryDetailByPath(namespace, repoName, branch);
+		detail = ensureDemoDetail(detail);
+		model.addAttribute("detail", detail);
+		return "repositories/detail";
+	}
+
+	@GetMapping("/repositories/{namespace}/{repoName}/merge/new")
+	public String newMergeRequest(@PathVariable("namespace") String namespace,
+							@PathVariable("repoName") String repoName,
+							Model model) {
+		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryDetailByPath(namespace, repoName, null);
+		detail = ensureDemoDetail(detail);
+		model.addAttribute("detail", detail);
+		return "repositories/merge-new";
+	}
+
+	private RepositoryDetailData ensureDemoDetail(RepositoryDetailData detail) {
+		if (detail == null) {
+			return null;
+		}
+		if (detail.files() != null && !detail.files().isEmpty()) {
+			return detail;
+		}
+		List<RepositoryFileEntry> files = List.of(
+				new RepositoryFileEntry("1", ".github", ".github", "dir", "040000", 0L),
+				new RepositoryFileEntry("2", "README.md", "README.md", "file", "100644", 1240L),
+				new RepositoryFileEntry("3", "build.gradle", "build.gradle", "file", "100644", 980L),
+				new RepositoryFileEntry("4", "src", "src", "dir", "040000", 0L),
+				new RepositoryFileEntry("5", "src/main", "src/main", "dir", "040000", 0L),
+				new RepositoryFileEntry("6", "src/main/java", "src/main/java", "dir", "040000", 0L),
+				new RepositoryFileEntry("7", "src/main/resources", "src/main/resources", "dir", "040000", 0L)
+		);
+		List<BranchSummary> branches = detail.branches() == null || detail.branches().isEmpty()
+				? List.of(new BranchSummary(0L, "main", false, true, true))
+				: detail.branches();
+		String selectedBranch = detail.selectedBranch() == null ? "main" : detail.selectedBranch();
+		return new RepositoryDetailData(
+				detail.repository(),
+				branches,
+				files,
+				detail.namespace(),
+				detail.ownerSlug(),
+				detail.repoName(),
+				selectedBranch,
+				detail.errorMessage()
+		);
 	}
 
 	private void populateCreateModel(Model model,

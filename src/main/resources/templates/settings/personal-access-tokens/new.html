@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Create Personal Access Token</title>
+	<link rel="icon" type="image/png" th:href="@{/img/ci.png}">
+	<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="fragments/topbar :: topbar('settings')"></div>
+<div class="page">
+	<header class="header-bar">
+		<div>
+			<h1>New personal access token</h1>
+			<p>Issue a token with scoped access for automation and integrations.</p>
+		</div>
+	</header>
+
+	<div class="settings-layout">
+		<nav class="settings-nav">
+			<a class="settings-nav__link" href="/settings/profile">Profile</a>
+			<a class="settings-nav__link is-active" href="/settings/personal-access-tokens">Personal access tokens</a>
+		</nav>
+
+		<section class="panel settings-panel">
+			<h2>Token details</h2>
+			<p class="settings-muted">Tokens are shown once. Store them securely after creation.</p>
+			<div class="settings-form">
+				<label class="settings-field">
+					<span>Token name</span>
+					<input class="input" type="text" placeholder="CI runner token" />
+				</label>
+				<label class="settings-field">
+					<span>Expiration</span>
+					<select class="input select">
+						<option>30 days</option>
+						<option>60 days</option>
+						<option>90 days</option>
+						<option>No expiration</option>
+					</select>
+				</label>
+				<div class="settings-field">
+					<span>Scopes</span>
+					<div class="settings-checklist">
+						<label class="settings-checklist__item">
+							<input type="checkbox" checked />
+							<span>repo:read</span>
+						</label>
+						<label class="settings-checklist__item">
+							<input type="checkbox" />
+							<span>repo:write</span>
+						</label>
+						<label class="settings-checklist__item">
+							<input type="checkbox" />
+							<span>job:read</span>
+						</label>
+						<label class="settings-checklist__item">
+							<input type="checkbox" />
+							<span>job:write</span>
+						</label>
+					</div>
+				</div>
+				<div class="settings-actions">
+					<button class="ghost" type="button">Cancel</button>
+					<button class="primary" type="button">Create token</button>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>
+</body>
+</html>

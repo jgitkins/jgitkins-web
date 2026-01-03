@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Repository Detail</title>
+	<link rel="icon" type="image/png" th:href="@{/img/ci.png}">
+	<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="fragments/topbar :: topbar('repository-detail')"></div>
+<div class="page">
+	<div class="alert" th:if="${detail.errorMessage != null}" th:text="${detail.errorMessage}"></div>
+
+	<section class="repo-detail" th:if="${detail.repository != null}">
+<!--		<div class="repo-detail__stats">-->
+<!--			<div class="repo-detail__stat">-->
+<!--				<span>Commits</span>-->
+<!--				<strong>0</strong>-->
+<!--			</div>-->
+<!--			<div class="repo-detail__stat">-->
+<!--				<span>Branches</span>-->
+<!--				<strong th:text="${#lists.size(detail.branches)}">0</strong>-->
+<!--			</div>-->
+<!--			<div class="repo-detail__stat">-->
+<!--				<span>Tags</span>-->
+<!--				<strong>0</strong>-->
+<!--			</div>-->
+<!--			<div class="repo-detail__stat">-->
+<!--				<span>Repository size</span>-->
+<!--				<strong>—</strong>-->
+<!--			</div>-->
+<!--		</div>-->
+
+		<nav class="repo-subnav">
+			<a class="repo-subnav__link is-active" href="#">Code</a>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Issues</span>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Pull requests</span>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Actions</span>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Projects</span>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Wiki</span>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Security</span>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Insights</span>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Settings</span>
+		</nav>
+
+		<header class="repo-title">
+			<div class="repo-title__main">
+				<div class="repo-title__logo" aria-hidden="true">JG</div>
+				<h1 th:text="${detail.repository.name}">Repository</h1>
+				<span class="repo-title__badge" th:text="${detail.repository.visibility}">PRIVATE</span>
+			</div>
+			<div class="repo-title__actions">
+				<button class="ghost is-disabled" type="button" disabled>Watch</button>
+				<button class="ghost is-disabled" type="button" disabled>Fork</button>
+				<button class="ghost" type="button">Star</button>
+			</div>
+		</header>
+
+		<div class="repo-detail__content">
+			<div class="repo-detail__main">
+				<div class="repo-detail__toolbar">
+					<div class="repo-detail__toolbar-left">
+						<div class="repo-detail__branch-select-wrap">
+							<select id="branch-select" class="input select repo-detail__branch-select">
+								<option th:each="branch : ${detail.branches}"
+										th:value="${branch.name}"
+										th:text="${branch.defaultBranch ? branch.name + ' (default)' : branch.name}"
+										th:selected="${branch.name == detail.selectedBranch}">main</option>
+							</select>
+						</div>
+					</div>
+					<div class="repo-detail__toolbar-right">
+						<input class="search-input repo-detail__search-input" type="text" placeholder="Find a file" />
+						<details class="menu repo-detail__menu">
+							<summary class="menu__summary repo-detail__icon-button">
+								<img class="topbar__icon-image" th:src="@{/svg/new-window-svgrepo-com.svg}" alt="Add"/>
+								<span class="repo-detail__caret" aria-hidden="true">▾</span>
+							</summary>
+							<div class="menu__panel">
+								<button class="menu__item menu__item--button" type="button">New branch</button>
+								<button class="menu__item menu__item--button" type="button">New file</button>
+							</div>
+						</details>
+						<details class="menu repo-detail__menu">
+							<summary class="menu__summary repo-detail__icon-button">
+								<img class="topbar__icon-image" th:src="@{/svg/code-snippet-02-svgrepo-com.svg}" alt="Code"/>
+								<span class="repo-detail__caret" aria-hidden="true">▾</span>
+							</summary>
+							<div class="menu__panel repo-detail__code-panel">
+								<div class="repo-detail__code-tabs">
+									<button class="ghost is-active" type="button">HTTPS</button>
+									<button class="ghost" type="button">SSH</button>
+								</div>
+								<div class="repo-detail__clone-row">
+									<input id="code-clone-path" class="input" type="text" readonly
+										   th:value="${detail.repository.cloneUrl != null ? detail.repository.cloneUrl : detail.repository.clonePath}" />
+									<button class="ghost" type="button" data-copy-target="code-clone-path">Copy</button>
+								</div>
+								<div class="repo-detail__code-actions">
+									<a class="menu__item" href="#">Download ZIP</a>
+									<a class="menu__item" href="#">Download TAR.GZ</a>
+								</div>
+							</div>
+						</details>
+					</div>
+				</div>
+
+				<div class="repo-detail__tree">
+					<div class="repo-detail__tree-header">
+						<h2>Tree</h2>
+					</div>
+					<div class="tree-list" th:if="${!#lists.isEmpty(detail.files)}">
+						<div class="tree-row tree-row--head">
+							<span>Name</span>
+							<span>Path</span>
+							<span>Type</span>
+						</div>
+						<div class="tree-row" th:each="entry : ${detail.files}">
+							<span class="tree-item__name" th:text="${entry.name}">README.md</span>
+							<span class="tree-item__path" th:text="${entry.path}">/README.md</span>
+							<span class="tree-item__meta" th:text="${entry.type}">file</span>
+						</div>
+					</div>
+					<div class="empty" th:if="${#lists.isEmpty(detail.files)}">
+						<p>No files found for this branch.</p>
+					</div>
+				</div>
+			</div>
+			<aside class="repo-detail__sidebar is-disabled">
+				<div class="panel repo-side-card">
+					<h3>About</h3>
+					<p th:text="${detail.repository.description != null ? detail.repository.description : 'No description, website, or topics provided.'}">No description, website, or topics provided.</p>
+					<div class="repo-side-card__meta">
+						<span>README</span>
+						<span>Activity</span>
+					</div>
+				</div>
+				<div class="panel repo-side-card">
+					<h3>Releases</h3>
+					<p>No releases published</p>
+				</div>
+				<div class="panel repo-side-card">
+					<h3>Packages</h3>
+					<p>No packages published</p>
+				</div>
+			</aside>
+		</div>
+	</section>
+</div>
+<script>
+	const branchSelect = document.getElementById("branch-select");
+	if (branchSelect) {
+		branchSelect.addEventListener("change", (event) => {
+			const selected = event.target.value;
+			const url = new URL(window.location.href);
+			url.searchParams.set("branch", selected);
+			window.location.href = url.toString();
+		});
+	}
+
+	document.querySelectorAll("[data-copy-target]").forEach((button) => {
+		button.addEventListener("click", async () => {
+			const targetId = button.getAttribute("data-copy-target");
+			const input = document.getElementById(targetId);
+			if (!input) {
+				return;
+			}
+			try {
+				await navigator.clipboard.writeText(input.value);
+				button.textContent = "Copied";
+				setTimeout(() => {
+					button.textContent = "Copy";
+				}, 1200);
+			} catch (error) {
+				input.select();
+				document.execCommand("copy");
+				button.textContent = "Copied";
+				setTimeout(() => {
+					button.textContent = "Copy";
+				}, 1200);
+			}
+		});
+	});
+
+	document.addEventListener("click", (event) => {
+		const openMenus = document.querySelectorAll("details[open]");
+		openMenus.forEach((menu) => {
+			if (!menu.contains(event.target)) {
+				menu.open = false;
+			}
+		});
+	});
+</script>
+</body>
+</html>

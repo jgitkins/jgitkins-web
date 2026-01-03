@@ -4,7 +4,8 @@ import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
-import io.jgitkins.web.application.port.out.JgitkinsServerPort;
+import io.jgitkins.web.application.port.out.OrganizePort;
+import io.jgitkins.web.application.port.out.RepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,15 +13,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RepositoryCreateService implements RepositoryCreateUseCase {
 
-	private final JgitkinsServerPort serverPort;
+	private final OrganizePort organizePort;
+	private final RepositoryPort repositoryPort;
 
 	@Override
 	public OrganizeFetchResult loadOwnerOptions() {
-		return serverPort.fetchOrganizes();
+		return organizePort.fetchOrganizes();
 	}
 
 	@Override
 	public RepositoryCreateResult createRepository(RepositoryCreateRequest request) {
-		return serverPort.createRepository(request);
+		return repositoryPort.createRepository(request);
 	}
 }

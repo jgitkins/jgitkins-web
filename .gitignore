@@ -4,3 +4,5 @@ gradle
 build
 
 src/main/resources/auth.properties
+
+out/

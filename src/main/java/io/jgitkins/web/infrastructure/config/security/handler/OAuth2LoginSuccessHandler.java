@@ -3,24 +3,24 @@ package io.jgitkins.web.infrastructure.config.security.handler;
 import io.jgitkins.web.application.common.SessionKeys;
 import io.jgitkins.web.application.dto.OAuthLoginRequest;
 import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
-import io.jgitkins.web.application.port.out.JgitkinsServerPort;
+import io.jgitkins.web.application.port.out.AppTokenIssuePort;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-	private final JgitkinsServerPort serverPort;
+	private final AppTokenIssuePort appTokenIssuePort;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request,
@@ -47,7 +47,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 				oidcUser.getEmailVerified() != null && oidcUser.getEmailVerified(),
 				oidcUser.getPicture() != null ? oidcUser.getPicture().toString() : null
 		);
-		ServerOAuthLoginResult result = serverPort.issueOAuthLoginToken(tokenRequest);
+		ServerOAuthLoginResult result = appTokenIssuePort.issueOAuthLoginToken(tokenRequest);
 		request.getSession(true).setAttribute(SessionKeys.APP_TOKEN, result.appToken());
 		response.sendRedirect("/dashboard");
 	}

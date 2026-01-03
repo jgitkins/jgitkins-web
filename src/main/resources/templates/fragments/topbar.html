@@ -40,10 +40,10 @@
 					<span class="menu__caret" aria-hidden="true">▾</span>
 				</summary>
 				<div class="menu__panel">
-					<a href="#" class="menu__item">Profile</a>
+					<a href="/settings/profile" class="menu__item">Profile</a>
 					<a href="#" class="menu__item">Starred</a>
 					<a href="#" class="menu__item">Subscriptions</a>
-					<a href="#" class="menu__item">Settings</a>
+					<a href="/settings/profile" class="menu__item">Settings</a>
 					<a href="#" class="menu__item">Help</a>
 					<form th:action="@{/logout}" method="post" class="menu__form">
 						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>

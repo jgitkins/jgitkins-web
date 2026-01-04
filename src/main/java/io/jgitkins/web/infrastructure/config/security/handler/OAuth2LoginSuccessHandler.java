@@ -49,6 +49,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		);
 		ServerOAuthLoginResult result = appTokenIssuePort.issueOAuthLoginToken(tokenRequest);
 		request.getSession(true).setAttribute(SessionKeys.APP_TOKEN, result.appToken());
-		response.sendRedirect("/dashboard");
+		response.sendRedirect("/");
 	}
 }

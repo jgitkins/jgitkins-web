@@ -13,11 +13,11 @@ public class DashboardController {
 
 	private final DashboardViewSupport dashboardViewSupport;
 
-	@GetMapping("/dashboard")
-	public String dashboard(Model model) {
-		dashboardViewSupport.addDashboardAttributes(model);
-		return "dashboard/index";
-	}
+//	@GetMapping("/dashboard")
+//	public String dashboard(Model model) {
+//		dashboardViewSupport.addDashboardAttributes(model);
+//		return "dashboard/index";
+//	}
 
 	@GetMapping("/fragments/organizes")
 	public String organizeFragment(Model model) {

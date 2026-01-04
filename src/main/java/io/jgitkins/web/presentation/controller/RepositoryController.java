@@ -38,7 +38,7 @@ public class RepositoryController {
 		UserProfile profile = resolveUserProfile(authentication);
 		OrganizeFetchResult organizeResult = repositoryCreateUseCase.loadOwnerOptions();
 		populateCreateModel(model, form, profile, organizeResult, null);
-		return "repositories/create";
+		return "repositories/new";
 	}
 
 	@PostMapping("/repositories")
@@ -51,7 +51,7 @@ public class RepositoryController {
 		String validationError = validateForm(form);
 		if (validationError != null) {
 			populateCreateModel(model, form, profile, organizeResult, validationError);
-			return "repositories/create";
+			return "repositories/new";
 		}
 
 		String ownerType = normalizeOwnerType(form.getOwnerType());
@@ -76,10 +76,10 @@ public class RepositoryController {
 		RepositoryCreateResult result = repositoryCreateUseCase.createRepository(request);
 		if (result.errorMessage() != null) {
 			populateCreateModel(model, form, profile, organizeResult, result.errorMessage());
-			return "repositories/create";
+			return "repositories/new";
 		}
 
-		return "redirect:/dashboard";
+		return "redirect:/";
 	}
 
 	@GetMapping("/repositories/{namespace}/{repoName}")

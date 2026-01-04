@@ -13,33 +13,33 @@
 <div class="page">
 	<header class="header-bar header-bar--split">
 		<div>
-			<h1>Dashboard</h1>
-			<p>Track accessible repositories and activity in one place.</p>
+			<h1>Hi, <span th:text="${displayName}">there</span></h1>
+			<p>Here’s what’s waiting for you today.</p>
 		</div>
-		<div class="header-bar__meta">
-			<div>
-				<span>Last sync</span>
-				<strong th:text="${#temporals.format(lastUpdated, 'yyyy-MM-dd HH:mm:ss')}">Updated</strong>
-			</div>
-		</div>
+<!--		<div class="header-bar__meta">-->
+<!--			<div>-->
+<!--				<span>Last sync</span>-->
+<!--				<strong th:text="${#temporals.format(lastUpdated, 'yyyy-MM-dd HH:mm:ss')}">Updated</strong>-->
+<!--			</div>-->
+<!--		</div>-->
 	</header>
  <div class="dashboard-layout">
-		<section class="dashboard-card dashboard-card--states">
+		<section class="dashboard-card dashboard-card--states is-disabled">
 			<h2 class="dashboard-title">Activity</h2>
 			<div class="panel dashboard-tabs">
 				<div class="state-metrics">
-					<div class="state-card is-active">
-						<span class="state-card__label">PROCESSING CI</span>
-						<strong class="state-card__value">0</strong>
-					</div>
-					<div class="state-card">
-						<span class="state-card__label">PROCESSING ISSUE</span>
-						<strong class="state-card__value">0</strong>
-					</div>
-					<div class="state-card">
-						<span class="state-card__label">PROCESSING MR</span>
-						<strong class="state-card__value">0</strong>
-					</div>
+<!--					<div class="state-card is-active">-->
+<!--						<span class="state-card__label">PROCESSING CI</span>-->
+<!--						<strong class="state-card__value">0</strong>-->
+<!--					</div>-->
+<!--					<div class="state-card">-->
+<!--						<span class="state-card__label">PROCESSING ISSUE</span>-->
+<!--						<strong class="state-card__value">0</strong>-->
+<!--					</div>-->
+<!--					<div class="state-card">-->
+<!--						<span class="state-card__label">PROCESSING MR</span>-->
+<!--						<strong class="state-card__value">0</strong>-->
+<!--					</div>-->
 				</div>
 			</div>
 		</section>
@@ -47,32 +47,31 @@
 		<section class="dashboard-card dashboard-card--access">
 			<h2 class="dashboard-title">Access</h2>
 			<div class="panel repo-widget">
-			<div class="repo-widget__header">
-				<div class="repo-widget__tabs">
-					<span class="repo-widget__tab is-active">Repositories <span class="chip" th:text="${#lists.size(dashboard.repositories())}">0</span></span>
-					<span class="repo-widget__tab">Organizations <span class="chip" th:text="${#lists.size(dashboard.organizes())}">0</span></span>
+				<div class="repo-widget__header">
+					<div class="repo-widget__tabs">
+						<span class="repo-widget__tab is-active">Repositories <span class="chip" th:text="${#lists.size(dashboard.repositories())}">0</span></span>
+	<!--					<span class="repo-widget__tab">Organizations <span class="chip" th:text="${#lists.size(dashboard.organizes())}">0</span></span>-->
+					</div>
+					<button class="ghost" type="button">Filter</button>
 				</div>
-				<button class="ghost" type="button">Filter</button>
-			</div>
-			<div class="repo-widget__search">
-				<input class="search-input" type="text" placeholder="Search repositories..."/>
-			</div>
-			<div class="repo-widget__list" th:if="${!#lists.isEmpty(dashboard.repositories())}">
-				<a class="repo-widget__item" th:each="repo, iterStat : ${dashboard.repositories()}"
-						 th:if="${iterStat.index &lt; 5}"
-						 th:href="@{/repositories/{owner}/{repo}(owner=${repo.ownerSlug()}, repo=${repo.repoName()})}">
-					<span>[[${repo.namespace()}]]/[[${repo.repoName()}]]</span>
-<!--					<span>[[${repo.repoName()}]]</span>-->
-					<span class="chip" th:text="${repo.repository().visibility()}">PRIVATE</span>
-				</a>
-			</div>
-			<div class="empty" th:if="${#lists.isEmpty(dashboard.repositories())}">
-				<p>No repositories to display.</p>
-			</div>
+				<div class="repo-widget__search">
+					<input class="search-input" type="text" placeholder="Search repositories..."/>
+				</div>
+				<div class="repo-widget__list" th:if="${!#lists.isEmpty(dashboard.repositories())}">
+					<a class="repo-widget__item" th:each="repo : ${dashboard.repositories()}"
+							 th:href="@{/repositories/{owner}/{repo}(owner=${repo.ownerSlug()}, repo=${repo.repoName()})}">
+						<span>[[${repo.namespace()}]]/[[${repo.repoName()}]]</span>
+	<!--					<span>[[${repo.repoName()}]]</span>-->
+						<span class="chip" th:text="${repo.repository().visibility()}">PRIVATE</span>
+					</a>
+				</div>
+				<div class="empty" th:if="${#lists.isEmpty(dashboard.repositories())}">
+					<p>No repositories to display.</p>
+				</div>
 			</div>
 		</section>
 
-		<div class="dashboard-feed">
+		<div class="dashboard-feed is-disabled">
 			<h2 class="dashboard-title">Feed</h2>
 			<div id="feed" th:replace="fragments/feed :: list"></div>
 		</div>

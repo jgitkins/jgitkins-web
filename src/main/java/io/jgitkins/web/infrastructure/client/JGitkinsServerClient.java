@@ -12,6 +12,9 @@ import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.dto.RepositoryOverviewResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
+import io.jgitkins.web.application.dto.UserCredentialSummary;
+import io.jgitkins.web.application.dto.UserCredentialIssueRequest;
+import io.jgitkins.web.application.dto.UserCredentialIssueResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -49,6 +52,12 @@ public class JGitkinsServerClient {
 			new ParameterizedTypeReference<>() {
 			};
 	private static final ParameterizedTypeReference<ApiResponse<RepositorySummary>> REPOSITORY_CREATE_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
+	private static final ParameterizedTypeReference<ApiResponse<List<UserCredentialSummary>>> PAT_LIST_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
+	private static final ParameterizedTypeReference<ApiResponse<UserCredentialIssueResult>> PAT_ISSUE_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
 
@@ -199,6 +208,44 @@ public class JGitkinsServerClient {
 			return new RepositoryCreateResult(response.data(), null);
 		} catch (RestClientException ex) {
 			return new RepositoryCreateResult(null, "API 서버에 연결할 수 없습니다.");
+		}
+	}
+
+	public List<UserCredentialSummary> fetchPersonalAccessTokens() {
+		try {
+			ApiResponse<List<UserCredentialSummary>> response = restClient.get()
+					.uri("/api/auth/pats")
+					.retrieve()
+					.body(PAT_LIST_TYPE);
+			if (response == null || response.error() != null || response.data() == null) {
+				return List.of();
+			}
+			return response.data();
+		} catch (RestClientException ex) {
+			return List.of();
+		}
+	}
+
+	public UserCredentialIssueResult issuePersonalAccessToken(UserCredentialIssueRequest request) {
+		ApiResponse<UserCredentialIssueResult> response = restClient.post()
+				.uri("/api/auth/pats")
+				.body(request)
+				.retrieve()
+				.body(PAT_ISSUE_TYPE);
+		if (response == null || response.error() != null || response.data() == null) {
+			throw new RestClientException("Personal access token issue failed");
+		}
+		return response.data();
+	}
+
+	public void revokePersonalAccessToken(Long credentialId) {
+		try {
+			restClient.delete()
+					.uri("/api/auth/pats/{credentialId}", credentialId)
+					.retrieve()
+					.body(Void.class);
+		} catch (RestClientException ex) {
+			throw new RestClientException("Personal access token revoke failed");
 		}
 	}
 }

@@ -19,9 +19,9 @@
 			</a>
 		</div>
 		<div class="topbar__auth" sec:authorize="isAuthenticated()">
-			<a href="/notifications" class="topbar__icon">
-				<img class="topbar__icon-image" th:src="@{/svg/notification-svgrepo-com.svg}" alt="Notifications"/>
-			</a>
+<!--			<a href="/notifications" class="topbar__icon">-->
+<!--				<img class="topbar__icon-image" th:src="@{/svg/notification-svgrepo-com.svg}" alt="Notifications"/>-->
+<!--			</a>-->
 
 			<details class="menu">
 				<summary class="menu__summary">
@@ -41,10 +41,10 @@
 				</summary>
 				<div class="menu__panel">
 					<a href="/settings/profile" class="menu__item">Profile</a>
-					<a href="#" class="menu__item">Starred</a>
-					<a href="#" class="menu__item">Subscriptions</a>
-					<a href="/settings/profile" class="menu__item">Settings</a>
-					<a href="#" class="menu__item">Help</a>
+<!--					<a href="#" class="menu__item">Starred</a>-->
+<!--					<a href="#" class="menu__item">Subscriptions</a>-->
+					<a href="/settings" class="menu__item">Settings</a>
+<!--					<a href="#" class="menu__item">Help</a>-->
 					<form th:action="@{/logout}" method="post" class="menu__form">
 						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 						<button type="submit" class="menu__item menu__item--button">Sign out</button>
@@ -53,29 +53,7 @@
 			</details>
 		</div>
 	</div>
+	<script src="/js/app.js" defer></script>
 </header>
-<script>
-	document.addEventListener("click", (event) => {
-		const summary = event.target.closest(".menu > summary");
-		if (!summary) {
-			if (!event.target.closest(".menu")) {
-				document.querySelectorAll(".menu[open]").forEach((menu) => {
-					menu.open = false;
-				});
-			}
-			return;
-		}
-
-		event.preventDefault();
-		const current = summary.parentElement;
-		const willOpen = !current.open;
-
-		document.querySelectorAll(".menu[open]").forEach((menu) => {
-			menu.open = false;
-		});
-
-		current.open = willOpen;
-	});
-</script>
 </body>
 </html>

@@ -10,9 +10,13 @@ import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.dto.RepositoryOverviewResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
+import io.jgitkins.web.application.dto.UserCredentialIssueRequest;
+import io.jgitkins.web.application.dto.UserCredentialIssueResult;
+import io.jgitkins.web.application.dto.UserCredentialSummary;
 import io.jgitkins.web.application.port.out.AppTokenIssuePort;
 import io.jgitkins.web.application.port.out.OrganizePort;
 import io.jgitkins.web.application.port.out.RepositoryPort;
+import io.jgitkins.web.application.port.out.UserCredentialPort;
 import io.jgitkins.web.infrastructure.client.JGitkinsServerClient;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +24,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppTokenIssuePort {
+public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppTokenIssuePort, UserCredentialPort {
 
 	private final JGitkinsServerClient serverClient;
 
@@ -67,5 +71,20 @@ public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppT
 	@Override
 	public RepositoryCreateResult createRepository(RepositoryCreateRequest request) {
 		return serverClient.createRepository(request);
+	}
+
+	@Override
+	public List<UserCredentialSummary> fetchPersonalAccessTokens() {
+		return serverClient.fetchPersonalAccessTokens();
+	}
+
+	@Override
+	public UserCredentialIssueResult issuePersonalAccessToken(UserCredentialIssueRequest request) {
+		return serverClient.issuePersonalAccessToken(request);
+	}
+
+	@Override
+	public void revokePersonalAccessToken(Long credentialId) {
+		serverClient.revokePersonalAccessToken(credentialId);
 	}
 }

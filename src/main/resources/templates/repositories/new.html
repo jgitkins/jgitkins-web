@@ -15,10 +15,10 @@
 			<h1>Create a new repository</h1>
 			<p>Choose the owner, define visibility, and ship the first commit instantly.</p>
 		</div>
-		<div class="header-bar__meta">
-			<span>Default branch</span>
-			<strong th:text="${form.mainBranch}">main</strong>
-		</div>
+<!--		<div class="header-bar__meta">-->
+<!--			<span>Default branch</span>-->
+<!--			<strong th:text="${form.mainBranch}">main</strong>-->
+<!--		</div>-->
 	</header>
 
 	<div class="alert" th:if="${organizeError}" th:text="${organizeError}"></div>
@@ -104,7 +104,7 @@
 					</div>
 
 					<div class="form-actions">
-						<a class="ghost" href="/dashboard">Cancel</a>
+						<a class="ghost" href="/">Cancel</a>
 						<button class="primary" type="submit">Create repository</button>
 					</div>
 				</div>

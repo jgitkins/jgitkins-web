@@ -35,12 +35,12 @@
 		<nav class="repo-subnav">
 			<a class="repo-subnav__link is-active" href="#">Code</a>
 			<span class="repo-subnav__link is-disabled" aria-disabled="true">Issues</span>
-			<span class="repo-subnav__link is-disabled" aria-disabled="true">Pull requests</span>
-			<span class="repo-subnav__link is-disabled" aria-disabled="true">Actions</span>
-			<span class="repo-subnav__link is-disabled" aria-disabled="true">Projects</span>
-			<span class="repo-subnav__link is-disabled" aria-disabled="true">Wiki</span>
-			<span class="repo-subnav__link is-disabled" aria-disabled="true">Security</span>
-			<span class="repo-subnav__link is-disabled" aria-disabled="true">Insights</span>
+			<span class="repo-subnav__link is-disabled" aria-disabled="true">Merge requests</span>
+<!--			<span class="repo-subnav__link is-disabled" aria-disabled="true">Actions</span>-->
+<!--			<span class="repo-subnav__link is-disabled" aria-disabled="true">Projects</span>-->
+<!--			<span class="repo-subnav__link is-disabled" aria-disabled="true">Wiki</span>-->
+<!--			<span class="repo-subnav__link is-disabled" aria-disabled="true">Security</span>-->
+<!--			<span class="repo-subnav__link is-disabled" aria-disabled="true">Insights</span>-->
 			<span class="repo-subnav__link is-disabled" aria-disabled="true">Settings</span>
 		</nav>
 
@@ -51,9 +51,9 @@
 				<span class="repo-title__badge" th:text="${detail.repository.visibility}">PRIVATE</span>
 			</div>
 			<div class="repo-title__actions">
-				<button class="ghost is-disabled" type="button" disabled>Watch</button>
-				<button class="ghost is-disabled" type="button" disabled>Fork</button>
-				<button class="ghost" type="button">Star</button>
+<!--				<button class="ghost is-disabled" type="button" disabled>Watch</button>-->
+<!--				<button class="ghost is-disabled" type="button" disabled>Fork</button>-->
+				<button class="ghost is-disabled" type="button">Star</button>
 			</div>
 		</header>
 
@@ -108,7 +108,7 @@
 
 				<div class="repo-detail__tree">
 					<div class="repo-detail__tree-header">
-						<h2>Tree</h2>
+						<h2>Files</h2>
 					</div>
 					<div class="tree-list" th:if="${!#lists.isEmpty(detail.files)}">
 						<div class="tree-row tree-row--head">
@@ -183,14 +183,6 @@
 		});
 	});
 
-	document.addEventListener("click", (event) => {
-		const openMenus = document.querySelectorAll("details[open]");
-		openMenus.forEach((menu) => {
-			if (!menu.contains(event.target)) {
-				menu.open = false;
-			}
-		});
-	});
 </script>
 </body>
 </html>

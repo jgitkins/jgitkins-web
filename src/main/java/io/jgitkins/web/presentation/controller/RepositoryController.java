@@ -7,12 +7,14 @@ import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.dto.RepositoryFileEntry;
+import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.presentation.dto.RepositoryCreateForm;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 @RequiredArgsConstructor
@@ -86,9 +90,14 @@ public class RepositoryController {
 	public String repositoryDetail(@PathVariable("namespace") String namespace,
 							@PathVariable("repoName") String repoName,
 							@RequestParam(name = "branch", required = false) String branch,
+							Authentication authentication,
 							Model model) {
 		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryDetailByPath(namespace, repoName, branch);
 		detail = ensureDemoDetail(detail);
+		if (detail != null && detail.repository() != null && !isPublicRepository(detail.repository())
+				&& !isAuthenticated(authentication)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
 		model.addAttribute("detail", detail);
 		return "repositories/detail";
 	}
@@ -196,6 +205,17 @@ public class RepositoryController {
 			}
 		}
 		return new UserProfile("Personal", null);
+	}
+
+	private boolean isAuthenticated(Authentication authentication) {
+		return authentication != null
+				&& !(authentication instanceof AnonymousAuthenticationToken)
+				&& authentication.isAuthenticated();
+	}
+
+	private boolean isPublicRepository(RepositorySummary repository) {
+		return repository.visibility() != null
+				&& "PUBLIC".equalsIgnoreCase(repository.visibility());
 	}
 
 	private String resolveOwnerLabel(UserProfile profile) {

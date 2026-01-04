@@ -288,6 +288,7 @@ body {
   background: radial-gradient(circle, rgba(217, 107, 50, 0.45), transparent 70%);
 }
 
+
 .brand {
   display: flex;
   align-items: center;
@@ -1343,6 +1344,40 @@ button {
   display: grid;
   gap: 8px;
   font-size: 13px;
+  color: var(--muted);
+}
+
+.explore-list {
+  display: grid;
+  gap: 12px;
+}
+
+.explore-card {
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.explore-card:hover {
+  border-color: #e0b99f;
+  transform: translateY(-1px);
+}
+
+.explore-card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.explore-card p {
+  margin: 0;
   color: var(--muted);
 }
 

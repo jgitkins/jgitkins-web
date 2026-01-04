@@ -34,8 +34,23 @@
 				</div>
 			</div>
 			<div class="panel__body">
-				<div class="empty">
-					<p th:text="${exploreType == 'users' ? 'User search will light up once public APIs are connected.' : (exploreType == 'organizations' ? 'Organization search will light up once public APIs are connected.' : 'Explore will light up once public repo APIs are connected.')}">Explore will light up once public repo APIs are connected.</p>
+				<div th:if="${exploreType == 'repositories'}">
+					<div class="explore-list" th:if="${!#lists.isEmpty(repositories)}">
+						<a class="explore-card" th:each="repo : ${repositories}"
+						   th:href="@{/repositories/{namespace}/{repo}(namespace=${repo.namespace()}, repo=${repo.repoName()})}">
+							<div>
+								<h3><span th:text="${repo.namespace()}">owner</span>/<span th:text="${repo.repoName()}">repo</span></h3>
+								<p th:text="${repo.description() == null || repo.description().isBlank() ? 'No description provided.' : repo.description()}">Repository description</p>
+							</div>
+							<span class="chip" th:text="${repo.visibility()}">PUBLIC</span>
+						</a>
+					</div>
+					<div class="empty" th:if="${#lists.isEmpty(repositories)}">
+						<p>No public repositories available yet.</p>
+					</div>
+				</div>
+				<div class="empty" th:if="${exploreType != 'repositories'}">
+					<p th:text="${exploreType == 'users' ? 'User search will light up once public APIs are connected.' : 'Organization search will light up once public APIs are connected.'}">Explore will light up once public repo APIs are connected.</p>
 					<button class="primary" th:text="${exploreType == 'repositories' ? 'Request public repo access' : 'Request access'}">Request public repo access</button>
 				</div>
 			</div>

@@ -75,7 +75,7 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             set -e
-            export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+            export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
             echo '[DEBUG] Deploy jgitkins-web ...'
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             cd "${{ secrets.DEPLOY_PATH }}"

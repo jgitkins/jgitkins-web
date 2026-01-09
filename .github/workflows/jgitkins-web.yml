@@ -1,0 +1,80 @@
+name: jgitkins-web CI/CD
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "jgitkins-web/**"
+      - ".github/workflows/jgitkins-web.yml"
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: jgitkins-web
+  REGISTRY: ghcr.io
+  COMPOSE_FILE: docker-compose.yml
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        run: echo '[DEBUG] Checkout Repository ...'
+      - name: Checkout (git)
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        run: echo '[DEBUG] Setup Docker Buildx ...'
+      - name: Set up Docker Buildx (action)
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        run: echo '[DEBUG] Login GHCR ...'
+      - name: Log in to GHCR (action)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        run: echo '[DEBUG] Building Application ...'
+      - name: Build and push image (docker)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./jgitkins-web
+          file: ./jgitkins-web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Upload docker-compose.yml
+        run: echo '[DEBUG] Upload Manifest file(docker-compose.yml)'
+      - name: Upload docker-compose.yml (scp)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: ${{ env.COMPOSE_FILE }}
+          target: ${{ secrets.DEPLOY_PATH }}
+
+      - name: Deploy to home server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            echo '[DEBUG] Deploy jgitkins-web ...'
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+            cd "${{ secrets.DEPLOY_PATH }}"
+            docker-compose pull jgitkins-web
+            docker-compose up -d --force-recreate jgitkins-web
+            docker image prune -f

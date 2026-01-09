@@ -3,13 +3,10 @@ name: jgitkins-web CI/CD
 on:
   push:
     branches: [develop]
-    # paths:
-    #   - "jgitkins-web/**"
-    #   - ".github/workflows/jgitkins-web.yml"
-     paths:
-       - "src/**"
-       - "Dockerfile"
-       - ".github/workflows/jgitkins-web.yml"
+    paths:
+      - "src/**"
+      - "Dockerfile"
+      - ".github/workflows/jgitkins-web.yml"
 
 
 permissions:

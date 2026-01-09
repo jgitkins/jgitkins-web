@@ -6,6 +6,7 @@ on:
     paths:
       - "src/**"
       - "Dockerfile"
+      - ".gitignore"
       - ".github/workflows/jgitkins-web.yml"
 
 

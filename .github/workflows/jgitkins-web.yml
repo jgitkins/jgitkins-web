@@ -8,6 +8,7 @@ on:
       - "Dockerfile"
       - ".gitignore"
       - ".github/workflows/jgitkins-web.yml"
+      - "docker-compose-config/apps/docker-compose.yml"
 
 
 permissions:

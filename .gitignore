@@ -2,7 +2,15 @@
 .idea
 # gradle # for github actions
 build
+bin/
+.settings/
 
 src/main/resources/auth.properties
 
 out/
+
+
+
+.project
+.classpath
+.factorypath

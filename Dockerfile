@@ -1,7 +1,9 @@
 FROM eclipse-temurin:17-jdk AS build
 WORKDIR /workspace
 COPY . .
-RUN ./gradlew bootJar -x test
+# RUN ./gradlew bootJar -x test
+RUN ./gradlew bootJar -x test --stacktrace --info --no-daemon
+
 RUN cp build/libs/app.jar /workspace/app.jar
 
 FROM eclipse-temurin:17-jre

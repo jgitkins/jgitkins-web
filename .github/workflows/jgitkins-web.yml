@@ -17,7 +17,7 @@ permissions:
 env:
   IMAGE_NAME: jgitkins-web
   REGISTRY: ghcr.io
-  COMPOSE_FILE: docker-compose.yml
+  COMPOSE_FILE: docker-compose-config/apps/docker-compose.yml
 
 jobs:
   build-and-deploy:

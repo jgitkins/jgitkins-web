@@ -82,6 +82,6 @@ jobs:
             echo '[DEBUG] Deploy jgitkins-web ...'
             echo "${GITHUB_TOKEN}" | docker login "${REGISTRY}" -u "${GITHUB_ACTOR}" --password-stdin
             cd "${{ secrets.DEPLOY_PATH }}"
-            docker-compose pull jgitkins-web
-            docker-compose up -d --force-recreate jgitkins-web
+            docker-compose -f "${{ env.COMPOSE_FILE }}" pull jgitkins-web
+            docker-compose -f "${{ env.COMPOSE_FILE }}" up -d --force-recreate jgitkins-web
             docker image prune -f

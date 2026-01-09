@@ -73,11 +73,12 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
+          envs: GITHUB_ACTOR,GITHUB_TOKEN,REGISTRY
           script: |
             set -e
             export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
             echo '[DEBUG] Deploy jgitkins-web ...'
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+            echo "${GITHUB_TOKEN}" | docker login "${REGISTRY}" -u "${GITHUB_ACTOR}" --password-stdin
             cd "${{ secrets.DEPLOY_PATH }}"
             docker-compose pull jgitkins-web
             docker-compose up -d --force-recreate jgitkins-web

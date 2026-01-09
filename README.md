@@ -27,3 +27,4 @@ OAuth 리다이렉트 URI는 기본값 기준으로 `http://localhost:8081/login
 
 - `jgitkins.web.pr-url-template`: `{namespace}`, `{repo}` 치환 지원
 - `jgitkins.web.issue-url-template`: `{namespace}`, `{repo}` 치환 지원
+

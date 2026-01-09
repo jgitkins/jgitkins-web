@@ -3,9 +3,14 @@ name: jgitkins-web CI/CD
 on:
   push:
     branches: [develop]
-    paths:
-      - "jgitkins-web/**"
-      - ".github/workflows/jgitkins-web.yml"
+    # paths:
+    #   - "jgitkins-web/**"
+    #   - ".github/workflows/jgitkins-web.yml"
+     paths:
+       - "src/**"
+       - "Dockerfile"
+       - ".github/workflows/jgitkins-web.yml"
+
 
 permissions:
   contents: read
@@ -44,8 +49,8 @@ jobs:
       - name: Build and push image (docker)
         uses: docker/build-push-action@v6
         with:
-          context: ./jgitkins-web
-          file: ./jgitkins-web/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}

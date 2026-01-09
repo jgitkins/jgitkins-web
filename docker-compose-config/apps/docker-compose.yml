@@ -6,6 +6,8 @@ services:
     image: ghcr.io/jgitkins/jgitkins-web:latest
     ports:
       - "18081:8081"
+    env_file:
+      - env.properties
     environment:
       REDIS_HOST: valkey
       REDIS_PORT: "6379"

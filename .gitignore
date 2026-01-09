@@ -6,6 +6,8 @@ bin/
 .settings/
 
 src/main/resources/auth.properties
+src/main/resources/env.properties
+
 out/
 !src/main/java/io/jgitkins/web/application/port/out/
 !src/main/java/io/jgitkins/web/application/port/out/**

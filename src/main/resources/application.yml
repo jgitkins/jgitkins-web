@@ -1,6 +1,8 @@
 spring:
   config:
-    import: optional:classpath:auth.properties
+#    import: optional:classpath:auth.properties
+#    import: optional:classpath:env.properties
+    import: optional:classpath:env.properties
   session:
     store-type: redis
     redis:

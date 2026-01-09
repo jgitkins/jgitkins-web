@@ -3,10 +3,7 @@ version: "3.9"
 services:
 
   jgitkins-web:
-    build:
-      context: ../..
-      dockerfile: Dockerfile
-    image: jgitkins-web:latest
+    image: ghcr.io/jgitkins/jgitkins-web:latest
     ports:
       - "18081:8081"
     environment:

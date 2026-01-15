@@ -15,7 +15,7 @@ public class SecurityConfig {
 												   OAuth2LoginSuccessHandler successHandler) throws Exception {
 		http
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/", "/explore", "/explore/**", "/repositories/*/*", "/css/**", "/img/**", "/svg/**", "/js/**", "/login", "/error", "/error/**").permitAll()
+						.requestMatchers("/", "/explore", "/explore/**", "/repositories/*/*", "/css/**", "/img/**", "/svg/**", "/js/**", "/login", "/error", "/error/**", "/actuator/prometheus").permitAll()
 						.anyRequest().authenticated()
 				)
 				.oauth2Login(login -> login

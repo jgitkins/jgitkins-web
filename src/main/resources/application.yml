@@ -41,3 +41,11 @@ jgitkins:
   web:
     pr-url-template: ""
     issue-url-template: ""
+
+---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+      base-path: /actuator

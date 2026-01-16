@@ -1,15 +1,20 @@
-package io.jgitkins.web.infrastructure.security;
+package io.jgitkins.web.infrastructure.adapter;
 
 import io.jgitkins.web.application.common.SessionKeys;
+import io.jgitkins.web.application.port.out.AppSessionTokenPort;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+/**
+ * Stores app tokens in HttpSession; Spring Session persists the session to Redis/Valkey.
+ */
 @Component
-public class SessionTokenProvider {
+public class SpringSessionAppTokenAdapter implements AppSessionTokenPort {
 
-	public String getToken() {
+	@Override
+	public String getCurrentSessionToken() {
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		if (attributes == null) {
 			return null;
@@ -20,5 +25,13 @@ public class SessionTokenProvider {
 		}
 		Object token = request.getSession(false).getAttribute(SessionKeys.APP_TOKEN);
 		return token instanceof String ? (String) token : null;
+	}
+
+	@Override
+	public void store(HttpServletRequest request, String token) {
+		if (request == null || token == null) {
+			return;
+		}
+		request.getSession(true).setAttribute(SessionKeys.APP_TOKEN, token);
 	}
 }

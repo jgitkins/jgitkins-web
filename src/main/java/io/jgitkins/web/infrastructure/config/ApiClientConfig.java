@@ -1,6 +1,6 @@
 package io.jgitkins.web.infrastructure.config;
 
-import io.jgitkins.web.infrastructure.security.SessionTokenProvider;
+import io.jgitkins.web.application.port.out.AppSessionTokenPort;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -15,11 +15,11 @@ public class ApiClientConfig {
 	@Bean
 	public RestClient jgitkinsRestClient(JgitkinsServerProperties properties,
 										 RestClient.Builder builder,
-										 SessionTokenProvider tokenProvider) {
+										 AppSessionTokenPort tokenPort) {
 		return builder
 				.baseUrl(properties.baseUrl().toString())
 				.requestInterceptor((request, body, execution) -> {
-					String token = tokenProvider.getToken();
+					String token = tokenPort.getCurrentSessionToken();
 					if (token != null && !token.isBlank()) {
 						request.getHeaders().setBearerAuth(token);
 					}

@@ -1,6 +1,6 @@
 package io.jgitkins.web.infrastructure.config.security.handler;
 
-import io.jgitkins.web.application.common.SessionKeys;
+import io.jgitkins.web.application.port.out.AppSessionTokenPort;
 import io.jgitkins.web.application.dto.OAuthLoginRequest;
 import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
 import io.jgitkins.web.application.port.out.AppTokenIssuePort;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	private final AppTokenIssuePort appTokenIssuePort;
+	private final AppSessionTokenPort appSessionTokenPort;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request,
@@ -48,7 +49,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 				oidcUser.getPicture() != null ? oidcUser.getPicture().toString() : null
 		);
 		ServerOAuthLoginResult result = appTokenIssuePort.issueOAuthLoginToken(tokenRequest);
-		request.getSession(true).setAttribute(SessionKeys.APP_TOKEN, result.appToken());
+		appSessionTokenPort.store(request, result.appToken());
 		response.sendRedirect("/");
 	}
 }

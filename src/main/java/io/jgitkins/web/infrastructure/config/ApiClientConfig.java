@@ -27,23 +27,27 @@ public class ApiClientConfig {
 				})
 				.requestInterceptor((request, body, execution) -> {
 					long startTime = System.currentTimeMillis();
-					log.debug("HTTP Client -> Method: [{}], URI: [{}]", request.getMethod(), request.getURI());
 					ClientHttpResponse response = null;
+					String method = request.getMethod() != null ? request.getMethod().name() : "UNKNOWN";
+					String uri = request.getURI().toString();
+					log.debug("[CLIENT] [REQUEST-SENT] [METHOD {}] [URI {}]", method, uri);
 					try {
 						response = execution.execute(request, body);
 						return response;
 					} catch (IOException ex) {
-						log.debug("HTTP Client <- Error: [{}], URI: [{}]", ex.getClass().getSimpleName(), request.getURI());
+						long durationMs = System.currentTimeMillis() - startTime;
+						log.warn("[CLIENT] [RESPONSE-RECEIVED] [STATUS ERROR] [METHOD {}] [URI {}] [DURATION_MS {}] [EX {}]",
+								method, uri, durationMs, ex.getClass().getSimpleName());
 						throw ex;
 					} finally {
 						long durationMs = System.currentTimeMillis() - startTime;
 						if (response != null) {
 							try {
-								log.debug("HTTP Client <- Status: [{}], URI: [{}], DurationMs: [{}]",
-										response.getStatusCode(), request.getURI(), durationMs);
+								log.debug("[CLIENT] [RESPONSE-RECEIVED] [STATUS {}] [METHOD {}] [URI {}] [DURATION_MS {}]",
+										response.getStatusCode(), method, uri, durationMs);
 							} catch (IOException ex) {
-								log.debug("HTTP Client <- Status: [unknown], URI: [{}], DurationMs: [{}]",
-										request.getURI(), durationMs);
+								log.debug("[CLIENT] [RESPONSE-RECEIVED] [STATUS UNKNOWN] [METHOD {}] [URI {}] [DURATION_MS {}]",
+										method, uri, durationMs);
 							}
 						}
 					}

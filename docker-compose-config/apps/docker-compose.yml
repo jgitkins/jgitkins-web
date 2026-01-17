@@ -5,7 +5,7 @@ services:
   jgitkins-web:
     image: ghcr.io/jgitkins/jgitkins-web:latest
     ports:
-      - "18081:8081"
+      - "18081:8080"
     env_file:
       - env.properties
     environment:

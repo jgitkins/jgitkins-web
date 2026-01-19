@@ -1,4 +1,4 @@
-package io.jgitkins.web.presentation.controller;
+package io.jgitkins.web.presentation.support;
 
 import io.jgitkins.web.application.port.in.DashboardUseCase;
 import io.jgitkins.web.presentation.dto.DashboardView;

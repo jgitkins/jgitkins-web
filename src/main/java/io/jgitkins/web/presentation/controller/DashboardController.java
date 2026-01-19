@@ -2,12 +2,16 @@ package io.jgitkins.web.presentation.controller;
 
 import io.jgitkins.web.presentation.dto.DashboardView;
 import java.time.LocalDateTime;
+
+import io.jgitkins.web.presentation.support.DashboardViewSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/fragments")
 @RequiredArgsConstructor
 public class DashboardController {
 
@@ -19,7 +23,7 @@ public class DashboardController {
 //		return "dashboard/index";
 //	}
 
-	@GetMapping("/fragments/organizes")
+	@GetMapping("/organizes")
 	public String organizeFragment(Model model) {
 		DashboardView view = dashboardViewSupport.buildDashboardView();
 		model.addAttribute("dashboard", view);
@@ -27,7 +31,7 @@ public class DashboardController {
 		return "fragments/organizes :: list";
 	}
 
-	@GetMapping("/fragments/feed")
+	@GetMapping("/feed")
 	public String feedFragment(Model model) {
 		DashboardView view = dashboardViewSupport.buildDashboardView();
 		model.addAttribute("dashboard", view);

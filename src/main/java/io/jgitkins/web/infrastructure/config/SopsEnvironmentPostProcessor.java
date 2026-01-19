@@ -24,6 +24,7 @@ public class SopsEnvironmentPostProcessor implements EnvironmentPostProcessor, O
                 environment.getProperty("spring.profiles.active")
         ).orElse("local");
 
+        System.out.println("profile: " + profile);
         String encPath = "secrets/app." + profile + ".enc.yaml";
         File encFile = new File(encPath);
 

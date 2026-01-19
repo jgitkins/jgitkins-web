@@ -1,5 +1,5 @@
 server:
-  port: 18081
+  port: ${WAS_PORT:8081}
   forward-headers-strategy: framework
 
 ---
@@ -13,7 +13,6 @@ spring:
     redis:
       host: ${REDIS_HOST:}
       port: ${REDIS_PORT:}
-#      password: ${REDIS_PASSWORD:}
 ---
 
 # OAuth

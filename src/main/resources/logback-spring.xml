@@ -16,22 +16,10 @@
     <logger name="javax.management" level="WARN" />
     <logger name="jdk.event.security" level="INFO" />
 
-
-
-
-
-
-
-
     <!-- properties -->
     <conversionRule conversionWord="highlight" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:MM:ss} [%highlight(%level)] [%thread] %logger{36} - %msg%n"/>
     <property name="LOGS" value="${user.home}/notificator/logs" />
-
-
-
-
-
 
     <!-- profiles -->
     <SpringProfile name="local">

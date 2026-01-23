@@ -24,7 +24,7 @@
 	<div class="panel__body" th:if="${dashboard.errorMessage() == null}">
 		<div class="empty" th:if="${#lists.isEmpty(dashboard.organizes())}">
 			<p>No organizations found.</p>
-			<button class="primary">Create your first org</button>
+			<a class="primary" href="/organizes/new">Create your first org</a>
 		</div>
 		<ul class="organize-list" th:if="${!#lists.isEmpty(dashboard.organizes())}">
 			<li class="organize-card" th:each="organize : ${dashboard.organizes()}">

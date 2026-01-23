@@ -3,6 +3,8 @@ package io.jgitkins.web.infrastructure.adapter;
 import io.jgitkins.web.application.dto.BranchSummary;
 import io.jgitkins.web.application.dto.CommitSummary;
 import io.jgitkins.web.application.dto.OAuthLoginRequest;
+import io.jgitkins.web.application.dto.OrganizeCreateRequest;
+import io.jgitkins.web.application.dto.OrganizeCreateResult;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
@@ -31,6 +33,11 @@ public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppT
 	@Override
 	public OrganizeFetchResult fetchOrganizes() {
 		return serverClient.fetchOrganizes();
+	}
+
+	@Override
+	public OrganizeCreateResult createOrganize(OrganizeCreateRequest request) {
+		return serverClient.createOrganize(request);
 	}
 
 	@Override

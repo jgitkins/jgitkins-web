@@ -1,9 +1,14 @@
 package io.jgitkins.web.infrastructure.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jgitkins.web.presentation.common.ApiResponse;
+import io.jgitkins.web.presentation.common.ApiError;
 import io.jgitkins.web.application.dto.BranchSummary;
 import io.jgitkins.web.application.dto.CommitSummary;
 import io.jgitkins.web.application.dto.OAuthLoginRequest;
+import io.jgitkins.web.application.dto.OrganizeCreateRequest;
+import io.jgitkins.web.application.dto.OrganizeCreateResult;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.OrganizeSummary;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
@@ -20,6 +25,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.List;
 
@@ -28,6 +34,9 @@ import java.util.List;
 public class JGitkinsServerClient {
 
 	private static final ParameterizedTypeReference<ApiResponse<List<OrganizeSummary>>> ORGANIZE_LIST_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
+	private static final ParameterizedTypeReference<ApiResponse<OrganizeSummary>> ORGANIZE_CREATE_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
 	private static final ParameterizedTypeReference<ApiResponse<List<RepositorySummary>>> REPOSITORY_LIST_TYPE =
@@ -62,6 +71,7 @@ public class JGitkinsServerClient {
 			};
 
 	private final RestClient restClient;
+	private final ObjectMapper objectMapper;
 
 	public OrganizeFetchResult fetchOrganizes() {
 		try {
@@ -80,6 +90,51 @@ public class JGitkinsServerClient {
 		} catch (RestClientException ex) {
 			return new OrganizeFetchResult(List.of(), "API 서버에 연결할 수 없습니다.");
 		}
+	}
+
+	public OrganizeCreateResult createOrganize(OrganizeCreateRequest request) {
+		try {
+			ApiResponse<OrganizeSummary> response = restClient.post()
+					.uri("/api/organizes")
+					.body(request)
+					.retrieve()
+					.body(ORGANIZE_CREATE_TYPE);
+//			if (response == null) {
+//				return new OrganizeCreateResult(null, "API 응답이 비어 있습니다.");
+//			}
+//			if (response.error() != null) {
+//				return new OrganizeCreateResult(null, response.error().message());
+//			}
+//			if (response.data() == null) {
+//				return new OrganizeCreateResult(null, "조직 생성 응답이 비어 있습니다.");
+//			}
+			return new OrganizeCreateResult(response.data(), null);
+		} catch (RestClientResponseException ex) {
+			String message = resolveErrorMessage(ex.getResponseBodyAsString());
+			if (message != null) {
+				return new OrganizeCreateResult(null, message);
+			}
+			return new OrganizeCreateResult(null, "API 요청에 실패했습니다.");
+		} catch (RestClientException ex) {
+			return new OrganizeCreateResult(null, "API 서버에 연결할 수 없습니다.");
+		}
+	}
+
+	private String resolveErrorMessage(String responseBody) {
+		if (responseBody == null || responseBody.isBlank()) {
+			return null;
+		}
+		try {
+			ApiResponse<Object> response = objectMapper.readValue(responseBody, new TypeReference<>() {
+			});
+			ApiError error = response.error();
+			if (error != null && error.message() != null && !error.message().isBlank()) {
+				return error.message();
+			}
+		} catch (Exception ex) {
+			return null;
+		}
+		return null;
 	}
 
 	public List<RepositorySummary> fetchRepositories() {

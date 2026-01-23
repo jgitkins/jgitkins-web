@@ -1,12 +1,9 @@
-package io.jgitkins.web.application.port.out;
+package io.jgitkins.web.application.port.in;
 
 import io.jgitkins.web.application.dto.OrganizeCreateRequest;
 import io.jgitkins.web.application.dto.OrganizeCreateResult;
-import io.jgitkins.web.application.dto.OrganizeFetchResult;
 
-public interface OrganizePort {
-
-	OrganizeFetchResult fetchOrganizes();
+public interface OrganizeCreateUseCase {
 
 	OrganizeCreateResult createOrganize(OrganizeCreateRequest request);
 }

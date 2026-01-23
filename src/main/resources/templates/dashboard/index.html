@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>JGitkins Dashboard</title>
-	<link rel="icon" type="image/png" th:href="@{/img/ci.png}">
-	<link rel="stylesheet" th:href="@{/css/app.css}">
+	<link rel="icon" type="image/png" th:href="@{/assets/img/ci.png}">
+	<link rel="stylesheet" th:href="@{/assets/css/app.css}">
 	<script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 <body>
@@ -59,7 +59,7 @@
 				</div>
 				<div class="repo-widget__list" th:if="${!#lists.isEmpty(dashboard.repositories())}">
 					<a class="repo-widget__item" th:each="repo : ${dashboard.repositories()}"
-							 th:href="@{/repositories/{owner}/{repo}(owner=${repo.ownerSlug()}, repo=${repo.repoName()})}">
+							 th:href="@{/{owner}/{repo}(owner=${repo.ownerSlug()}, repo=${repo.repoName()})}">
 						<span>[[${repo.namespace()}]]/[[${repo.repoName()}]]</span>
 	<!--					<span>[[${repo.repoName()}]]</span>-->
 						<span class="chip" th:text="${repo.repository().visibility()}">PRIVATE</span>

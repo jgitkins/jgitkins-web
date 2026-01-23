@@ -21,7 +21,7 @@ import java.util.List;
 public class HttpLogFilter extends OncePerRequestFilter {
     private static final int MAX_BODY_LOG_LENGTH = 20;
     private static final List<String> SKIP_PREFIXES = List.of(
-            "/css/", "/js/", "/img/", "/svg/", "/favicon", "/webjars/"
+           "/assets/", "/css/", "/js/", "/img/", "/svg/", "/favicon", "/webjars/"
     );
 
     @Override

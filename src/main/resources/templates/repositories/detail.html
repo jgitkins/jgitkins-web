@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Repository Detail</title>
-	<link rel="icon" type="image/png" th:href="@{/img/ci.png}">
-	<link rel="stylesheet" th:href="@{/css/app.css}">
+	<link rel="icon" type="image/png" th:href="@{/assets/img/ci.png}">
+	<link rel="stylesheet" th:href="@{/assets/css/app.css}">
 </head>
 <body>
 <div th:replace="fragments/topbar :: topbar('repository-detail')"></div>
@@ -74,7 +74,7 @@
 						<input class="search-input repo-detail__search-input" type="text" placeholder="Find a file" />
 						<details class="menu repo-detail__menu">
 							<summary class="menu__summary repo-detail__icon-button">
-								<img class="topbar__icon-image" th:src="@{/svg/new-window-svgrepo-com.svg}" alt="Add"/>
+								<img class="topbar__icon-image" th:src="@{/assets/svg/new-window-svgrepo-com.svg}" alt="Add"/>
 								<span class="repo-detail__caret" aria-hidden="true">▾</span>
 							</summary>
 							<div class="menu__panel">
@@ -84,7 +84,7 @@
 						</details>
 						<details class="menu repo-detail__menu">
 							<summary class="menu__summary repo-detail__icon-button">
-								<img class="topbar__icon-image" th:src="@{/svg/code-snippet-02-svgrepo-com.svg}" alt="Code"/>
+								<img class="topbar__icon-image" th:src="@{/assets/svg/code-snippet-02-svgrepo-com.svg}" alt="Code"/>
 								<span class="repo-detail__caret" aria-hidden="true">▾</span>
 							</summary>
 							<div class="menu__panel repo-detail__code-panel">

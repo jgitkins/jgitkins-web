@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -15,7 +16,8 @@ public class SecurityConfig {
 												   OAuth2LoginSuccessHandler successHandler) throws Exception {
 		http
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/", "/explore", "/explore/**", "/repositories/*/*", "/css/**", "/img/**", "/svg/**", "/js/**", "/login", "/error", "/error/**", "/actuator/prometheus").permitAll()
+						.requestMatchers("/", "/explore", "/explore/**", "/assets/**", "/login", "/error", "/error/**", "/actuator/prometheus").permitAll()
+						.requestMatchers(new RegexRequestMatcher("^/(?!assets|css|js|img|svg|favicon\\.ico|webjars|settings|notifications|explore|fragments|repositories|oauth2|login|error|actuator)([^/]+)/([^/]+)$", null)).permitAll()
 						.anyRequest().authenticated()
 				)
 				.oauth2Login(login -> login

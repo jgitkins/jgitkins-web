@@ -2,11 +2,9 @@ package io.jgitkins.web.presentation.controller;
 
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.OrganizeSummary;
-import io.jgitkins.web.application.dto.BranchSummary;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
-import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
@@ -36,7 +34,7 @@ public class RepositoryController {
 	private final RepositoryCreateUseCase repositoryCreateUseCase;
 	private final RepositoryDetailUseCase repositoryDetailUseCase;
 
-	@GetMapping("/new")
+	@GetMapping("/repositories/new")
 	public String newRepository(Authentication authentication, Model model) {
 		RepositoryCreateForm form = new RepositoryCreateForm();
 		UserProfile profile = resolveUserProfile(authentication);
@@ -87,11 +85,11 @@ public class RepositoryController {
 	}
 
 	@GetMapping("/{namespace}/{repoName}")
-	public String repositoryDetail(@PathVariable("namespace") String namespace,
-							@PathVariable("repoName") String repoName,
-							@RequestParam(name = "branch", required = false) String branch,
-							Authentication authentication,
-							Model model) {
+	public String repositoryDetailPage(@PathVariable("namespace") String namespace,
+									   @PathVariable("repoName") String repoName,
+									   @RequestParam(name = "branch", required = false) String branch,
+									   Authentication authentication,
+									   Model model) {
 		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryDetailByPath(namespace, repoName, branch);
 //		detail = ensureDemoDetail(detail);
 		if (detail != null && detail.repository() != null && !isPublicRepository(detail.repository())

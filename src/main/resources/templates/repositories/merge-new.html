@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Create Merge Request</title>
-	<link rel="icon" type="image/png" th:href="@{/img/ci.png}">
-	<link rel="stylesheet" th:href="@{/css/app.css}">
+	<link rel="icon" type="image/png" th:href="@{/assets/img/ci.png}">
+	<link rel="stylesheet" th:href="@{/assets/css/app.css}">
 </head>
 <body>
 <div th:replace="fragments/topbar :: topbar('repository-merge')"></div>
@@ -20,7 +20,7 @@
 	<div class="panel">
 		<div class="empty">
 			<p>Merge request creation is coming next. We can wire the form here once the server MR API is ready.</p>
-			<a class="primary" th:href="@{/repositories/{owner}/{repo}(owner=${detail.ownerSlug}, repo=${detail.repoName})}">Back to repository</a>
+			<a class="primary" th:href="@{/{owner}/{repo}(owner=${detail.ownerSlug}, repo=${detail.repoName})}">Back to repository</a>
 		</div>
 	</div>
 </div>

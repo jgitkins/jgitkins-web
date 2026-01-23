@@ -4,7 +4,7 @@
 <header class="topbar" th:fragment="topbar(active)">
 	<div class="topbar__left">
 		<a class="topbar__brand" href="/">
-			<img class="brand__logo" th:src="@{/img/ci.png}" alt="JGitkins logo"/>
+			<img class="brand__logo" th:src="@{/assets/img/ci.png}" alt="JGitkins logo"/>
 		</a>
 		<a href="/explore/repositories" class="topbar__tab">
 			<label>Explore</label>
@@ -20,12 +20,12 @@
 		</div>
 		<div class="topbar__auth" sec:authorize="isAuthenticated()">
 <!--			<a href="/notifications" class="topbar__icon">-->
-<!--				<img class="topbar__icon-image" th:src="@{/svg/notification-svgrepo-com.svg}" alt="Notifications"/>-->
+<!--				<img class="topbar__icon-image" th:src="@{/assets/svg/notification-svgrepo-com.svg}" alt="Notifications"/>-->
 <!--			</a>-->
 
 			<details class="menu">
 				<summary class="menu__summary">
-					<img class="topbar__icon-image" th:src="@{/svg/new-window-svgrepo-com.svg}" alt="Create"/>
+					<img class="topbar__icon-image" th:src="@{/assets/svg/new-window-svgrepo-com.svg}" alt="Create"/>
 					<span class="menu__caret" aria-hidden="true">▾</span>
 				</summary>
 				<div class="menu__panel">
@@ -36,7 +36,7 @@
 
 			<details class="menu">
 				<summary class="menu__summary">
-					<img class="topbar__icon-image" th:src="@{/svg/profile-round-1342-svgrepo-com.svg}" alt="Profile"/>
+					<img class="topbar__icon-image" th:src="@{/assets/svg/profile-round-1342-svgrepo-com.svg}" alt="Profile"/>
 					<span class="menu__caret" aria-hidden="true">▾</span>
 				</summary>
 				<div class="menu__panel">
@@ -53,7 +53,7 @@
 			</details>
 		</div>
 	</div>
-	<script src="/js/app.js" defer></script>
+	<script src="/assets/js/app.js" defer></script>
 </header>
 </body>
 </html>

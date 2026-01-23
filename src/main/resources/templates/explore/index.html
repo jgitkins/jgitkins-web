@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>JGitkins Explore</title>
-	<link rel="icon" type="image/png" th:href="@{/img/ci.png}">
-	<link rel="stylesheet" th:href="@{/css/app.css}">
+	<link rel="icon" type="image/png" th:href="@{/assets/img/ci.png}">
+	<link rel="stylesheet" th:href="@{/assets/css/app.css}">
 </head>
 <body>
 <div th:replace="fragments/topbar :: topbar('explore')"></div>
@@ -37,7 +37,7 @@
 				<div th:if="${exploreType == 'repositories'}">
 					<div class="explore-list" th:if="${!#lists.isEmpty(repositories)}">
 						<a class="explore-card" th:each="repo : ${repositories}"
-						   th:href="@{/repositories/{namespace}/{repo}(namespace=${repo.namespace()}, repo=${repo.repoName()})}">
+						   th:href="@{/{namespace}/{repo}(namespace=${repo.namespace()}, repo=${repo.repoName()})}">
 							<div>
 								<h3><span th:text="${repo.namespace()}">owner</span>/<span th:text="${repo.repoName()}">repo</span></h3>
 								<p th:text="${repo.description() == null || repo.description().isBlank() ? 'No description provided.' : repo.description()}">Repository description</p>

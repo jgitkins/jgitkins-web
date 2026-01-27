@@ -20,16 +20,14 @@
 		</div>
 	</header>
 
-	<div class="subnav-wrap is-centered" th:if="${detail.errorMessage() == null}">
-		<nav class="subnav">
-			<a class="subnav__link"
-				 th:classappend="${activeTab == 'repositories'} ? ' is-active' : ''"
-				 th:href="@{/{namespace}/-/repositories(namespace=${detail.name()})}">Repositories</a>
-			<a class="subnav__link"
-				 th:classappend="${activeTab == 'stars'} ? ' is-active' : ''"
-				 th:href="@{/{namespace}/-/stars(namespace=${detail.name()})}">Stars</a>
-		</nav>
-	</div>
+	<nav class="repo-subnav" th:if="${detail.errorMessage() == null}">
+		<a class="repo-subnav__link"
+			 th:classappend="${activeTab == 'repositories'} ? ' is-active' : ''"
+			 th:href="@{/{namespace}/-/repositories(namespace=${detail.name()})}">Repositories</a>
+		<a class="repo-subnav__link"
+			 th:classappend="${activeTab == 'stars'} ? ' is-active' : ''"
+			 th:href="@{/{namespace}/-/stars(namespace=${detail.name()})}">Stars</a>
+	</nav>
 
 	<div class="alert" th:if="${detail.errorMessage()}" th:text="${detail.errorMessage()}"></div>
 

@@ -56,7 +56,6 @@
 							Organizations <span class="chip" th:text="${#lists.size(dashboard.organizes())}">0</span>
 						</button>
 					</div>
-					<button class="ghost" type="button">Filter</button>
 				</div>
 				<div class="repo-widget__search">
 					<input class="search-input" type="text" placeholder="Search repositories..."/>
@@ -65,7 +64,6 @@
 					<a class="repo-widget__item" th:each="repo : ${dashboard.repositories()}"
 							 th:href="@{/{owner}/{repo}(owner=${repo.ownerSlug()}, repo=${repo.repoName()})}">
 						<span>[[${repo.namespace()}]]/[[${repo.repoName()}]]</span>
-	<!--					<span>[[${repo.repoName()}]]</span>-->
 						<span class="chip" th:text="${repo.repository().visibility()}">PRIVATE</span>
 					</a>
 				</div>

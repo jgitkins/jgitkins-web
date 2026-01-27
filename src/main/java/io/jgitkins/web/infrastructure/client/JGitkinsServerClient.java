@@ -18,6 +18,7 @@ import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.dto.RepositoryOverviewResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
+import io.jgitkins.web.application.dto.UserSummary;
 import io.jgitkins.web.application.dto.UserCredentialSummary;
 import io.jgitkins.web.application.dto.UserCredentialIssueRequest;
 import io.jgitkins.web.application.dto.UserCredentialIssueResult;
@@ -71,6 +72,9 @@ public class JGitkinsServerClient {
 			new ParameterizedTypeReference<>() {
 			};
 	private static final ParameterizedTypeReference<ApiResponse<UserCredentialIssueResult>> PAT_ISSUE_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
+	private static final ParameterizedTypeReference<ApiResponse<List<UserSummary>>> USER_LIST_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
 
@@ -291,6 +295,21 @@ public class JGitkinsServerClient {
 					.uri("/api/auth/pats")
 					.retrieve()
 					.body(PAT_LIST_TYPE);
+			if (response == null || response.error() != null || response.data() == null) {
+				return List.of();
+			}
+			return response.data();
+		} catch (RestClientException ex) {
+			return List.of();
+		}
+	}
+
+	public List<UserSummary> fetchUsers() {
+		try {
+			ApiResponse<List<UserSummary>> response = restClient.get()
+					.uri("/api/users")
+					.retrieve()
+					.body(USER_LIST_TYPE);
 			if (response == null || response.error() != null || response.data() == null) {
 				return List.of();
 			}

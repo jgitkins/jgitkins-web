@@ -1,9 +1,11 @@
 package io.jgitkins.web.presentation.controller;
 
-import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.dto.OrganizeSummary;
+import io.jgitkins.web.application.dto.RepositorySummary;
+import io.jgitkins.web.application.dto.UserSummary;
 import io.jgitkins.web.application.port.out.OrganizePort;
 import io.jgitkins.web.application.port.out.RepositoryPort;
+import io.jgitkins.web.application.port.out.UserPort;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,6 +22,7 @@ public class ExploreController {
 
 	private final RepositoryPort repositoryPort;
 	private final OrganizePort organizePort;
+	private final UserPort userPort;
 
 	@GetMapping({"/explore", "/explore/{type}"})
 	public String explore(@PathVariable(value = "type", required = false) String type, Model model) {
@@ -27,6 +30,15 @@ public class ExploreController {
 		model.addAttribute("exploreType", resolved);
 		if ("repositories".equals(resolved)) {
 			model.addAttribute("repositories", loadPublicRepositories());
+			return "explore/index";
+		}
+		if ("organizations".equals(resolved)) {
+			model.addAttribute("organizations", organizePort.fetchOrganizes().organizes());
+			return "explore/index";
+		}
+		if ("users".equals(resolved)) {
+			model.addAttribute("users", userPort.fetchUsers());
+			return "explore/index";
 		}
 		return "explore/index";
 	}
@@ -66,7 +78,7 @@ public class ExploreController {
 		String repoName = key == null ? summary.name() : key.repoName();
 		String description = summary.description();
 		String visibility = summary.visibility() == null ? "" : summary.visibility().toUpperCase(Locale.ROOT);
-		return new ExploreRepositoryView(namespace, repoName, description, visibility);
+		return new ExploreRepositoryView(namespace, repoName, description, visibility, summary.createdAt());
 	}
 
 	private String resolveNamespace(RepositorySummary summary,
@@ -134,7 +146,8 @@ public class ExploreController {
 			String namespace,
 			String repoName,
 			String description,
-			String visibility
+			String visibility,
+			java.time.LocalDateTime createdAt
 	) {
 	}
 }

@@ -253,6 +253,12 @@ body {
   background: var(--surface-2);
 }
 
+.subnav__link.is-disabled {
+  color: var(--muted);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .auth-body {
   background: radial-gradient(circle at top, #f8efe3, #ede3d8 60%);
 }
@@ -868,15 +874,21 @@ body {
 .repo-table th,
 .repo-table td {
   text-align: left;
-  padding: 12px 10px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--stroke);
+}
+
+.repo-table th:last-child,
+.repo-table td:last-child {
+  text-align: right;
 }
 
 .repo-table th {
   color: var(--muted);
   font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.02em;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .repo-table__link {

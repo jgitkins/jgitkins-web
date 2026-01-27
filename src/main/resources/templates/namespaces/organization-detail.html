@@ -22,12 +22,10 @@
 		</div>
 	</header>
 
-	<div class="subnav-wrap" th:if="${detail.errorMessage() == null}">
-		<nav class="subnav">
-			<a class="subnav__link is-active" href="#repositories">Repositories</a>
-			<a class="subnav__link" href="#members">Package</a>
-		</nav>
-	</div>
+	<nav class="repo-subnav" th:if="${detail.errorMessage() == null}">
+		<a class="repo-subnav__link is-active" href="#repositories">Repositories</a>
+		<span class="repo-subnav__link is-disabled" aria-disabled="true">Package</span>
+	</nav>
 
 	<div class="alert" th:if="${detail.errorMessage()}" th:text="${detail.errorMessage()}"></div>
 

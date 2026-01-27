@@ -17,6 +17,8 @@ public class SecurityConfig {
 		http
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers("/", "/explore", "/explore/**", "/assets/**", "/login", "/error", "/error/**", "/actuator/prometheus").permitAll()
+						.requestMatchers(new RegexRequestMatcher("^/(?!assets|css|js|img|svg|favicon\\.ico|webjars|settings|notifications|explore|fragments|repositories|oauth2|login|error|actuator)([^/]+)$", null)).permitAll()
+						.requestMatchers(new RegexRequestMatcher("^/(?!assets|css|js|img|svg|favicon\\.ico|webjars|settings|notifications|explore|fragments|repositories|oauth2|login|error|actuator)([^/]+)/-/.*$", null)).permitAll()
 						.requestMatchers(new RegexRequestMatcher("^/(?!assets|css|js|img|svg|favicon\\.ico|webjars|settings|notifications|explore|fragments|repositories|oauth2|login|error|actuator)([^/]+)/([^/]+)$", null)).permitAll()
 						.anyRequest().authenticated()
 				)

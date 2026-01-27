@@ -35,16 +35,26 @@
 			</div>
 			<div class="panel__body">
 				<div th:if="${exploreType == 'repositories'}">
-					<div class="explore-list" th:if="${!#lists.isEmpty(repositories)}">
-						<a class="explore-card" th:each="repo : ${repositories}"
-						   th:href="@{/{namespace}/{repo}(namespace=${repo.namespace()}, repo=${repo.repoName()})}">
-							<div>
-								<h3><span th:text="${repo.namespace()}">owner</span>/<span th:text="${repo.repoName()}">repo</span></h3>
-								<p th:text="${repo.description() == null || repo.description().isBlank() ? 'No description provided.' : repo.description()}">Repository description</p>
-							</div>
-							<span class="chip" th:text="${repo.visibility()}">PUBLIC</span>
-						</a>
-					</div>
+					<table class="repo-table" th:if="${!#lists.isEmpty(repositories)}">
+						<thead>
+							<tr>
+								<th>Repository</th>
+								<th>Visibility</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="repo : ${repositories}">
+								<td>
+									<a class="repo-table__link" th:href="@{/{namespace}/{repo}(namespace=${repo.namespace()}, repo=${repo.repoName()})}">
+										<span th:text="${repo.namespace()}">owner</span>/<span th:text="${repo.repoName()}">repo</span>
+									</a>
+								</td>
+								<td>
+									<span class="chip" th:text="${repo.visibility()}">PUBLIC</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 					<div class="empty" th:if="${#lists.isEmpty(repositories)}">
 						<p>No public repositories available yet.</p>
 					</div>

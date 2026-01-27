@@ -183,6 +183,25 @@ body {
   color: var(--muted);
 }
 
+.namespace-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.namespace-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #e7d2bf;
+  color: #6a3a18;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
 .header-bar__meta {
   display: grid;
   gap: 10px;
@@ -204,6 +223,10 @@ body {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+}
+
+.subnav-wrap.is-centered {
+  justify-content: center;
 }
 
 .subnav {
@@ -538,10 +561,24 @@ body {
   display: inline-flex;
   gap: 6px;
   align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
 }
 
 .repo-widget__tab.is-active {
   color: var(--ink);
+  background: #fffaf4;
+  box-shadow: inset 0 0 0 1px var(--stroke);
+}
+
+.is-hidden {
+  display: none !important;
 }
 
 .repo-widget__search {
@@ -753,6 +790,151 @@ body {
   gap: 8px;
   font-size: 13px;
   color: var(--muted);
+}
+
+.member-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.member-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: #faf6f1;
+}
+
+.member-card h3 {
+  margin: 0 0 4px;
+}
+
+.member-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.repo-rows {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.repo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: #faf6f1;
+}
+
+.repo-row__link {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+}
+
+.repo-row__link:hover,
+.repo-row__link:visited,
+.repo-row__link:active {
+  text-decoration: none;
+  color: inherit;
+}
+
+.repo-row__meta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.repo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.repo-table th,
+.repo-table td {
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.repo-table th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.repo-table__link {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+}
+
+.repo-table__link:hover,
+.repo-table__link:visited,
+.repo-table__link:active {
+  text-decoration: none;
+  color: inherit;
+}
+
+.user-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 8fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.user-profile {
+  grid-column: 1;
+}
+
+.user-repos {
+  grid-column: 2;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-card__avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: #efe0d2;
+  color: #6a3a18;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.profile-card__name {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.profile-card__meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .alert {
@@ -1017,6 +1199,28 @@ button {
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 24px;
   align-items: start;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.namespace-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.namespace-main {
+  grid-column: 1;
+}
+
+.namespace-aside {
+  grid-column: 2;
 }
 
 .create-panel {
@@ -1992,6 +2196,18 @@ button.primary:disabled {
   }
 
   .create-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .namespace-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .user-layout {
     grid-template-columns: 1fr;
   }
 

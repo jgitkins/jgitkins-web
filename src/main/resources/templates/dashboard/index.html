@@ -49,15 +49,19 @@
 			<div class="panel repo-widget">
 				<div class="repo-widget__header">
 					<div class="repo-widget__tabs">
-						<span class="repo-widget__tab is-active">Repositories <span class="chip" th:text="${#lists.size(dashboard.repositories())}">0</span></span>
-	<!--					<span class="repo-widget__tab">Organizations <span class="chip" th:text="${#lists.size(dashboard.organizes())}">0</span></span>-->
+						<button class="repo-widget__tab is-active" type="button" data-target="repo-list">
+							Repositories <span class="chip" th:text="${#lists.size(dashboard.repositories())}">0</span>
+						</button>
+						<button class="repo-widget__tab" type="button" data-target="org-list">
+							Organizations <span class="chip" th:text="${#lists.size(dashboard.organizes())}">0</span>
+						</button>
 					</div>
 					<button class="ghost" type="button">Filter</button>
 				</div>
 				<div class="repo-widget__search">
 					<input class="search-input" type="text" placeholder="Search repositories..."/>
 				</div>
-				<div class="repo-widget__list" th:if="${!#lists.isEmpty(dashboard.repositories())}">
+				<div class="repo-widget__list" id="repo-list" th:if="${!#lists.isEmpty(dashboard.repositories())}">
 					<a class="repo-widget__item" th:each="repo : ${dashboard.repositories()}"
 							 th:href="@{/{owner}/{repo}(owner=${repo.ownerSlug()}, repo=${repo.repoName()})}">
 						<span>[[${repo.namespace()}]]/[[${repo.repoName()}]]</span>
@@ -65,8 +69,18 @@
 						<span class="chip" th:text="${repo.repository().visibility()}">PRIVATE</span>
 					</a>
 				</div>
-				<div class="empty" th:if="${#lists.isEmpty(dashboard.repositories())}">
+				<div class="empty" id="repo-empty" th:if="${#lists.isEmpty(dashboard.repositories())}">
 					<p>No repositories to display.</p>
+				</div>
+				<div class="repo-widget__list is-hidden" id="org-list" th:if="${!#lists.isEmpty(dashboard.organizes())}">
+					<a class="repo-widget__item" th:each="organize : ${dashboard.organizes()}"
+							 th:href="@{/{organizeName}(organizeName=${organize.name()})}">
+						<span th:text="${organize.name()}">Organization</span>
+						<span class="chip">ORG</span>
+					</a>
+				</div>
+				<div class="empty is-hidden" id="org-empty" th:if="${#lists.isEmpty(dashboard.organizes())}">
+					<p>No organizations to display.</p>
 				</div>
 			</div>
 		</section>
@@ -77,5 +91,30 @@
 		</div>
 	</div>
 </div>
+<script>
+	const tabs = document.querySelectorAll(".repo-widget__tab");
+	const repoList = document.getElementById("repo-list");
+	const repoEmpty = document.getElementById("repo-empty");
+	const orgList = document.getElementById("org-list");
+	const orgEmpty = document.getElementById("org-empty");
+
+	const setActive = (target) => {
+		tabs.forEach((tab) => tab.classList.remove("is-active"));
+		tabs.forEach((tab) => {
+			if (tab.dataset.target === target) {
+				tab.classList.add("is-active");
+			}
+		});
+		const showRepo = target === "repo-list";
+		if (repoList) repoList.classList.toggle("is-hidden", !showRepo);
+		if (repoEmpty) repoEmpty.classList.toggle("is-hidden", !showRepo);
+		if (orgList) orgList.classList.toggle("is-hidden", showRepo);
+		if (orgEmpty) orgEmpty.classList.toggle("is-hidden", showRepo);
+	};
+
+	tabs.forEach((tab) => {
+		tab.addEventListener("click", () => setActive(tab.dataset.target));
+	});
+</script>
 </body>
 </html>

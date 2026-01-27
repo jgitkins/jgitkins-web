@@ -10,6 +10,7 @@ import io.jgitkins.web.application.dto.OAuthLoginRequest;
 import io.jgitkins.web.application.dto.OrganizeCreateRequest;
 import io.jgitkins.web.application.dto.OrganizeCreateResult;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
+import io.jgitkins.web.application.dto.OrganizeMemberSummary;
 import io.jgitkins.web.application.dto.OrganizeSummary;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
@@ -37,6 +38,9 @@ public class JGitkinsServerClient {
 			new ParameterizedTypeReference<>() {
 			};
 	private static final ParameterizedTypeReference<ApiResponse<OrganizeSummary>> ORGANIZE_CREATE_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
+	private static final ParameterizedTypeReference<ApiResponse<List<OrganizeMemberSummary>>> ORGANIZE_MEMBER_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
 	private static final ParameterizedTypeReference<ApiResponse<List<RepositorySummary>>> REPOSITORY_LIST_TYPE =
@@ -89,6 +93,21 @@ public class JGitkinsServerClient {
 			return new OrganizeFetchResult(organizes, null);
 		} catch (RestClientException ex) {
 			return new OrganizeFetchResult(List.of(), "API 서버에 연결할 수 없습니다.");
+		}
+	}
+
+	public List<OrganizeMemberSummary> fetchOrganizeMembers(Long organizeId) {
+		try {
+			ApiResponse<List<OrganizeMemberSummary>> response = restClient.get()
+					.uri("/api/organizes/{organizeId}/members", organizeId)
+					.retrieve()
+					.body(ORGANIZE_MEMBER_TYPE);
+			if (response == null || response.error() != null || response.data() == null) {
+				return List.of();
+			}
+			return response.data();
+		} catch (RestClientException ex) {
+			return List.of();
 		}
 	}
 

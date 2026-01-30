@@ -8,6 +8,8 @@ public interface RepositoryPort {
 
 	List<RepositorySummary> fetchRepositories();
 
+	List<RepositorySummary> fetchRepositoriesByUsername(String username);
+
 	RepositorySummary fetchRepository(Long repositoryId);
 
 	RepositoryOverviewResult fetchRepositoryOverview(Long repositoryId, String branch);

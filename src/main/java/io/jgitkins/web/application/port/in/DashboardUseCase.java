@@ -4,5 +4,7 @@ import io.jgitkins.web.application.dto.DashboardData;
 
 public interface DashboardUseCase {
 
-	DashboardData buildDashboard();
+	// DashboardData buildDashboard();
+
+	DashboardData buildDashboardForUser(String username);
 }

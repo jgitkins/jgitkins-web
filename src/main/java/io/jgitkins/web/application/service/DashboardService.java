@@ -3,11 +3,14 @@ package io.jgitkins.web.application.service;
 import io.jgitkins.web.application.dto.CommitSummary;
 import io.jgitkins.web.application.dto.DashboardData;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
+import io.jgitkins.web.application.dto.OrganizeSummary;
 import io.jgitkins.web.application.dto.RepositoryCommits;
 import io.jgitkins.web.application.dto.RepositorySummary;
+import io.jgitkins.web.application.model.RepositoryKey;
 import io.jgitkins.web.application.port.in.DashboardUseCase;
 import io.jgitkins.web.application.port.out.OrganizePort;
 import io.jgitkins.web.application.port.out.RepositoryPort;
+import io.jgitkins.web.infrastructure.util.PathUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,9 +26,24 @@ public class DashboardService implements DashboardUseCase {
 	private final RepositoryPort repositoryPort;
 
 	@Override
-	public DashboardData buildDashboard() {
-		OrganizeFetchResult organizeResult = organizePort.fetchOrganizes();
-		List<RepositorySummary> repositories = repositoryPort.fetchRepositories();
+	public DashboardData buildDashboardForUser(String username) {
+		List<RepositorySummary> repositories = (username == null || username.isBlank())
+				? repositoryPort.fetchRepositories()
+				: repositoryPort.fetchRepositoriesByUsername(username);
+
+		OrganizeFetchResult organizeResult = organizePort.fetchAccessibleOrganizes();
+		List<OrganizeSummary> organizes = organizeResult.organizes();
+
+		List<RepositoryCommits> items = buildRepositoryCommits(repositories);
+		return new DashboardData(
+				organizes,
+				items,
+				organizeResult.errorMessage()
+		);
+	}
+
+
+	private List<RepositoryCommits> buildRepositoryCommits(List<RepositorySummary> repositories) {
 		List<RepositoryCommits> items = new ArrayList<>();
 		for (RepositorySummary repository : repositories) {
 			RepositoryKey key = resolveRepositoryKey(repository);
@@ -43,12 +61,7 @@ public class DashboardService implements DashboardUseCase {
 					commits
 			));
 		}
-
-		return new DashboardData(
-				organizeResult.organizes(),
-				items,
-				organizeResult.errorMessage()
-		);
+		return items;
 	}
 
 	private RepositoryKey resolveRepositoryKey(RepositorySummary repository) {
@@ -57,7 +70,7 @@ public class DashboardService implements DashboardUseCase {
 		}
 		String clonePath = repository.clonePath();
 		if (StringUtils.hasText(clonePath)) {
-			String trimmed = trimSlashes(clonePath);
+			String trimmed = PathUtils.trimSlashes(clonePath);
 			if (trimmed.endsWith(".git")) {
 				trimmed = trimmed.substring(0, trimmed.length() - 4);
 			}
@@ -80,15 +93,5 @@ public class DashboardService implements DashboardUseCase {
 			return new RepositoryKey("unknown", repository.name());
 		}
 		return null;
-	}
-
-	private String trimSlashes(String value) {
-		if (!StringUtils.hasText(value)) {
-			return "";
-		}
-		return value.replaceAll("^/+", "").replaceAll("/+$", "");
-	}
-
-	private record RepositoryKey(String namespace, String repoName) {
 	}
 }

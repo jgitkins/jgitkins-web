@@ -1,22 +1,6 @@
 package io.jgitkins.web.infrastructure.adapter;
 
-import io.jgitkins.web.application.dto.BranchSummary;
-import io.jgitkins.web.application.dto.CommitSummary;
-import io.jgitkins.web.application.dto.OAuthLoginRequest;
-import io.jgitkins.web.application.dto.OrganizeCreateRequest;
-import io.jgitkins.web.application.dto.OrganizeCreateResult;
-import io.jgitkins.web.application.dto.OrganizeFetchResult;
-import io.jgitkins.web.application.dto.OrganizeMemberSummary;
-import io.jgitkins.web.application.dto.RepositoryCreateRequest;
-import io.jgitkins.web.application.dto.RepositoryCreateResult;
-import io.jgitkins.web.application.dto.RepositoryFileEntry;
-import io.jgitkins.web.application.dto.RepositoryOverviewResult;
-import io.jgitkins.web.application.dto.RepositorySummary;
-import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
-import io.jgitkins.web.application.dto.UserCredentialIssueRequest;
-import io.jgitkins.web.application.dto.UserCredentialIssueResult;
-import io.jgitkins.web.application.dto.UserCredentialSummary;
-import io.jgitkins.web.application.dto.UserSummary;
+import io.jgitkins.web.application.dto.*;
 import io.jgitkins.web.application.port.out.AppTokenIssuePort;
 import io.jgitkins.web.application.port.out.OrganizePort;
 import io.jgitkins.web.application.port.out.RepositoryPort;
@@ -39,6 +23,11 @@ public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppT
 	}
 
 	@Override
+	public OrganizeFetchResult fetchAccessibleOrganizes() {
+		return serverClient.fetchAccessibleOrganizes();
+	}
+
+	@Override
 	public OrganizeCreateResult createOrganize(OrganizeCreateRequest request) {
 		return serverClient.createOrganize(request);
 	}
@@ -51,6 +40,11 @@ public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppT
 	@Override
 	public List<RepositorySummary> fetchRepositories() {
 		return serverClient.fetchRepositories();
+	}
+
+	@Override
+	public List<RepositorySummary> fetchRepositoriesByUsername(String username) {
+		return serverClient.fetchRepositoriesByUsername(username);
 	}
 
 	@Override
@@ -106,5 +100,10 @@ public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppT
 	@Override
 	public List<UserSummary> fetchUsers() {
 		return serverClient.fetchUsers();
+	}
+
+	@Override
+	public UsernameUpdateResult updateUsername(String username) {
+		return serverClient.updateUsername(new UsernameUpdateRequest(username));
 	}
 }

@@ -89,6 +89,29 @@
 		</div>
 	</div>
 </div>
+<div class="modal" id="username-modal" th:classappend="${pendingUsername} ? ' is-open' : ''">
+	<div class="modal__backdrop"></div>
+	<div class="modal__content">
+		<div class="modal__header">
+			<h2>Choose your username</h2>
+		</div>
+		<p class="modal__note">This will be your personal namespace and repository URL.</p>
+		<div class="alert" th:if="${usernameSetupError}" th:text="${usernameSetupError}"></div>
+		<form class="repo-form" th:action="@{/onboarding/username}" method="post">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+			<div class="form-grid">
+				<div class="field">
+					<label for="username-input">Username</label>
+					<input id="username-input" class="input" type="text" placeholder="e.g. roovcloudy" name="username" required />
+					<span class="field__hint">Allowed: letters, numbers, dot, hyphen, underscore</span>
+				</div>
+				<div class="form-actions">
+					<button class="primary" type="submit">Save username</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
 <script>
 	const tabs = document.querySelectorAll(".repo-widget__tab");
 	const repoList = document.getElementById("repo-list");
@@ -113,6 +136,7 @@
 	tabs.forEach((tab) => {
 		tab.addEventListener("click", () => setActive(tab.dataset.target));
 	});
+
 </script>
 </body>
 </html>

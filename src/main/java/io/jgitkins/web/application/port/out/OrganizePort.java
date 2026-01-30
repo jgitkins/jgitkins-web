@@ -10,6 +10,8 @@ public interface OrganizePort {
 
 	OrganizeFetchResult fetchOrganizes();
 
+	OrganizeFetchResult fetchAccessibleOrganizes();
+
 	OrganizeCreateResult createOrganize(OrganizeCreateRequest request);
 
 	List<OrganizeMemberSummary> fetchOrganizeMembers(Long organizeId);

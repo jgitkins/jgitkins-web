@@ -13,8 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SessionUserSupport {
 
-	private static final TypeReference<Map<String, Object>> CLAIMS_TYPE = new TypeReference<>() {
-	};
+	private static final TypeReference<Map<String, Object>> CLAIMS_TYPE = new TypeReference<>() { };
 
 	private final AppSessionTokenPort appSessionTokenPort;
 	private final ObjectMapper objectMapper;

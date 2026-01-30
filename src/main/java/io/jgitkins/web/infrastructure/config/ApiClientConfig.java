@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 
 @Slf4j
 @Configuration
@@ -18,6 +19,7 @@ public class ApiClientConfig {
 										 AppSessionTokenPort tokenPort) {
 		return builder
 				.baseUrl(properties.baseUrl().toString())
+				.requestFactory(new JdkClientHttpRequestFactory())
 				.requestInterceptor((request, body, execution) -> {
 					String token = tokenPort.getCurrentSessionToken();
 					if (token != null && !token.isBlank()) {

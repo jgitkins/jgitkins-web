@@ -2,26 +2,9 @@ package io.jgitkins.web.infrastructure.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jgitkins.web.application.dto.*;
 import io.jgitkins.web.presentation.common.ApiResponse;
 import io.jgitkins.web.presentation.common.ApiError;
-import io.jgitkins.web.application.dto.BranchSummary;
-import io.jgitkins.web.application.dto.CommitSummary;
-import io.jgitkins.web.application.dto.OAuthLoginRequest;
-import io.jgitkins.web.application.dto.OrganizeCreateRequest;
-import io.jgitkins.web.application.dto.OrganizeCreateResult;
-import io.jgitkins.web.application.dto.OrganizeFetchResult;
-import io.jgitkins.web.application.dto.OrganizeMemberSummary;
-import io.jgitkins.web.application.dto.OrganizeSummary;
-import io.jgitkins.web.application.dto.RepositoryCreateRequest;
-import io.jgitkins.web.application.dto.RepositoryCreateResult;
-import io.jgitkins.web.application.dto.RepositoryFileEntry;
-import io.jgitkins.web.application.dto.RepositoryOverviewResult;
-import io.jgitkins.web.application.dto.RepositorySummary;
-import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
-import io.jgitkins.web.application.dto.UserSummary;
-import io.jgitkins.web.application.dto.UserCredentialSummary;
-import io.jgitkins.web.application.dto.UserCredentialIssueRequest;
-import io.jgitkins.web.application.dto.UserCredentialIssueResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -85,6 +68,25 @@ public class JGitkinsServerClient {
 		try {
 			ApiResponse<List<OrganizeSummary>> response = restClient.get()
 					.uri("/api/organizes")
+					.retrieve()
+					.body(ORGANIZE_LIST_TYPE);
+			if (response == null) {
+				return new OrganizeFetchResult(List.of(), "API 응답이 비어 있습니다.");
+			}
+			if (response.error() != null) {
+				return new OrganizeFetchResult(List.of(), response.error().message());
+			}
+			List<OrganizeSummary> organizes = response.data() == null ? List.of() : response.data();
+			return new OrganizeFetchResult(organizes, null);
+		} catch (RestClientException ex) {
+			return new OrganizeFetchResult(List.of(), "API 서버에 연결할 수 없습니다.");
+		}
+	}
+
+	public OrganizeFetchResult fetchAccessibleOrganizes() {
+		try {
+			ApiResponse<List<OrganizeSummary>> response = restClient.get()
+					.uri("/api/organizes/me")
 					.retrieve()
 					.body(ORGANIZE_LIST_TYPE);
 			if (response == null) {
@@ -164,6 +166,21 @@ public class JGitkinsServerClient {
 		try {
 			ApiResponse<List<RepositorySummary>> response = restClient.get()
 					.uri("/api/repositories")
+					.retrieve()
+					.body(REPOSITORY_LIST_TYPE);
+			if (response == null || response.error() != null || response.data() == null) {
+				return List.of();
+			}
+			return response.data();
+		} catch (RestClientException ex) {
+			return List.of();
+		}
+	}
+
+	public List<RepositorySummary> fetchRepositoriesByUsername(String username) {
+		try {
+			ApiResponse<List<RepositorySummary>> response = restClient.get()
+					.uri("/api/repositories/users/{username}", username)
 					.retrieve()
 					.body(REPOSITORY_LIST_TYPE);
 			if (response == null || response.error() != null || response.data() == null) {
@@ -316,6 +333,36 @@ public class JGitkinsServerClient {
 			return response.data();
 		} catch (RestClientException ex) {
 			return List.of();
+		}
+	}
+
+	public UsernameUpdateResult updateUsername(UsernameUpdateRequest request) {
+		try {
+			ApiResponse<Void> response = restClient.patch()
+					.uri("/api/users/me/username")
+					.body(request)
+					.retrieve()
+					.body(new ParameterizedTypeReference<ApiResponse<Void>>() {
+					});
+			 if (response == null) {
+			 	return new UsernameUpdateResult("API 응답이 비어 있습니다.");
+			 }
+			 if (response.error() != null) {
+			 	return new UsernameUpdateResult(response.error().message());
+			 }
+			 return new UsernameUpdateResult(null);
+//            String message = resolveErrorMessage(response.toString());
+//			if (message != null) {
+//				return new UsernameUpdateResult(message);
+//			}
+//			return new UsernameUpdateResult("API 서버에 연결할 수 없습니다.");
+
+		} catch (RestClientResponseException ex) {
+			String message = resolveErrorMessage(ex.getResponseBodyAsString());
+			return new UsernameUpdateResult(message);
+
+		} catch (RestClientException ex) {
+			return new UsernameUpdateResult("API 요청에 실패했습니다.");
 		}
 	}
 

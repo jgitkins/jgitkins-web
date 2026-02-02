@@ -86,7 +86,7 @@ public class JGitkinsServerClient {
 	public OrganizeFetchResult fetchAccessibleOrganizes() {
 		try {
 			ApiResponse<List<OrganizeSummary>> response = restClient.get()
-					.uri("/api/organizes/me")
+					.uri("/api/internal/organizes")
 					.retrieve()
 					.body(ORGANIZE_LIST_TYPE);
 			if (response == null) {
@@ -180,7 +180,7 @@ public class JGitkinsServerClient {
 	public List<RepositorySummary> fetchRepositoriesByUsername(String username) {
 		try {
 			ApiResponse<List<RepositorySummary>> response = restClient.get()
-					.uri("/api/repositories/users/{username}", username)
+					.uri("/api/internal/repositories/users/{username}", username)
 					.retrieve()
 					.body(REPOSITORY_LIST_TYPE);
 			if (response == null || response.error() != null || response.data() == null) {

@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Profile Settings</title>
-	<link rel="icon" type="image/png" th:href="@{/assets/img/ci.png}">
+	<link rel="icon" type="image/png" th:href="@{/assets/img/ci2.png}">
 	<link rel="stylesheet" th:href="@{/assets/css/app.css}">
 </head>
 <body>
@@ -26,11 +26,13 @@
 		<section class="panel settings-panel">
 			<h2>Profile</h2>
 			<p class="settings-muted">Update your display name and contact preferences.</p>
-			<div class="settings-form">
-				<label class="settings-field">
-					<span>Name</span>
-					<input class="input" type="text" placeholder="Your name" />
-				</label>
+			<p class="settings-alert">Profile settings are temporarily disabled.</p>
+			<div class="settings-content is-disabled">
+				<div class="settings-form">
+					<label class="settings-field">
+						<span>Name</span>
+						<input class="input" type="text" placeholder="Your name" />
+					</label>
 				<label class="settings-field">
 					<span>Email</span>
 					<input class="input" type="email" placeholder="you@example.com" />
@@ -45,6 +47,7 @@
 				</label>
 				<div class="settings-actions">
 					<button class="primary" type="button">Save changes</button>
+				</div>
 				</div>
 			</div>
 		</section>

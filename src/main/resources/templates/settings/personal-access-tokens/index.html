@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Personal Access Tokens</title>
-	<link rel="icon" type="image/png" th:href="@{/assets/img/ci.png}">
+	<link rel="icon" type="image/png" th:href="@{/assets/img/ci2.png}">
 	<link rel="stylesheet" th:href="@{/assets/css/app.css}">
 </head>
 <body>
@@ -31,16 +31,14 @@
 		</nav>
 
 		<div class="settings-content">
-			<div class="settings-row">
-				<a href="/settings/personal-access-tokens/new">
-					<img class="button-icon" th:src="@{/assets/svg/add-square-svgrepo-com.svg}" alt="" aria-hidden="true" />
-<!--					New token-->
-				</a>
-			</div>
-
 			<section class="panel settings-panel">
 				<h2>Tokens</h2>
-				<p class="settings-muted">Use tokens to authenticate API requests on your behalf.</p>
+				<p class="settings-muted">
+					<span>Use tokens to authenticate API requests on your behalf.</span>
+					<a href="/settings/personal-access-tokens/new" aria-label="Create new token">
+						<img class="button-icon" th:src="@{/assets/svg/add-square-svgrepo-com.svg}" alt="" aria-hidden="true" />
+					</a>
+				</p>
 				<div class="settings-table">
 				<div class="settings-table__row settings-table__head">
 					<span>Name</span>

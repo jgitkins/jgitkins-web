@@ -51,7 +51,7 @@ public class UsernameSetupController {
 
 	private void clearPending(HttpServletRequest request) {
 		if (request.getSession(false) != null) {
-			request.getSession(false).removeAttribute(SessionKeys.PENDING_USERNAME);
+			request.getSession(false).removeAttribute(SessionKeys.PENDING);
 		}
 	}
 

@@ -52,8 +52,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		appSessionTokenPort.store(request, result.appToken());
 		if (result.user() != null) {
 			request.getSession(true).setAttribute(io.jgitkins.web.application.common.SessionKeys.USERNAME, result.user().username());
-			if ("PENDING_USERNAME".equalsIgnoreCase(result.user().status())) {
-				request.getSession(true).setAttribute(io.jgitkins.web.application.common.SessionKeys.PENDING_USERNAME, true);
+			if ("PENDING".equalsIgnoreCase(result.user().status())) {
+				request.getSession(true).setAttribute(io.jgitkins.web.application.common.SessionKeys.PENDING, true);
 			}
 		}
 		response.sendRedirect("/");

@@ -21,7 +21,7 @@ public class SessionSupport {
 	}
 
 	public boolean isPendingUsername(HttpSession session) {
-		return session != null && Boolean.TRUE.equals(session.getAttribute(SessionKeys.PENDING_USERNAME));
+		return session != null && Boolean.TRUE.equals(session.getAttribute(SessionKeys.PENDING));
 	}
 
 	public String popUsernameSetupError(HttpSession session) {

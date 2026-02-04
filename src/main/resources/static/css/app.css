@@ -179,10 +179,15 @@ body {
   border: none;
   cursor: pointer;
   font: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
   color: inherit;
   padding: 8px 12px;
   border-radius: 10px;
   display: block;
+  appearance: none;
+  font-weight: 500;
 }
 
 .menu__item--button:hover {
@@ -1910,14 +1915,14 @@ button {
 .settings-nav {
   display: grid;
   gap: 6px;
-  background: #111111;
+  background: #333333;
   padding: 10px;
   border-radius: 6px;
 }
 
 .settings-nav__link {
   text-decoration: none;
-  color: #eaeaea;
+  color: #f0f0f0;
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid transparent;
@@ -1925,12 +1930,12 @@ button {
 }
 
 .settings-nav__link:hover {
-  background: #1f1f1f;
+  background: #424242;
   color: #ffffff;
 }
 
 .settings-nav__link.is-active {
-  background: #000000;
+  background: #2a2a2a;
   border-color: #2a2a2a;
   color: #ffffff;
   font-weight: 600;

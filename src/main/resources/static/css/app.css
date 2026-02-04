@@ -1172,17 +1172,17 @@ button {
   justify-content: center;
   gap: 10px;
   padding: 12px 18px;
-  border-radius: 999px;
+  border-radius: 6px;
   text-decoration: none;
   font-weight: 600;
-  color: #1f1f1f;
-  background: #ffffff;
-  border: 1px solid #dadce0;
+  color: #f5f5f5;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
   box-shadow: none;
 }
 
 .google-button:hover {
-  border-color: #c9ccd1;
+  border-color: #3a3a3a;
   box-shadow: none;
 }
 

@@ -156,6 +156,12 @@ body {
   font-weight: 500;
 }
 
+.menu__item.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .topbar .menu__item {
   color: var(--ink);
 }
@@ -1750,6 +1756,24 @@ button {
   border-radius: 12px;
   border: 1px solid var(--stroke);
   background: var(--surface);
+}
+
+.repo-detail__menu .topbar__icon-image {
+  filter: none;
+}
+
+.repo-detail__caret {
+  color: #000;
+}
+
+.repo-detail__menu .menu__panel {
+  color: #000;
+}
+
+.repo-detail__menu .menu__item,
+.repo-detail__menu .menu__item--button,
+.repo-detail__menu .repo-detail__code-tabs .ghost {
+  color: #000;
 }
 
 .repo-detail__code-panel {

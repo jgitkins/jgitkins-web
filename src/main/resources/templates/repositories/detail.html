@@ -90,7 +90,7 @@
 							<div class="menu__panel repo-detail__code-panel">
 								<div class="repo-detail__code-tabs">
 									<button class="ghost is-active" type="button">HTTPS</button>
-									<button class="ghost" type="button">SSH</button>
+									<button class="ghost is-disabled" type="button" disabled aria-disabled="true">SSH</button>
 								</div>
 								<div class="repo-detail__clone-row">
 									<input id="code-clone-path" class="input" type="text" readonly
@@ -98,8 +98,8 @@
 									<button class="ghost" type="button" data-copy-target="code-clone-path">Copy</button>
 								</div>
 								<div class="repo-detail__code-actions">
-									<a class="menu__item" href="#">Download ZIP</a>
-									<a class="menu__item" href="#">Download TAR.GZ</a>
+									<a class="menu__item is-disabled" href="#" aria-disabled="true" tabindex="-1">Download ZIP</a>
+									<a class="menu__item is-disabled" href="#" aria-disabled="true" tabindex="-1">Download TAR.GZ</a>
 								</div>
 							</div>
 						</details>

@@ -272,6 +272,29 @@ public class JGitkinsServerClient {
 		}
 	}
 
+	public List<RepositoryFileEntry> fetchRepositoryTree(String namespace, String repoName, String branch, String directory) {
+		if (branch == null || branch.isBlank()) {
+			return List.of();
+		}
+		try {
+			ApiResponse<List<RepositoryFileEntry>> response = restClient.get()
+					.uri(uriBuilder -> uriBuilder
+							.path("/api/repositories/{namespace}/{repo}/refs/{branch}/tree")
+							.queryParamIfPresent("dir", directory == null || directory.isBlank()
+									? java.util.Optional.empty()
+									: java.util.Optional.of(directory))
+							.build(namespace, repoName, branch))
+					.retrieve()
+					.body(FILE_LIST_TYPE);
+			if (response == null || response.error() != null || response.data() == null) {
+				return List.of();
+			}
+			return response.data();
+		} catch (RestClientException ex) {
+			return List.of();
+		}
+	}
+
 	public ServerOAuthLoginResult issueOAuthLoginToken(OAuthLoginRequest request) {
 		ApiResponse<ServerOAuthLoginResult> response = restClient.post()
 				.uri("/api/auth/oauth/login")

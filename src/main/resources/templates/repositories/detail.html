@@ -71,7 +71,7 @@
 						</div>
 					</div>
 					<div class="repo-detail__toolbar-right">
-						<input class="search-input repo-detail__search-input" type="text" placeholder="Find a file" />
+						<input class="search-input repo-detail__search-input" type="text" placeholder="Find a file" disabled aria-disabled="true" />
 						<details class="menu repo-detail__menu">
 							<summary class="menu__summary repo-detail__icon-button">
 								<img class="topbar__icon-image" th:src="@{/assets/svg/new-window-svgrepo-com.svg}" alt="Add"/>
@@ -106,7 +106,7 @@
 					</div>
 				</div>
 
-				<div class="repo-detail__tree">
+				<div class="panel repo-detail__tree">
 					<div class="repo-detail__tree-header">
 						<h2>Files</h2>
 					</div>
@@ -116,11 +116,45 @@
 							<span>Path</span>
 							<span>Type</span>
 						</div>
-						<div class="tree-row" th:each="entry : ${detail.files}">
-							<span class="tree-item__name" th:text="${entry.name}">README.md</span>
-							<span class="tree-item__path" th:text="${entry.path}">/README.md</span>
-							<span class="tree-item__meta" th:text="${entry.type}">file</span>
-						</div>
+						<th:block th:each="entry : ${detail.files}"
+								  th:with="entryPath=${entry.path != null && entry.path.startsWith('/') ? entry.path.substring(1) : entry.path}">
+							<a class="tree-row tree-row--link"
+							   th:if="${entry.type == 'tree'}"
+							   th:href="|/${namespace}/${repoName}/tree/${entryPath}?branch=${detail.selectedBranch}|">
+								<span class="tree-item__name">
+									<span class="tree-item__icon" th:if="${entry.type == 'tree'}" aria-hidden="true">
+										<svg viewBox="0 0 24 24" role="img" focusable="false">
+											<path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v1H3V6zm0 4h20v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8z"/>
+										</svg>
+									</span>
+									<span class="tree-item__icon" th:unless="${entry.type == 'tree'}" aria-hidden="true">
+										<svg viewBox="0 0 24 24" role="img" focusable="false">
+											<path d="M6 3h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm8 1.5V8h3.5L14 4.5z"/>
+										</svg>
+									</span>
+									<span class="tree-item__label" th:text="${entry.name}">src</span>
+								</span>
+								<span class="tree-item__path" th:text="${entry.path}">/src</span>
+								<span class="tree-item__meta" th:text="${entry.type}">tree</span>
+							</a>
+							<div class="tree-row tree-row--file" th:if="${entry.type != 'tree'}">
+								<span class="tree-item__name">
+									<span class="tree-item__icon" th:if="${entry.type == 'tree'}" aria-hidden="true">
+										<svg viewBox="0 0 24 24" role="img" focusable="false">
+											<path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v1H3V6zm0 4h20v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8z"/>
+										</svg>
+									</span>
+									<span class="tree-item__icon" th:unless="${entry.type == 'tree'}" aria-hidden="true">
+										<svg viewBox="0 0 24 24" role="img" focusable="false">
+											<path d="M6 3h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm8 1.5V8h3.5L14 4.5z"/>
+										</svg>
+									</span>
+									<span class="tree-item__label" th:text="${entry.name}">README.md</span>
+								</span>
+								<span class="tree-item__path" th:text="${entry.path}">/README.md</span>
+								<span class="tree-item__meta" th:text="${entry.type}">file</span>
+							</div>
+						</th:block>
 					</div>
 					<div class="empty" th:if="${#lists.isEmpty(detail.files)}">
 						<p>No files found for this branch.</p>

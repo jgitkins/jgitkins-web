@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.util.AntPathMatcher;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 @RequiredArgsConstructor
@@ -96,8 +99,49 @@ public class RepositoryController {
 				&& !isAuthenticated(authentication)) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
+		model.addAttribute("namespace", namespace);
+		model.addAttribute("repoName", repoName);
+		model.addAttribute("currentPath", "");
 		model.addAttribute("detail", detail);
 		return "repositories/detail";
+	}
+
+	@GetMapping({"/{namespace}/{repoName}/tree", "/{namespace}/{repoName}/tree/**"})
+	public String repositoryTreePage(@PathVariable("namespace") String namespace,
+									 @PathVariable("repoName") String repoName,
+									 @RequestParam(name = "branch", required = false) String branch,
+									 Authentication authentication,
+									 HttpServletRequest request,
+									 Model model) {
+		String directory = resolveTreeDirectory(request);
+		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryTreeByPath(namespace, repoName, branch, directory);
+		if (detail != null && detail.repository() != null && !isPublicRepository(detail.repository())
+				&& !isAuthenticated(authentication)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		model.addAttribute("namespace", namespace);
+		model.addAttribute("repoName", repoName);
+		model.addAttribute("currentPath", directory);
+		model.addAttribute("detail", detail);
+		return "repositories/detail";
+	}
+
+	private String resolveTreeDirectory(HttpServletRequest request) {
+		String pathWithinMapping = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+		if (!StringUtils.hasText(pathWithinMapping) || !StringUtils.hasText(bestMatchPattern)) {
+			return "";
+		}
+		AntPathMatcher matcher = new AntPathMatcher();
+		String extracted = matcher.extractPathWithinPattern(bestMatchPattern, pathWithinMapping);
+		return trimSlashes(extracted);
+	}
+
+	private String trimSlashes(String value) {
+		if (!StringUtils.hasText(value)) {
+			return "";
+		}
+		return value.replaceAll("^/+", "").replaceAll("/+$", "");
 	}
 
 //	@GetMapping("/repositories/{namespace}/{repoName}/merge/new")

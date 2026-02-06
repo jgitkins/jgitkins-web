@@ -640,6 +640,13 @@ body {
   font-size: 13px;
 }
 
+.search-input:disabled,
+.search-input[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--surface);
+}
+
 .repo-widget__list {
   display: grid;
   gap: 10px;
@@ -1875,6 +1882,11 @@ button {
   padding: 8px 0;
 }
 
+.panel.repo-detail__tree {
+  margin-top: 16px;
+  padding: 16px;
+}
+
 .repo-detail__tree-header {
   display: flex;
   align-items: center;
@@ -1899,6 +1911,14 @@ button {
   align-items: center;
   padding: 10px 4px;
   border-bottom: 1px solid var(--stroke);
+  transition: background 0.15s ease, color 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tree-row:not(.tree-row--head):hover {
+  cursor: pointer;
+  background: var(--surface-2);
 }
 
 .tree-row--head {
@@ -1920,6 +1940,22 @@ button {
 
 .tree-item__name {
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tree-item__icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  color: var(--muted);
+}
+
+.tree-item__icon svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
 
 .tree-item__path,

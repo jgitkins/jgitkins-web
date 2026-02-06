@@ -38,6 +38,35 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 		return buildDetail(overview);
 	}
 
+	@Override
+	public RepositoryDetailData loadRepositoryTreeByPath(String namespace, String repoName, String branch, String directory) {
+		RepositorySummary repository = repositoryPort.fetchRepositories().stream()
+				.filter(item -> matchesRepository(item, namespace, repoName))
+				.findFirst()
+				.orElse(null);
+		if (repository == null || repository.id() == null) {
+			return new RepositoryDetailData(null, List.of(), List.of(), null, null, null, null,
+					"Repository not found.");
+		}
+		RepositoryOverviewResult overview = repositoryPort.fetchRepositoryOverview(repository.id(), branch);
+		RepositoryDetailData baseDetail = buildDetail(overview);
+		if (baseDetail.repository() == null) {
+			return baseDetail;
+		}
+		String selectedBranch = baseDetail.selectedBranch();
+		List<RepositoryFileEntry> files = repositoryPort.fetchRepositoryTree(namespace, repoName, selectedBranch, directory);
+		return new RepositoryDetailData(
+				baseDetail.repository(),
+				baseDetail.branches(),
+				files,
+				baseDetail.namespace(),
+				baseDetail.ownerSlug(),
+				baseDetail.repoName(),
+				selectedBranch,
+				baseDetail.errorMessage()
+		);
+	}
+
 	private RepositoryDetailData buildDetail(RepositoryOverviewResult overview) {
 		if (overview == null || overview.repository() == null) {
 			return new RepositoryDetailData(null, List.of(), List.of(), null, null, null, null,

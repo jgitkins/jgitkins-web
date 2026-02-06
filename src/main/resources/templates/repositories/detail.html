@@ -116,6 +116,22 @@
 							<span>Path</span>
 							<span>Type</span>
 						</div>
+						<a class="tree-row tree-row--link tree-row--back"
+						   th:if="${currentPath != null && !currentPath.isEmpty()}"
+						   th:with="parentPath=${currentPath.contains('/') ? currentPath.substring(0, currentPath.lastIndexOf('/')) : ''},
+								   backHref=${parentPath.isEmpty() ? '/' + namespace + '/' + repoName + '?branch=' + detail.selectedBranch : '/' + namespace + '/' + repoName + '/tree/' + parentPath + '?branch=' + detail.selectedBranch}"
+						   th:href="${backHref}">
+							<span class="tree-item__name">
+								<span class="tree-item__icon" aria-hidden="true">
+									<svg viewBox="0 0 24 24" role="img" focusable="false">
+										<path d="M7 7h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2zm-2 5h6v2H5v3l-4-4 4-4v3z"/>
+									</svg>
+								</span>
+								<span class="tree-item__label">..</span>
+							</span>
+							<span class="tree-item__path" th:text="${parentPath.isEmpty() ? '/' : '/' + parentPath}">/</span>
+							<span class="tree-item__meta">parent</span>
+						</a>
 						<th:block th:each="entry : ${detail.files}"
 								  th:with="entryPath=${entry.path != null && entry.path.startsWith('/') ? entry.path.substring(1) : entry.path}">
 							<a class="tree-row tree-row--link"

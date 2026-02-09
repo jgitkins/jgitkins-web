@@ -3,9 +3,14 @@ package io.jgitkins.web.infrastructure.config.security.handler;
 import io.jgitkins.web.application.port.out.AppSessionTokenPort;
 import io.jgitkins.web.application.dto.OAuthLoginRequest;
 import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
+import io.jgitkins.web.application.dto.ServerOAuthLoginResult.ServerUserProfile;
 import io.jgitkins.web.application.port.out.AppTokenIssuePort;
+import io.jgitkins.web.application.common.SessionKeys;
+import io.jgitkins.web.application.common.UserStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +32,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	public void onAuthenticationSuccess(HttpServletRequest request,
 										HttpServletResponse response,
 										Authentication authentication) throws IOException {
+
 		if (!(authentication instanceof OAuth2AuthenticationToken oauthToken)) {
 			log.warn("Unsupported authentication type: {}", authentication.getClass().getName());
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid authentication");
@@ -48,14 +54,20 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 				oidcUser.getEmailVerified() != null && oidcUser.getEmailVerified(),
 				oidcUser.getPicture() != null ? oidcUser.getPicture().toString() : null
 		);
+        // try login (issue jwt token)
 		ServerOAuthLoginResult result = appTokenIssuePort.issueOAuthLoginToken(tokenRequest);
 		appSessionTokenPort.store(request, result.appToken());
-		if (result.user() != null) {
-			request.getSession(true).setAttribute(io.jgitkins.web.application.common.SessionKeys.USERNAME, result.user().username());
-			if ("PENDING".equalsIgnoreCase(result.user().status())) {
-				request.getSession(true).setAttribute(io.jgitkins.web.application.common.SessionKeys.PENDING, true);
-			}
-		}
+		setUserState(request, result);
 		response.sendRedirect("/");
+	}
+
+	private void setUserState(HttpServletRequest request, ServerOAuthLoginResult result) {
+		if (result.user() == null) {
+			return;
+		}
+		HttpSession session = request.getSession(true);
+		ServerUserProfile user = result.user();
+		session.setAttribute(SessionKeys.USERNAME, user.username());
+		session.setAttribute(SessionKeys.USER_STATUS, UserStatus.from(user.status()).name());
 	}
 }

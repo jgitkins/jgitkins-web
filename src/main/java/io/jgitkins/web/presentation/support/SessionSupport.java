@@ -1,6 +1,7 @@
 package io.jgitkins.web.presentation.support;
 
 import io.jgitkins.web.application.common.SessionKeys;
+import io.jgitkins.web.application.common.UserStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,11 @@ public class SessionSupport {
 	}
 
 	public boolean isPendingUsername(HttpSession session) {
-		return session != null && Boolean.TRUE.equals(session.getAttribute(SessionKeys.PENDING));
+		if (session == null) {
+			return false;
+		}
+		Object status = session.getAttribute(SessionKeys.USER_STATUS);
+		return UserStatus.isPending(status instanceof String ? (String) status : null);
 	}
 
 	public String popUsernameSetupError(HttpSession session) {

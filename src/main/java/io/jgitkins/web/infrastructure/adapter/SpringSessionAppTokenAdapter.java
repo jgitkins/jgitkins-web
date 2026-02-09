@@ -32,6 +32,9 @@ public class SpringSessionAppTokenAdapter implements AppSessionTokenPort {
 		if (request == null || token == null) {
 			return;
 		}
+
+        // Spring Session 설정에 의해 valkey에 적재됨
+        // key 는 JSESSIONID, value 는 JWT 토큰을 의미
 		request.getSession(true).setAttribute(SessionKeys.APP_TOKEN, token);
 	}
 }

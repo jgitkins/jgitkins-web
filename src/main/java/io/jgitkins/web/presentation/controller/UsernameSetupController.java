@@ -1,6 +1,7 @@
 package io.jgitkins.web.presentation.controller;
 
 import io.jgitkins.web.application.common.SessionKeys;
+import io.jgitkins.web.application.common.UserStatus;
 import io.jgitkins.web.application.dto.UsernameUpdateResult;
 import io.jgitkins.web.application.port.out.UserPort;
 import io.jgitkins.web.presentation.dto.UsernameSetupForm;
@@ -39,7 +40,7 @@ public class UsernameSetupController {
 			return "redirect:/";
 		}
 		storeUsername(request, form.getUsername());
-		clearPending(request);
+		activateUser(request);
 		return "redirect:/";
 	}
 
@@ -49,9 +50,9 @@ public class UsernameSetupController {
 		}
 	}
 
-	private void clearPending(HttpServletRequest request) {
+	private void activateUser(HttpServletRequest request) {
 		if (request.getSession(false) != null) {
-			request.getSession(false).removeAttribute(SessionKeys.PENDING);
+			request.getSession(false).setAttribute(SessionKeys.USER_STATUS, UserStatus.ACTIVE.name());
 		}
 	}
 

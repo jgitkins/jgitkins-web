@@ -49,10 +49,11 @@
             "title": "SecurityConfig 정규식 매처 단순화",
             "description": "복잡한 RegexRequestMatcher 기반 접근 제어를 명시적인 패턴/구성으로 단순화한다.",
             "details": "공개 라우트/인증 라우트를 분리 정의하고 신규 라우트 추가 시 회귀를 줄이는 구조로 바꾼다.",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-10T13:02:38.160Z"
           },
           {
             "id": 5,
@@ -181,12 +182,12 @@
             "parentId": "16"
           }
         ],
-        "updatedAt": "2026-02-10T13:01:59.399Z"
+        "updatedAt": "2026-02-10T13:02:38.160Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T13:01:59.401Z",
+      "lastModified": "2026-02-10T13:02:38.161Z",
       "taskCount": 1,
       "completedCount": 0,
       "tags": [

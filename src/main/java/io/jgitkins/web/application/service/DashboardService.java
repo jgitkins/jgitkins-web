@@ -68,26 +68,9 @@ public class DashboardService implements DashboardUseCase {
 		if (repository == null) {
 			return null;
 		}
-		String clonePath = repository.clonePath();
-		if (StringUtils.hasText(clonePath)) {
-			String trimmed = PathUtils.trimSlashes(clonePath);
-			if (trimmed.endsWith(".git")) {
-				trimmed = trimmed.substring(0, trimmed.length() - 4);
-			}
-			String[] parts = trimmed.split("/");
-			if (parts.length >= 2) {
-				String repoName = parts[parts.length - 1];
-				String namespace = String.join("/", java.util.Arrays.copyOf(parts, parts.length - 1));
-				return new RepositoryKey(namespace, repoName);
-			}
-		}
-		if (StringUtils.hasText(repository.path())) {
-			String[] parts = repository.path().split("/");
-			if (parts.length >= 2) {
-				String repoName = parts[parts.length - 1];
-				String namespace = String.join("/", java.util.Arrays.copyOf(parts, parts.length - 1));
-				return new RepositoryKey(namespace, repoName);
-			}
+		RepositoryKey key = PathUtils.resolveRepositoryKey(repository.clonePath(), repository.path());
+		if (key != null) {
+			return key;
 		}
 		if (StringUtils.hasText(repository.name())) {
 			return new RepositoryKey("unknown", repository.name());

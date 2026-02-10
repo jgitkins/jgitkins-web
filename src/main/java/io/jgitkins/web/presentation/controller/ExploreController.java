@@ -3,9 +3,11 @@ package io.jgitkins.web.presentation.controller;
 import io.jgitkins.web.application.dto.OrganizeSummary;
 import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.dto.UserSummary;
+import io.jgitkins.web.application.model.RepositoryKey;
 import io.jgitkins.web.application.port.out.OrganizePort;
 import io.jgitkins.web.application.port.out.RepositoryPort;
 import io.jgitkins.web.application.port.out.UserPort;
+import io.jgitkins.web.infrastructure.util.PathUtils;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,7 +87,7 @@ public class ExploreController {
 								   RepositoryKey key,
 								   Map<Long, String> organizeNameMap) {
 		if (key != null) {
-			String normalized = lastSegment(key.namespace());
+			String normalized = PathUtils.lastSegment(key.namespace());
 			if (!normalized.isBlank()) {
 				return normalized;
 			}
@@ -103,43 +105,10 @@ public class ExploreController {
 	}
 
 	private RepositoryKey resolveRepositoryKey(RepositorySummary repository) {
-		RepositoryKey key = parsePath(repository.clonePath());
-		if (key != null) {
-			return key;
-		}
-		return parsePath(repository.path());
-	}
-
-	private RepositoryKey parsePath(String value) {
-		if (value == null || value.isBlank()) {
+		if (repository == null) {
 			return null;
 		}
-		String trimmed = value.replaceAll("^/+", "").replaceAll("/+$", "");
-		if (trimmed.endsWith(".git")) {
-			trimmed = trimmed.substring(0, trimmed.length() - 4);
-		}
-		String[] parts = trimmed.split("/");
-		if (parts.length < 2) {
-			return null;
-		}
-		String repoName = parts[parts.length - 1];
-		String namespace = String.join("/", java.util.Arrays.copyOf(parts, parts.length - 1));
-		return new RepositoryKey(namespace, repoName);
-	}
-
-	private String lastSegment(String value) {
-		if (value == null || value.isBlank()) {
-			return "";
-		}
-		String trimmed = value.replaceAll("/+$", "");
-		int index = trimmed.lastIndexOf('/');
-		if (index < 0) {
-			return trimmed;
-		}
-		return trimmed.substring(index + 1);
-	}
-
-	private record RepositoryKey(String namespace, String repoName) {
+		return PathUtils.resolveRepositoryKey(repository.clonePath(), repository.path());
 	}
 
 	public record ExploreRepositoryView(

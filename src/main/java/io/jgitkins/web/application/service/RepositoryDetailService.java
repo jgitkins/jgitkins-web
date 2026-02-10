@@ -5,8 +5,10 @@ import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.dto.RepositoryOverviewResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
+import io.jgitkins.web.application.model.RepositoryKey;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.application.port.out.RepositoryPort;
+import io.jgitkins.web.infrastructure.util.PathUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -79,7 +81,7 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 					"Repository path is missing.");
 		}
 
-		String ownerSlug = lastSegment(key.namespace());
+		String ownerSlug = PathUtils.lastSegment(key.namespace());
 		String selectedBranch = StringUtils.hasText(overview.selectedBranch()) ? overview.selectedBranch() : "main";
 		List<BranchSummary> branches = overview.branches() == null ? List.of() : overview.branches();
 		List<RepositoryFileEntry> files = overview.tree() == null ? List.of() : overview.tree();
@@ -112,50 +114,13 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 		}
 		String normalized = namespace.trim();
 		return key.namespace().equalsIgnoreCase(normalized)
-				|| lastSegment(key.namespace()).equalsIgnoreCase(normalized);
-	}
-
-	private String lastSegment(String value) {
-		if (!StringUtils.hasText(value)) {
-			return "";
-		}
-		String trimmed = value.replaceAll("/+$", "");
-		int index = trimmed.lastIndexOf('/');
-		if (index < 0) {
-			return trimmed;
-		}
-		return trimmed.substring(index + 1);
+				|| PathUtils.lastSegment(key.namespace()).equalsIgnoreCase(normalized);
 	}
 
 	private RepositoryKey resolveRepositoryKey(RepositorySummary repository) {
-		RepositoryKey key = parsePath(repository.clonePath());
-		if (key != null) {
-			return key;
-		}
-		return parsePath(repository.path());
-	}
-
-	private RepositoryKey parsePath(String value) {
-		if (!StringUtils.hasText(value)) {
+		if (repository == null) {
 			return null;
 		}
-		String trimmed = trimSlashes(value);
-		if (trimmed.endsWith(".git")) {
-			trimmed = trimmed.substring(0, trimmed.length() - 4);
-		}
-		String[] parts = trimmed.split("/");
-		if (parts.length < 2) {
-			return null;
-		}
-		String repoName = parts[parts.length - 1];
-		String namespace = String.join("/", java.util.Arrays.copyOf(parts, parts.length - 1));
-		return new RepositoryKey(namespace, repoName);
-	}
-
-	private String trimSlashes(String value) {
-		return value.replaceAll("^/+", "").replaceAll("/+$", "");
-	}
-
-	private record RepositoryKey(String namespace, String repoName) {
+		return PathUtils.resolveRepositoryKey(repository.clonePath(), repository.path());
 	}
 }

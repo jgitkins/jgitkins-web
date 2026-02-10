@@ -5,7 +5,7 @@
         "id": "16",
         "title": "코드 리팩토링",
         "description": "기존 리팩토링 작업 전체를 하나의 에픽으로 통합 관리",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "details": "기존 Task 1~15를 모두 SubTask로 이동해 단일 상위 작업으로 관리합니다.",
@@ -16,10 +16,11 @@
             "title": "공통 경로 파싱 유틸로 중복 제거",
             "description": "Repository 경로/namespace 파싱 로직을 단일 유틸 또는 도메인 서비스로 통합한다.",
             "details": "ExploreController, RepositoryDetailService, NamespaceDetailService, DashboardService에 흩어진 parse/trim/lastSegment 로직을 공통화하고 단위 테스트를 추가한다.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-10T12:51:17.501Z"
           },
           {
             "id": 2,
@@ -177,13 +178,18 @@
             "parentTaskId": 16,
             "parentId": "16"
           }
-        ]
+        ],
+        "updatedAt": "2026-02-10T12:51:17.501Z"
       }
     ],
     "metadata": {
-      "createdAt": "2026-02-10T00:00:00Z",
-      "updatedAt": "2026-02-10T22:00:00Z",
-      "description": "Refactoring backlog for jgitkins-web"
+      "version": "1.0.0",
+      "lastModified": "2026-02-10T12:51:17.502Z",
+      "taskCount": 1,
+      "completedCount": 0,
+      "tags": [
+        "master"
+      ]
     }
   }
 }

@@ -2,7 +2,7 @@
 
 **Title:** 코드 리팩토링
 
-**Status:** pending
+**Status:** in-progress
 
 **Dependencies:** None
 
@@ -22,7 +22,7 @@
 
 ### 16.1. 공통 경로 파싱 유틸로 중복 제거
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Repository 경로/namespace 파싱 로직을 단일 유틸 또는 도메인 서비스로 통합한다.
@@ -33,7 +33,7 @@ ExploreController, RepositoryDetailService, NamespaceDetailService, DashboardSer
 
 ### 16.2. PAT 만료일 필드 전달 누락 수정
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 SettingsController의 expiration 검증 결과가 실제 요청 DTO로 전달되도록 수정한다.
@@ -44,7 +44,7 @@ PersonalAccessTokenForm.expiration을 UserCredentialIssueRequest 및 서버 API 
 
 ### 16.3. 로그 설정 정상화
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 logback 루트 레벨 OFF를 환경별 합리적 레벨로 조정하고 debug=true를 제거한다.
@@ -55,7 +55,7 @@ local은 INFO/DEBUG, 비로컬은 INFO/WARN 기반으로 조정하고 불필요�
 
 ### 16.4. SecurityConfig 정규식 매처 단순화
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 복잡한 RegexRequestMatcher 기반 접근 제어를 명시적인 패턴/구성으로 단순화한다.
@@ -66,7 +66,7 @@ local은 INFO/DEBUG, 비로컬은 INFO/WARN 기반으로 조정하고 불필요�
 
 ### 16.5. HTTP 로그 민감정보 보호
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 16.3  
 
 HttpLogFilter의 응답 바디 로깅 정책을 안전하게 개선한다.
@@ -77,7 +77,7 @@ HttpLogFilter의 응답 바디 로깅 정책을 안전하게 개선한다.
 
 ### 16.6. SOPS 환경 로더 안정성 강화
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 SopsEnvironmentPostProcessor의 프로세스 실행/예외 처리를 견고하게 만든다.
@@ -88,7 +88,7 @@ System.out 제거, 타임아웃/에러스트림 처리, 실패 메시지 표준�
 
 ### 16.7. 주석 처리된 레거시 코드 정리
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 사용하지 않는 주석 파일/코드 블록을 삭제하거나 문서화된 대체 경로로 이동한다.

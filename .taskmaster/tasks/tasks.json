@@ -84,11 +84,11 @@
             "title": "주석 처리된 레거시 코드 정리",
             "description": "사용하지 않는 주석 파일/코드 블록을 삭제하거나 문서화된 대체 경로로 이동한다.",
             "details": "HttpLogFilterOld, JgitkinsAdapter, RepositoryController 내 대형 주석 블록 정리",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 16,
             "parentId": "16",
-            "updatedAt": "2026-02-10T13:06:35.524Z"
+            "updatedAt": "2026-02-10T13:07:29.146Z"
           },
           {
             "id": 8,
@@ -185,12 +185,12 @@
             "parentId": "16"
           }
         ],
-        "updatedAt": "2026-02-10T13:06:35.524Z"
+        "updatedAt": "2026-02-10T13:07:29.146Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T13:06:35.525Z",
+      "lastModified": "2026-02-10T13:07:29.147Z",
       "taskCount": 1,
       "completedCount": 0,
       "tags": [

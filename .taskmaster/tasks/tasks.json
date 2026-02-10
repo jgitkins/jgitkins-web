@@ -49,23 +49,24 @@
             "title": "SecurityConfig 정규식 매처 단순화",
             "description": "복잡한 RegexRequestMatcher 기반 접근 제어를 명시적인 패턴/구성으로 단순화한다.",
             "details": "공개 라우트/인증 라우트를 분리 정의하고 신규 라우트 추가 시 회귀를 줄이는 구조로 바꾼다.",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 16,
             "parentId": "16",
-            "updatedAt": "2026-02-10T13:02:38.160Z"
+            "updatedAt": "2026-02-10T13:03:37.188Z"
           },
           {
             "id": 5,
             "title": "HTTP 로그 민감정보 보호",
             "description": "HttpLogFilter의 응답 바디 로깅 정책을 안전하게 개선한다.",
             "details": "마스킹 규칙, 최대 길이, 환경별 on/off, 정적 리소스 제외 정책을 재정의한다.",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [
               3
             ],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-10T13:03:55.944Z"
           },
           {
             "id": 6,
@@ -182,12 +183,12 @@
             "parentId": "16"
           }
         ],
-        "updatedAt": "2026-02-10T13:02:38.160Z"
+        "updatedAt": "2026-02-10T13:03:55.944Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T13:02:38.161Z",
+      "lastModified": "2026-02-10T13:03:55.944Z",
       "taskCount": 1,
       "completedCount": 0,
       "tags": [

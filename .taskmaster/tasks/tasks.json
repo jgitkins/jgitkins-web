@@ -27,10 +27,11 @@
             "title": "PAT 만료일 필드 전달 누락 수정",
             "description": "SettingsController의 expiration 검증 결과가 실제 요청 DTO로 전달되도록 수정한다.",
             "details": "PersonalAccessTokenForm.expiration을 UserCredentialIssueRequest 및 서버 API 계약에 맞게 반영하고, 폼-DTO-클라이언트 경로를 일치시킨다.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-10T12:58:10.330Z"
           },
           {
             "id": 3,
@@ -179,12 +180,12 @@
             "parentId": "16"
           }
         ],
-        "updatedAt": "2026-02-10T12:51:17.501Z"
+        "updatedAt": "2026-02-10T12:58:10.330Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T12:51:17.502Z",
+      "lastModified": "2026-02-10T12:58:10.331Z",
       "taskCount": 1,
       "completedCount": 0,
       "tags": [

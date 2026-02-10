@@ -54,7 +54,7 @@ public class SettingsController {
 
 		try {
 			var issued = personalAccessTokenIssueUseCase.issueToken(
-					new UserCredentialIssueRequest(form.getName(), form.getDescription())
+					new UserCredentialIssueRequest(form.getName(), form.getDescription(), form.getExpiration())
 			);
 			redirectAttributes.addFlashAttribute("issuedToken", issued.token());
 			return "redirect:/settings/personal-access-tokens";

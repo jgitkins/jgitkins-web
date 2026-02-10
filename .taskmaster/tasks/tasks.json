@@ -38,10 +38,11 @@
             "title": "로그 설정 정상화",
             "description": "logback 루트 레벨 OFF를 환경별 합리적 레벨로 조정하고 debug=true를 제거한다.",
             "details": "local은 INFO/DEBUG, 비로컬은 INFO/WARN 기반으로 조정하고 불필요한 과다 로그를 줄인다.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-10T13:01:59.399Z"
           },
           {
             "id": 4,
@@ -180,12 +181,12 @@
             "parentId": "16"
           }
         ],
-        "updatedAt": "2026-02-10T12:58:10.330Z"
+        "updatedAt": "2026-02-10T13:01:59.399Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T12:58:10.331Z",
+      "lastModified": "2026-02-10T13:01:59.401Z",
       "taskCount": 1,
       "completedCount": 0,
       "tags": [

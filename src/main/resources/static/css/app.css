@@ -1771,6 +1771,14 @@ button {
 
 .repo-detail__caret {
   color: #000;
+  display: inline-flex;
+  align-items: center;
+}
+
+.repo-detail__caret svg {
+  width: 10px;
+  height: 6px;
+  display: block;
 }
 
 .repo-detail__menu .menu__panel {

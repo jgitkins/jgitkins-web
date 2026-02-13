@@ -5,7 +5,7 @@
         "id": "16",
         "title": "코드 리팩토링",
         "description": "기존 리팩토링 작업 전체를 하나의 에픽으로 통합 관리",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "기존 Task 1~15를 모두 SubTask로 이동해 단일 상위 작업으로 관리합니다.",
@@ -113,59 +113,63 @@
             "parentTaskId": 16,
             "parentId": "16",
             "updatedAt": "2026-02-13T13:20:00Z"
-          }
+          },
           {
             "id": 10,
             "title": "Bean Validation 도입",
             "description": "폼 검증 로직을 @Valid + Constraint 어노테이션 기반으로 전환한다.",
             "details": "RepositoryCreateForm, OrganizeCreateForm, PersonalAccessTokenForm에 제약조건 추가 및 BindingResult 처리",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               8
             ],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-13T13:34:02.079Z"
           },
           {
             "id": 11,
             "title": "오류 메시지 i18n 통합",
             "description": "영/한 혼재 문자열을 메시지 소스로 통합한다.",
             "details": "messages.properties, messages_ko.properties를 도입하고 컨트롤러 하드코딩 문자열 제거",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               10
             ],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-13T13:36:32.507Z"
           },
           {
             "id": 12,
             "title": "Dashboard 커밋 조회 N+1 완화",
             "description": "리포지토리별 커밋 조회 반복 호출을 줄여 응답 성능을 개선한다.",
             "details": "배치 API 도입 또는 조회 제한/비동기 전략으로 latency를 줄인다.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               1
             ],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-13T13:37:26.338Z"
           },
           {
             "id": 13,
             "title": "세션 접근 코드 정리",
             "description": "중복 getSession(true/false) 호출과 세션 키 접근 패턴을 정리한다.",
             "details": "UsernameSetupController, OAuth2LoginSuccessHandler, SessionSupport 주변 중복 제거",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-13T13:28:27.123Z"
           },
           {
             "id": 14,
             "title": "테스트 베이스라인 구축",
             "description": "서비스/컨트롤러 핵심 경로에 최소 회귀 테스트 세트를 구축한다.",
             "details": "Repository/Settings/Organize 흐름 중심으로 단위+MVC 테스트 추가",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               1,
               2,
@@ -174,20 +178,22 @@
               10
             ],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-13T13:39:27.090Z"
           },
           {
             "id": 15,
             "title": "Gradle 의존성 스코프 정리",
             "description": "devtools 등 런타임 영향 의존성의 스코프를 재정의한다.",
             "details": "spring-boot-devtools를 developmentOnly로 이동하고 빌드 산출물 영향도를 점검",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 16,
-            "parentId": "16"
+            "parentId": "16",
+            "updatedAt": "2026-02-13T13:31:58.405Z"
           }
         ],
-        "updatedAt": "2026-02-10T13:07:29.146Z"
+        "updatedAt": "2026-02-13T13:39:27.090Z"
       },
       {
         "id": "17",
@@ -224,9 +230,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T23:30:00Z",
-      "taskCount": 1,
-      "completedCount": 0,
+      "lastModified": "2026-02-13T13:39:27.090Z",
+      "taskCount": 2,
+      "completedCount": 1,
       "tags": [
         "master"
       ]

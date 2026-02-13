@@ -22,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardService implements DashboardUseCase {
 
+	private static final int MAX_DASHBOARD_REPOSITORIES = 10;
+
 	private final OrganizePort organizePort;
 	private final RepositoryPort repositoryPort;
 
@@ -46,6 +48,9 @@ public class DashboardService implements DashboardUseCase {
 	private List<RepositoryCommits> buildRepositoryCommits(List<RepositorySummary> repositories) {
 		List<RepositoryCommits> items = new ArrayList<>();
 		for (RepositorySummary repository : repositories) {
+			if (items.size() >= MAX_DASHBOARD_REPOSITORIES) {
+				break;
+			}
 			RepositoryKey key = resolveRepositoryKey(repository);
 			if (key == null) {
 				continue;

@@ -1,5 +1,7 @@
 package io.jgitkins.web.presentation.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,6 +9,8 @@ import lombok.Setter;
 @Setter
 public class OrganizeCreateForm {
 
+	@NotBlank(message = "{validation.organize.name.required}")
+	@Pattern(regexp = "^[A-Za-z0-9_-]+$", message = "{validation.organize.name.pattern}")
 	private String name;
 	private String description;
 }

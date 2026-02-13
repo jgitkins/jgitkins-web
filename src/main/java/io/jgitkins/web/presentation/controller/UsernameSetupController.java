@@ -1,12 +1,13 @@
 package io.jgitkins.web.presentation.controller;
 
-import io.jgitkins.web.application.common.SessionKeys;
-import io.jgitkins.web.application.common.UserStatus;
 import io.jgitkins.web.application.dto.UsernameUpdateResult;
 import io.jgitkins.web.application.port.out.UserPort;
 import io.jgitkins.web.presentation.dto.UsernameSetupForm;
+import io.jgitkins.web.presentation.support.SessionSupport;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class UsernameSetupController {
 
 	private final UserPort userPort;
+	private final SessionSupport sessionSupport;
+	private final MessageSource messageSource;
 
 	@GetMapping("/onboarding/username")
 	public String usernameForm(Model model) {
@@ -31,7 +34,7 @@ public class UsernameSetupController {
 								 Model model,
 								 HttpServletRequest request) {
 		if (form == null || !StringUtils.hasText(form.getUsername())) {
-			storeError(request, "Username is required.");
+			storeError(request, getMessage("error.username.required"));
 			return "redirect:/";
 		}
 		UsernameUpdateResult result = userPort.updateUsername(form.getUsername());
@@ -45,20 +48,18 @@ public class UsernameSetupController {
 	}
 
 	private void storeError(HttpServletRequest request, String message) {
-		if (request.getSession(true) != null) {
-			request.getSession(true).setAttribute(SessionKeys.USERNAME_SETUP_ERROR, message);
-		}
+		sessionSupport.storeUsernameSetupError(request, message);
 	}
 
 	private void activateUser(HttpServletRequest request) {
-		if (request.getSession(false) != null) {
-			request.getSession(false).setAttribute(SessionKeys.USER_STATUS, UserStatus.ACTIVE.name());
-		}
+		sessionSupport.activateUser(request);
 	}
 
 	private void storeUsername(HttpServletRequest request, String username) {
-		if (request.getSession(true) != null) {
-			request.getSession(true).setAttribute(SessionKeys.USERNAME, username);
-		}
+		sessionSupport.storeUsername(request, username);
+	}
+
+	private String getMessage(String code) {
+		return messageSource.getMessage(code, null, code, LocaleContextHolder.getLocale());
 	}
 }

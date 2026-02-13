@@ -11,12 +11,16 @@ import io.jgitkins.web.presentation.support.RepositoryCreateViewSupport;
 import io.jgitkins.web.presentation.support.RepositoryTreePathSupport;
 import io.jgitkins.web.presentation.support.RepositoryUserProfile;
 import io.jgitkins.web.presentation.support.RepositoryUserProfileResolver;
+import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +38,7 @@ public class RepositoryController {
 	private final RepositoryCreateViewSupport createViewSupport;
 	private final RepositoryTreePathSupport treePathSupport;
 	private final RepositoryAccessSupport accessSupport;
+	private final MessageSource messageSource;
 
 	@GetMapping("/repositories/new")
 	public String newRepository(Authentication authentication, Model model) {
@@ -45,13 +50,17 @@ public class RepositoryController {
 	}
 
 	@PostMapping("/repositories")
-	public String createRepository(@ModelAttribute("form") RepositoryCreateForm form,
+	public String createRepository(@Valid @ModelAttribute("form") RepositoryCreateForm form,
+								 BindingResult bindingResult,
 								 Authentication authentication,
 								 Model model) {
 		RepositoryUserProfile profile = userProfileResolver.resolve(authentication);
 		OrganizeFetchResult organizeResult = repositoryCreateUseCase.loadOwnerOptions();
 
-		String validationError = createViewSupport.validateForm(form);
+		String validationError = resolveValidationError(bindingResult);
+		if (validationError == null) {
+			validationError = createViewSupport.validateForm(form);
+		}
 		if (validationError != null) {
 			createViewSupport.populateCreateModel(model, form, profile, organizeResult, validationError);
 			return "repositories/new";
@@ -108,5 +117,20 @@ public class RepositoryController {
 		model.addAttribute("currentPath", directory);
 		model.addAttribute("detail", detail);
 		return "repositories/detail";
+	}
+
+	private String resolveValidationError(BindingResult bindingResult) {
+		if (bindingResult == null || !bindingResult.hasErrors()) {
+			return null;
+		}
+		if (bindingResult.getFieldError() != null) {
+			return bindingResult.getFieldError().getDefaultMessage();
+		}
+		return messageSource.getMessage(
+				"error.request.invalid",
+				null,
+				"error.request.invalid",
+				LocaleContextHolder.getLocale()
+		);
 	}
 }

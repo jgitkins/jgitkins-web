@@ -13,6 +13,10 @@ public class SessionSupport {
 		return request != null ? request.getSession(false) : null;
 	}
 
+	public HttpSession resolveOrCreateSession(HttpServletRequest request) {
+		return request != null ? request.getSession(true) : null;
+	}
+
 	public String resolveUsername(HttpSession session) {
 		if (session == null) {
 			return null;
@@ -39,5 +43,29 @@ public class SessionSupport {
 			return errorMessage;
 		}
 		return null;
+	}
+
+	public void storeUsernameSetupError(HttpServletRequest request, String message) {
+		setAttribute(resolveOrCreateSession(request), SessionKeys.USERNAME_SETUP_ERROR, message);
+	}
+
+	public void storeUsername(HttpServletRequest request, String username) {
+		setAttribute(resolveOrCreateSession(request), SessionKeys.USERNAME, username);
+	}
+
+	public void activateUser(HttpServletRequest request) {
+		setAttribute(resolveSession(request), SessionKeys.USER_STATUS, UserStatus.ACTIVE.name());
+	}
+
+	public void storeUserState(HttpServletRequest request, String username, UserStatus status) {
+		HttpSession session = resolveOrCreateSession(request);
+		setAttribute(session, SessionKeys.USERNAME, username);
+		setAttribute(session, SessionKeys.USER_STATUS, status != null ? status.name() : null);
+	}
+
+	private void setAttribute(HttpSession session, String key, Object value) {
+		if (session != null && key != null && value != null) {
+			session.setAttribute(key, value);
+		}
 	}
 }

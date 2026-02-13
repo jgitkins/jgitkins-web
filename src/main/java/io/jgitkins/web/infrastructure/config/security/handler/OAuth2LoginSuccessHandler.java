@@ -5,11 +5,10 @@ import io.jgitkins.web.application.dto.OAuthLoginRequest;
 import io.jgitkins.web.application.dto.ServerOAuthLoginResult;
 import io.jgitkins.web.application.dto.ServerOAuthLoginResult.ServerUserProfile;
 import io.jgitkins.web.application.port.out.AppTokenIssuePort;
-import io.jgitkins.web.application.common.SessionKeys;
 import io.jgitkins.web.application.common.UserStatus;
+import io.jgitkins.web.presentation.support.SessionSupport;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	private final AppTokenIssuePort appTokenIssuePort;
 	private final AppSessionTokenPort appSessionTokenPort;
+	private final SessionSupport sessionSupport;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request,
@@ -65,9 +65,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		if (result.user() == null) {
 			return;
 		}
-		HttpSession session = request.getSession(true);
 		ServerUserProfile user = result.user();
-		session.setAttribute(SessionKeys.USERNAME, user.username());
-		session.setAttribute(SessionKeys.USER_STATUS, UserStatus.from(user.status()).name());
+		sessionSupport.storeUserState(request, user.username(), UserStatus.from(user.status()));
 	}
 }

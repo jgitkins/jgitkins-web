@@ -5,12 +5,18 @@ import io.jgitkins.web.application.dto.OrganizeSummary;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.presentation.dto.RepositoryCreateForm;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 @Component
+@RequiredArgsConstructor
 public class RepositoryCreateViewSupport {
+
+	private final MessageSource messageSource;
 
 	public void populateCreateModel(Model model,
 								 RepositoryCreateForm form,
@@ -28,14 +34,14 @@ public class RepositoryCreateViewSupport {
 
 	public String validateForm(RepositoryCreateForm form) {
 		if (!StringUtils.hasText(form.getRepoName())) {
-			return "Repository name is required.";
+			return getMessage("validation.repository.name.required");
 		}
 		String ownerType = normalizeOwnerType(form.getOwnerType());
 		if (!StringUtils.hasText(ownerType)) {
-			return "Owner selection is required.";
+			return getMessage("validation.repository.owner.required");
 		}
 		if ("ORGANIZATION".equals(ownerType) && form.getOrganizeId() == null) {
-			return "Organization selection is required.";
+			return getMessage("validation.repository.organization.required");
 		}
 		return null;
 	}
@@ -117,5 +123,9 @@ public class RepositoryCreateViewSupport {
 			return "me";
 		}
 		return value.trim().replaceAll("\\s+", "-").toLowerCase();
+	}
+
+	private String getMessage(String code) {
+		return messageSource.getMessage(code, null, code, LocaleContextHolder.getLocale());
 	}
 }

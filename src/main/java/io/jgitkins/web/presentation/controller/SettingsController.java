@@ -4,10 +4,13 @@ import io.jgitkins.web.application.dto.UserCredentialIssueRequest;
 import io.jgitkins.web.application.port.in.PersonalAccessTokenIssueUseCase;
 import io.jgitkins.web.application.port.in.PersonalAccessTokenQueryUseCase;
 import io.jgitkins.web.presentation.dto.PersonalAccessTokenForm;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +23,7 @@ public class SettingsController {
 
 	private final PersonalAccessTokenQueryUseCase personalAccessTokenQueryUseCase;
 	private final PersonalAccessTokenIssueUseCase personalAccessTokenIssueUseCase;
+	private final MessageSource messageSource;
 
 	@GetMapping("/settings/profile")
 	public String profile() {
@@ -43,12 +47,12 @@ public class SettingsController {
 	}
 
 	@PostMapping("/settings/personal-access-tokens")
-	public String createPersonalAccessToken(@ModelAttribute PersonalAccessTokenForm form,
+	public String createPersonalAccessToken(@Valid @ModelAttribute PersonalAccessTokenForm form,
+											BindingResult bindingResult,
 											Model model,
 											RedirectAttributes redirectAttributes) {
-		if (!StringUtils.hasText(form.getName()) || !StringUtils.hasText(form.getDescription())
-				|| !StringUtils.hasText(form.getExpiration())) {
-			model.addAttribute("error", "All fields are required.");
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("error", getMessage("validation.pat.fields.required"));
 			return "settings/personal-access-tokens/new";
 		}
 
@@ -59,7 +63,7 @@ public class SettingsController {
 			redirectAttributes.addFlashAttribute("issuedToken", issued.token());
 			return "redirect:/settings/personal-access-tokens";
 		} catch (RuntimeException ex) {
-			model.addAttribute("error", "Failed to create token. Please try again.");
+			model.addAttribute("error", getMessage("error.token.create_failed"));
 			return "settings/personal-access-tokens/new";
 		}
 	}
@@ -70,10 +74,14 @@ public class SettingsController {
 		try {
 			personalAccessTokenIssueUseCase.revokeToken(credentialId);
 		} catch (RuntimeException ex) {
-			model.addAttribute("error", "Failed to delete token. Please try again.");
+			model.addAttribute("error", getMessage("error.token.delete_failed"));
 			model.addAttribute("tokens", personalAccessTokenQueryUseCase.fetchPersonalAccessTokens());
 			return "settings/personal-access-tokens/index";
 		}
 		return "redirect:/settings/personal-access-tokens";
+	}
+
+	private String getMessage(String code) {
+		return messageSource.getMessage(code, null, code, LocaleContextHolder.getLocale());
 	}
 }

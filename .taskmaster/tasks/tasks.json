@@ -102,7 +102,7 @@
             "parentTaskId": 16,
             "parentId": "16",
             "updatedAt": "2026-02-13T13:00:00Z"
-          }
+          },
           {
             "id": 9,
             "title": "JGitkinsServerClient 에러 처리 일관화",

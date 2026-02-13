@@ -110,7 +110,7 @@ RepositoryController 책임을 분리해 가독성과 유지보수성을 개선�
 
 ### 16.9. JGitkinsServerClient 에러 처리 일관화
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 예외 처리/응답 매핑 스타일을 일관화하고 catch(Exception) 범위를 축소한다.

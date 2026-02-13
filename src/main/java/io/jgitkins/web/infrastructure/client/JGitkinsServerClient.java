@@ -1,13 +1,15 @@
 package io.jgitkins.web.infrastructure.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jgitkins.web.application.dto.*;
-import io.jgitkins.web.presentation.common.ApiResponse;
 import io.jgitkins.web.presentation.common.ApiError;
+import io.jgitkins.web.presentation.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
@@ -17,6 +19,10 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class JGitkinsServerClient {
+
+	private static final String MESSAGE_EMPTY_RESPONSE = "API 응답이 비어 있습니다.";
+	private static final String MESSAGE_REQUEST_FAILED = "API 요청에 실패했습니다.";
+	private static final String MESSAGE_SERVER_UNREACHABLE = "API 서버에 연결할 수 없습니다.";
 
 	private static final ParameterizedTypeReference<ApiResponse<List<OrganizeSummary>>> ORGANIZE_LIST_TYPE =
 			new ParameterizedTypeReference<>() {
@@ -71,15 +77,14 @@ public class JGitkinsServerClient {
 					.retrieve()
 					.body(ORGANIZE_LIST_TYPE);
 			if (response == null) {
-				return new OrganizeFetchResult(List.of(), "API 응답이 비어 있습니다.");
+				return new OrganizeFetchResult(List.of(), MESSAGE_EMPTY_RESPONSE);
 			}
 			if (response.error() != null) {
-				return new OrganizeFetchResult(List.of(), response.error().message());
+				return new OrganizeFetchResult(List.of(), resolveApiErrorMessage(response));
 			}
-			List<OrganizeSummary> organizes = response.data() == null ? List.of() : response.data();
-			return new OrganizeFetchResult(organizes, null);
+			return new OrganizeFetchResult(response.data() == null ? List.of() : response.data(), null);
 		} catch (RestClientException ex) {
-			return new OrganizeFetchResult(List.of(), "API 서버에 연결할 수 없습니다.");
+			return new OrganizeFetchResult(List.of(), MESSAGE_SERVER_UNREACHABLE);
 		}
 	}
 
@@ -90,15 +95,14 @@ public class JGitkinsServerClient {
 					.retrieve()
 					.body(ORGANIZE_LIST_TYPE);
 			if (response == null) {
-				return new OrganizeFetchResult(List.of(), "API 응답이 비어 있습니다.");
+				return new OrganizeFetchResult(List.of(), MESSAGE_EMPTY_RESPONSE);
 			}
 			if (response.error() != null) {
-				return new OrganizeFetchResult(List.of(), response.error().message());
+				return new OrganizeFetchResult(List.of(), resolveApiErrorMessage(response));
 			}
-			List<OrganizeSummary> organizes = response.data() == null ? List.of() : response.data();
-			return new OrganizeFetchResult(organizes, null);
+			return new OrganizeFetchResult(response.data() == null ? List.of() : response.data(), null);
 		} catch (RestClientException ex) {
-			return new OrganizeFetchResult(List.of(), "API 서버에 연결할 수 없습니다.");
+			return new OrganizeFetchResult(List.of(), MESSAGE_SERVER_UNREACHABLE);
 		}
 	}
 
@@ -108,10 +112,7 @@ public class JGitkinsServerClient {
 					.uri("/api/organizes/{organizeId}/members", organizeId)
 					.retrieve()
 					.body(ORGANIZE_MEMBER_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -124,42 +125,21 @@ public class JGitkinsServerClient {
 					.body(request)
 					.retrieve()
 					.body(ORGANIZE_CREATE_TYPE);
-//			if (response == null) {
-//				return new OrganizeCreateResult(null, "API 응답이 비어 있습니다.");
-//			}
-//			if (response.error() != null) {
-//				return new OrganizeCreateResult(null, response.error().message());
-//			}
-//			if (response.data() == null) {
-//				return new OrganizeCreateResult(null, "조직 생성 응답이 비어 있습니다.");
-//			}
+			if (response == null) {
+				return new OrganizeCreateResult(null, MESSAGE_EMPTY_RESPONSE);
+			}
+			if (response.error() != null) {
+				return new OrganizeCreateResult(null, resolveApiErrorMessage(response));
+			}
+			if (response.data() == null) {
+				return new OrganizeCreateResult(null, "조직 생성 응답이 비어 있습니다.");
+			}
 			return new OrganizeCreateResult(response.data(), null);
 		} catch (RestClientResponseException ex) {
-			String message = resolveErrorMessage(ex.getResponseBodyAsString());
-			if (message != null) {
-				return new OrganizeCreateResult(null, message);
-			}
-			return new OrganizeCreateResult(null, "API 요청에 실패했습니다.");
+			return new OrganizeCreateResult(null, resolveErrorMessage(ex.getResponseBodyAsString(), MESSAGE_REQUEST_FAILED));
 		} catch (RestClientException ex) {
-			return new OrganizeCreateResult(null, "API 서버에 연결할 수 없습니다.");
+			return new OrganizeCreateResult(null, MESSAGE_SERVER_UNREACHABLE);
 		}
-	}
-
-	private String resolveErrorMessage(String responseBody) {
-		if (responseBody == null || responseBody.isBlank()) {
-			return null;
-		}
-		try {
-			ApiResponse<Object> response = objectMapper.readValue(responseBody, new TypeReference<>() {
-			});
-			ApiError error = response.error();
-			if (error != null && error.message() != null && !error.message().isBlank()) {
-				return error.message();
-			}
-		} catch (Exception ex) {
-			return null;
-		}
-		return null;
 	}
 
 	public List<RepositorySummary> fetchRepositories() {
@@ -168,10 +148,7 @@ public class JGitkinsServerClient {
 					.uri("/api/repositories")
 					.retrieve()
 					.body(REPOSITORY_LIST_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -183,10 +160,7 @@ public class JGitkinsServerClient {
 					.uri("/api/internal/repositories/users/{username}", username)
 					.retrieve()
 					.body(REPOSITORY_LIST_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -198,10 +172,7 @@ public class JGitkinsServerClient {
 					.uri("/api/repositories/{repositoryId}", repositoryId)
 					.retrieve()
 					.body(REPOSITORY_TYPE);
-			if (response == null || response.error() != null) {
-				return null;
-			}
-			return response.data();
+			return extractData(response);
 		} catch (RestClientException ex) {
 			return null;
 		}
@@ -218,10 +189,7 @@ public class JGitkinsServerClient {
 							.build(repositoryId))
 					.retrieve()
 					.body(OVERVIEW_TYPE);
-			if (response == null || response.error() != null) {
-				return null;
-			}
-			return response.data();
+			return extractData(response);
 		} catch (RestClientException ex) {
 			return null;
 		}
@@ -233,10 +201,7 @@ public class JGitkinsServerClient {
 					.uri("/repositories/{namespace}/{repo}/branches/{branch}/commits", namespace, repoName, branch)
 					.retrieve()
 					.body(COMMIT_LIST_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -248,10 +213,7 @@ public class JGitkinsServerClient {
 					.uri("/api/repositories/{repositoryId}/branches", repositoryId)
 					.retrieve()
 					.body(BRANCH_LIST_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -263,10 +225,7 @@ public class JGitkinsServerClient {
 					.uri("/repositories/{namespace}/{repo}/files?ref={branch}", namespace, repoName, branch)
 					.retrieve()
 					.body(FILE_LIST_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -286,10 +245,7 @@ public class JGitkinsServerClient {
 							.build(namespace, repoName, branch))
 					.retrieve()
 					.body(FILE_LIST_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -315,17 +271,19 @@ public class JGitkinsServerClient {
 					.retrieve()
 					.body(REPOSITORY_CREATE_TYPE);
 			if (response == null) {
-				return new RepositoryCreateResult(null, "API 응답이 비어 있습니다.");
+				return new RepositoryCreateResult(null, MESSAGE_EMPTY_RESPONSE);
 			}
 			if (response.error() != null) {
-				return new RepositoryCreateResult(null, response.error().message());
+				return new RepositoryCreateResult(null, resolveApiErrorMessage(response));
 			}
 			if (response.data() == null) {
 				return new RepositoryCreateResult(null, "저장소 생성 응답이 비어 있습니다.");
 			}
 			return new RepositoryCreateResult(response.data(), null);
+		} catch (RestClientResponseException ex) {
+			return new RepositoryCreateResult(null, resolveErrorMessage(ex.getResponseBodyAsString(), MESSAGE_REQUEST_FAILED));
 		} catch (RestClientException ex) {
-			return new RepositoryCreateResult(null, "API 서버에 연결할 수 없습니다.");
+			return new RepositoryCreateResult(null, MESSAGE_SERVER_UNREACHABLE);
 		}
 	}
 
@@ -335,10 +293,7 @@ public class JGitkinsServerClient {
 					.uri("/api/auth/pats")
 					.retrieve()
 					.body(PAT_LIST_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -350,10 +305,7 @@ public class JGitkinsServerClient {
 					.uri("/api/users")
 					.retrieve()
 					.body(USER_LIST_TYPE);
-			if (response == null || response.error() != null || response.data() == null) {
-				return List.of();
-			}
-			return response.data();
+			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();
 		}
@@ -367,25 +319,17 @@ public class JGitkinsServerClient {
 					.retrieve()
 					.body(new ParameterizedTypeReference<ApiResponse<Void>>() {
 					});
-			 if (response == null) {
-			 	return new UsernameUpdateResult("API 응답이 비어 있습니다.");
-			 }
-			 if (response.error() != null) {
-			 	return new UsernameUpdateResult(response.error().message());
-			 }
-			 return new UsernameUpdateResult(null);
-//            String message = resolveErrorMessage(response.toString());
-//			if (message != null) {
-//				return new UsernameUpdateResult(message);
-//			}
-//			return new UsernameUpdateResult("API 서버에 연결할 수 없습니다.");
-
+			if (response == null) {
+				return new UsernameUpdateResult(MESSAGE_EMPTY_RESPONSE);
+			}
+			if (response.error() != null) {
+				return new UsernameUpdateResult(resolveApiErrorMessage(response));
+			}
+			return new UsernameUpdateResult(null);
 		} catch (RestClientResponseException ex) {
-			String message = resolveErrorMessage(ex.getResponseBodyAsString());
-			return new UsernameUpdateResult(message);
-
+			return new UsernameUpdateResult(resolveErrorMessage(ex.getResponseBodyAsString(), MESSAGE_REQUEST_FAILED));
 		} catch (RestClientException ex) {
-			return new UsernameUpdateResult("API 요청에 실패했습니다.");
+			return new UsernameUpdateResult(MESSAGE_SERVER_UNREACHABLE);
 		}
 	}
 
@@ -410,5 +354,46 @@ public class JGitkinsServerClient {
 		} catch (RestClientException ex) {
 			throw new RestClientException("Personal access token revoke failed");
 		}
+	}
+
+	private <T> T extractData(ApiResponse<T> response) {
+		if (response == null || response.error() != null) {
+			return null;
+		}
+		return response.data();
+	}
+
+	private <T> List<T> extractList(ApiResponse<List<T>> response) {
+		if (response == null || response.error() != null || response.data() == null) {
+			return List.of();
+		}
+		return response.data();
+	}
+
+	private String resolveApiErrorMessage(ApiResponse<?> response) {
+		if (response == null || response.error() == null) {
+			return MESSAGE_REQUEST_FAILED;
+		}
+		ApiError error = response.error();
+		if (!StringUtils.hasText(error.message())) {
+			return MESSAGE_REQUEST_FAILED;
+		}
+		return error.message();
+	}
+
+	private String resolveErrorMessage(String responseBody, String fallbackMessage) {
+		if (!StringUtils.hasText(responseBody)) {
+			return fallbackMessage;
+		}
+		try {
+			ApiResponse<Object> response = objectMapper.readValue(responseBody, new TypeReference<>() {
+			});
+			if (response != null && response.error() != null && StringUtils.hasText(response.error().message())) {
+				return response.error().message();
+			}
+		} catch (JsonProcessingException ignored) {
+			// no-op
+		}
+		return fallbackMessage;
 	}
 }

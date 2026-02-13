@@ -108,11 +108,12 @@
             "title": "JGitkinsServerClient 에러 처리 일관화",
             "description": "예외 처리/응답 매핑 스타일을 일관화하고 catch(Exception) 범위를 축소한다.",
             "details": "공통 에러 매핑 메서드 도입, API 오류 메시지 표준화, null 반환 축소",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 16,
-            "parentId": "16"
-          },
+            "parentId": "16",
+            "updatedAt": "2026-02-13T13:20:00Z"
+          }
           {
             "id": 10,
             "title": "Bean Validation 도입",

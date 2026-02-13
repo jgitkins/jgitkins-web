@@ -99,7 +99,7 @@ HttpLogFilterOld, JgitkinsAdapter, RepositoryController 내 대형 주석 블록
 
 ### 16.8. RepositoryController 비대화 해소
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 16.1  
 
 RepositoryController 책임을 분리해 가독성과 유지보수성을 개선한다.

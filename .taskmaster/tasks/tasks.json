@@ -95,13 +95,14 @@
             "title": "RepositoryController 비대화 해소",
             "description": "RepositoryController 책임을 분리해 가독성과 유지보수성을 개선한다.",
             "details": "검증, 사용자 프로필 해석, view model 구성, request 매핑 로직을 support/service로 분리",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               1
             ],
             "parentTaskId": 16,
-            "parentId": "16"
-          },
+            "parentId": "16",
+            "updatedAt": "2026-02-13T13:00:00Z"
+          }
           {
             "id": 9,
             "title": "JGitkinsServerClient 에러 처리 일관화",

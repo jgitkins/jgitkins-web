@@ -1,34 +1,28 @@
 package io.jgitkins.web.presentation.controller;
 
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
-import io.jgitkins.web.application.dto.OrganizeSummary;
-import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
-import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.presentation.dto.RepositoryCreateForm;
-import java.util.List;
+import io.jgitkins.web.presentation.support.RepositoryAccessSupport;
+import io.jgitkins.web.presentation.support.RepositoryCreateViewSupport;
+import io.jgitkins.web.presentation.support.RepositoryTreePathSupport;
+import io.jgitkins.web.presentation.support.RepositoryUserProfile;
+import io.jgitkins.web.presentation.support.RepositoryUserProfileResolver;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.util.AntPathMatcher;
-import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 @RequiredArgsConstructor
@@ -36,13 +30,17 @@ public class RepositoryController {
 
 	private final RepositoryCreateUseCase repositoryCreateUseCase;
 	private final RepositoryDetailUseCase repositoryDetailUseCase;
+	private final RepositoryUserProfileResolver userProfileResolver;
+	private final RepositoryCreateViewSupport createViewSupport;
+	private final RepositoryTreePathSupport treePathSupport;
+	private final RepositoryAccessSupport accessSupport;
 
 	@GetMapping("/repositories/new")
 	public String newRepository(Authentication authentication, Model model) {
 		RepositoryCreateForm form = new RepositoryCreateForm();
-		UserProfile profile = resolveUserProfile(authentication);
+		RepositoryUserProfile profile = userProfileResolver.resolve(authentication);
 		OrganizeFetchResult organizeResult = repositoryCreateUseCase.loadOwnerOptions();
-		populateCreateModel(model, form, profile, organizeResult, null);
+		createViewSupport.populateCreateModel(model, form, profile, organizeResult, null);
 		return "repositories/new";
 	}
 
@@ -50,37 +48,20 @@ public class RepositoryController {
 	public String createRepository(@ModelAttribute("form") RepositoryCreateForm form,
 								 Authentication authentication,
 								 Model model) {
-		UserProfile profile = resolveUserProfile(authentication);
+		RepositoryUserProfile profile = userProfileResolver.resolve(authentication);
 		OrganizeFetchResult organizeResult = repositoryCreateUseCase.loadOwnerOptions();
 
-		String validationError = validateForm(form);
+		String validationError = createViewSupport.validateForm(form);
 		if (validationError != null) {
-			populateCreateModel(model, form, profile, organizeResult, validationError);
+			createViewSupport.populateCreateModel(model, form, profile, organizeResult, validationError);
 			return "repositories/new";
 		}
 
-		String ownerType = normalizeOwnerType(form.getOwnerType());
-		Long organizeId = resolveOrganizeId(ownerType, form.getOrganizeId());
-		String message = resolveInitialMessage(form);
-		String branch = StringUtils.hasText(form.getMainBranch()) ? form.getMainBranch() : "main";
-
-		RepositoryCreateRequest request = new RepositoryCreateRequest(
-				form.getRepoName(),
-				branch,
-				profile.name(),
-				profile.email(),
-				form.isReadme(),
-				message,
-				ownerType,
-				organizeId,
-				form.getVisibility(),
-				form.getDescription(),
-				null
+		RepositoryCreateResult result = repositoryCreateUseCase.createRepository(
+				createViewSupport.toRequest(form, profile)
 		);
-
-		RepositoryCreateResult result = repositoryCreateUseCase.createRepository(request);
 		if (result.errorMessage() != null) {
-			populateCreateModel(model, form, profile, organizeResult, result.errorMessage());
+			createViewSupport.populateCreateModel(model, form, profile, organizeResult, result.errorMessage());
 			return "repositories/new";
 		}
 
@@ -89,13 +70,15 @@ public class RepositoryController {
 
 	@GetMapping("/{namespace}/{repoName}")
 	public String repositoryDetailPage(@PathVariable("namespace") String namespace,
-									   @PathVariable("repoName") String repoName,
-									   @RequestParam(name = "branch", required = false) String branch,
-									   Authentication authentication,
-									   Model model) {
+								   @PathVariable("repoName") String repoName,
+								   @RequestParam(name = "branch", required = false) String branch,
+								   Authentication authentication,
+								   Model model) {
 		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryDetailByPath(namespace, repoName, branch);
-		if (detail != null && detail.repository() != null && !isPublicRepository(detail.repository())
-				&& !isAuthenticated(authentication)) {
+		if (accessSupport.requiresNotFoundForUnauthenticatedPrivate(
+				detail,
+				userProfileResolver.isAuthenticated(authentication)
+		)) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		model.addAttribute("namespace", namespace);
@@ -107,15 +90,17 @@ public class RepositoryController {
 
 	@GetMapping({"/{namespace}/{repoName}/tree", "/{namespace}/{repoName}/tree/**"})
 	public String repositoryTreePage(@PathVariable("namespace") String namespace,
-									 @PathVariable("repoName") String repoName,
-									 @RequestParam(name = "branch", required = false) String branch,
-									 Authentication authentication,
-									 HttpServletRequest request,
-									 Model model) {
-		String directory = resolveTreeDirectory(request);
+							 @PathVariable("repoName") String repoName,
+							 @RequestParam(name = "branch", required = false) String branch,
+							 Authentication authentication,
+							 HttpServletRequest request,
+							 Model model) {
+		String directory = treePathSupport.resolveTreeDirectory(request);
 		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryTreeByPath(namespace, repoName, branch, directory);
-		if (detail != null && detail.repository() != null && !isPublicRepository(detail.repository())
-				&& !isAuthenticated(authentication)) {
+		if (accessSupport.requiresNotFoundForUnauthenticatedPrivate(
+				detail,
+				userProfileResolver.isAuthenticated(authentication)
+		)) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		model.addAttribute("namespace", namespace);
@@ -123,139 +108,5 @@ public class RepositoryController {
 		model.addAttribute("currentPath", directory);
 		model.addAttribute("detail", detail);
 		return "repositories/detail";
-	}
-
-	private String resolveTreeDirectory(HttpServletRequest request) {
-		String pathWithinMapping = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-		if (!StringUtils.hasText(pathWithinMapping) || !StringUtils.hasText(bestMatchPattern)) {
-			return "";
-		}
-		AntPathMatcher matcher = new AntPathMatcher();
-		String extracted = matcher.extractPathWithinPattern(bestMatchPattern, pathWithinMapping);
-		return trimSlashes(extracted);
-	}
-
-	private String trimSlashes(String value) {
-		if (!StringUtils.hasText(value)) {
-			return "";
-		}
-		return value.replaceAll("^/+", "").replaceAll("/+$", "");
-	}
-
-	private void populateCreateModel(Model model,
-								 RepositoryCreateForm form,
-								 UserProfile profile,
-							 OrganizeFetchResult organizeResult,
-							 String formError) {
-		String ownerSlug = resolveOwnerSlug(form, profile, organizeResult.organizes());
-		model.addAttribute("form", form);
-		model.addAttribute("organizes", organizeResult.organizes());
-		model.addAttribute("organizeError", organizeResult.errorMessage());
-		model.addAttribute("ownerLabel", resolveOwnerLabel(profile));
-		model.addAttribute("ownerSlug", ownerSlug);
-		model.addAttribute("formError", formError);
-	}
-
-	private String validateForm(RepositoryCreateForm form) {
-		if (!StringUtils.hasText(form.getRepoName())) {
-			return "Repository name is required.";
-		}
-		String ownerType = normalizeOwnerType(form.getOwnerType());
-		if (!StringUtils.hasText(ownerType)) {
-			return "Owner selection is required.";
-		}
-		if ("ORGANIZATION".equals(ownerType) && form.getOrganizeId() == null) {
-			return "Organization selection is required.";
-		}
-		return null;
-	}
-
-	private String normalizeOwnerType(String ownerType) {
-		return StringUtils.hasText(ownerType) ? ownerType.trim().toUpperCase() : null;
-	}
-
-	private Long resolveOrganizeId(String ownerType, Long organizeId) {
-		if (!"ORGANIZATION".equals(ownerType)) {
-			return null;
-		}
-		return organizeId;
-	}
-
-	private String resolveInitialMessage(RepositoryCreateForm form) {
-		if (!form.isReadme()) {
-			return null;
-		}
-		return StringUtils.hasText(form.getMessage()) ? form.getMessage() : "Initial commit";
-	}
-
-	private UserProfile resolveUserProfile(Authentication authentication) {
-		if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
-			Object principal = oauthToken.getPrincipal();
-			if (principal instanceof OidcUser oidcUser) {
-				String name = StringUtils.hasText(oidcUser.getFullName()) ? oidcUser.getFullName() : oidcUser.getName();
-				return new UserProfile(name, oidcUser.getEmail());
-			}
-			if (principal instanceof OAuth2User oauth2User) {
-				String name = oauth2User.getAttribute("name");
-				String email = oauth2User.getAttribute("email");
-				String fallbackName = StringUtils.hasText(name) ? name : oauth2User.getName();
-				return new UserProfile(fallbackName, email);
-			}
-		}
-		return new UserProfile("Personal", null);
-	}
-
-	private boolean isAuthenticated(Authentication authentication) {
-		return authentication != null
-				&& !(authentication instanceof AnonymousAuthenticationToken)
-				&& authentication.isAuthenticated();
-	}
-
-	private boolean isPublicRepository(RepositorySummary repository) {
-		return repository.visibility() != null
-				&& "PUBLIC".equalsIgnoreCase(repository.visibility());
-	}
-
-	private String resolveOwnerLabel(UserProfile profile) {
-		if (StringUtils.hasText(profile.name()) && StringUtils.hasText(profile.email())) {
-			return profile.name() + " (" + profile.email() + ")";
-		}
-		if (StringUtils.hasText(profile.name())) {
-			return profile.name();
-		}
-		return "Personal";
-	}
-
-	private String resolveOwnerSlug(RepositoryCreateForm form, UserProfile profile, List<OrganizeSummary> organizes) {
-		String ownerType = normalizeOwnerType(form.getOwnerType());
-		if ("ORGANIZATION".equals(ownerType) && form.getOrganizeId() != null) {
-			for (OrganizeSummary organize : organizes) {
-				if (organize != null && form.getOrganizeId().equals(organize.id())) {
-					return slugify(organize.name());
-				}
-			}
-		}
-		return resolveUserSlug(profile);
-	}
-
-	private String resolveUserSlug(UserProfile profile) {
-		if (StringUtils.hasText(profile.email()) && profile.email().contains("@")) {
-			return profile.email().substring(0, profile.email().indexOf('@'));
-		}
-		if (StringUtils.hasText(profile.name())) {
-			return slugify(profile.name());
-		}
-		return "me";
-	}
-
-	private String slugify(String value) {
-		if (!StringUtils.hasText(value)) {
-			return "me";
-		}
-		return value.trim().replaceAll("\\s+", "-").toLowerCase();
-	}
-
-	private record UserProfile(String name, String email) {
 	}
 }

@@ -49,9 +49,6 @@ public class JGitkinsServerClient {
 	private static final ParameterizedTypeReference<ApiResponse<List<BranchSummary>>> BRANCH_LIST_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
-	private static final ParameterizedTypeReference<ApiResponse<BranchSummary>> BRANCH_TYPE =
-			new ParameterizedTypeReference<>() {
-			};
 	private static final ParameterizedTypeReference<ApiResponse<List<RepositoryFileEntry>>> FILE_LIST_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
@@ -296,21 +293,13 @@ public class JGitkinsServerClient {
 
 	public RepositoryBranchCreateResult createBranch(Long repositoryId, String branchName, String sourceBranch) {
 		try {
-			ApiResponse<BranchSummary> response = restClient.post()
+			restClient.post()
 					.uri("/api/repositories/{repositoryId}/branches", repositoryId)
 					.body(new BranchCreatePayload(branchName, sourceBranch))
 					.retrieve()
-					.body(BRANCH_TYPE);
-			if (response == null) {
-				return new RepositoryBranchCreateResult(null, MESSAGE_EMPTY_RESPONSE);
-			}
-			if (response.error() != null) {
-				return new RepositoryBranchCreateResult(null, resolveApiErrorMessage(response));
-			}
-			if (response.data() == null) {
-				return new RepositoryBranchCreateResult(null, "브랜치 생성 응답이 비어 있습니다.");
-			}
-			return new RepositoryBranchCreateResult(response.data(), null);
+					.toBodilessEntity();
+			BranchSummary createdBranch = new BranchSummary(repositoryId, branchName, false, false, false);
+			return new RepositoryBranchCreateResult(createdBranch, null);
 		} catch (RestClientResponseException ex) {
 			return new RepositoryBranchCreateResult(null, resolveErrorMessage(ex.getResponseBodyAsString(), MESSAGE_REQUEST_FAILED));
 		} catch (RestClientException ex) {
@@ -477,6 +466,6 @@ public class JGitkinsServerClient {
 		}
 	}
 
-	private record BranchCreatePayload(String name, String sourceBranch) {
+	private record BranchCreatePayload(String branchName, String sourceBranch) {
 	}
 }

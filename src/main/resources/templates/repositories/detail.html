@@ -86,41 +86,8 @@
 								</span>
 							</summary>
 							<div class="menu__panel">
-								<form th:action="|/${namespace}/${repoName}/branches|" method="post" class="menu__item">
-									<input type="hidden" name="currentPath" th:value="${currentPath}" />
-									<input type="hidden" name="currentBranch" th:value="${detail.selectedBranch}" />
-									<div class="form-row">
-										<label class="label" for="new-branch-name">New branch</label>
-										<input id="new-branch-name" class="input" type="text" name="branchName" placeholder="feature/my-branch" required />
-									</div>
-									<div class="form-row">
-										<label class="label" for="source-branch">From</label>
-										<input id="source-branch" class="input" type="text" name="sourceBranch" th:value="${detail.selectedBranch}" />
-									</div>
-									<button class="ghost" type="submit">Create branch</button>
-								</form>
-								<form th:action="|/${namespace}/${repoName}/files|" method="post" enctype="multipart/form-data" class="menu__item">
-									<input type="hidden" name="currentPath" th:value="${currentPath}" />
-									<div class="form-row">
-										<label class="label" for="upload-branch">Branch</label>
-										<input id="upload-branch" class="input" type="text" name="branch" th:value="${detail.selectedBranch}" required />
-									</div>
-									<div class="form-row">
-										<label class="label" for="upload-path">Path</label>
-										<input id="upload-path" class="input" type="text" name="path"
-											   th:value="${currentPath != null && !currentPath.isEmpty() ? currentPath + '/' : ''}"
-											   placeholder="src/main/resources/new-file.txt" required />
-									</div>
-									<div class="form-row">
-										<label class="label" for="upload-message">Commit message</label>
-										<input id="upload-message" class="input" type="text" name="message" placeholder="Add new file" required />
-									</div>
-									<div class="form-row">
-										<label class="label" for="upload-file">File</label>
-										<input id="upload-file" class="input" type="file" name="file" required />
-									</div>
-									<button class="ghost" type="submit">Upload file</button>
-								</form>
+								<button class="menu__item menu__item--button" type="button" data-open-modal="branch-modal">New branch</button>
+								<button class="menu__item menu__item--button" type="button" data-open-modal="file-modal">New file</button>
 							</div>
 						</details>
 						<details class="menu repo-detail__menu">
@@ -242,6 +209,92 @@
 			</aside>
 		</div>
 	</section>
+
+	<div id="branch-modal" class="modal" aria-hidden="true">
+		<div class="modal__backdrop" data-close-modal></div>
+		<div class="modal__content">
+			<div class="modal__header">
+				<h2>Create Branch</h2>
+				<button class="modal__close" type="button" aria-label="Close" data-close-modal>✕</button>
+			</div>
+			<form th:action="|/${namespace}/${repoName}/branches|" method="post" class="form">
+				<input type="hidden" name="currentPath" th:value="${currentPath}" />
+				<input type="hidden" name="currentBranch" th:value="${detail.selectedBranch}" />
+				<div class="form-row">
+					<label class="label" for="new-branch-name">Branch name</label>
+					<input id="new-branch-name" class="input" type="text" name="branchName" placeholder="feature/my-branch" required />
+				</div>
+				<div class="form-row">
+					<label class="label" for="source-branch">From branch</label>
+					<select id="source-branch" class="input select" name="sourceBranch" required>
+						<option th:each="branch : ${detail.branches}"
+								th:value="${branch.name}"
+								th:text="${branch.defaultBranch ? branch.name + ' (default)' : branch.name}"
+								th:selected="${branch.name == detail.selectedBranch}">main</option>
+					</select>
+				</div>
+				<div class="modal__actions">
+					<button class="ghost" type="button" data-close-modal>Cancel</button>
+					<button class="primary" type="submit">Create</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div id="file-modal" class="modal" aria-hidden="true">
+		<div class="modal__backdrop" data-close-modal></div>
+		<div class="modal__content">
+			<div class="modal__header">
+				<h2>Upload File</h2>
+				<button class="modal__close" type="button" aria-label="Close" data-close-modal>✕</button>
+			</div>
+			<form th:action="|/${namespace}/${repoName}/files|" method="post" enctype="multipart/form-data" class="form">
+				<input type="hidden" name="currentPath" th:value="${currentPath}" />
+				<div class="form-row">
+					<label class="label" for="upload-branch">Branch</label>
+					<select id="upload-branch" class="input select" name="branch" required>
+						<option th:each="branch : ${detail.branches}"
+								th:value="${branch.name}"
+								th:text="${branch.defaultBranch ? branch.name + ' (default)' : branch.name}"
+								th:selected="${branch.name == detail.selectedBranch}">main</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="label" for="upload-directory">Path</label>
+					<select id="upload-directory" class="input select">
+						<option value="" th:selected="${currentPath == null || currentPath.isEmpty()}">/</option>
+						<option th:if="${currentPath != null && !currentPath.isEmpty()}"
+								th:value="${currentPath}"
+								th:text="${'/' + currentPath}"
+								selected>/src</option>
+						<option th:each="entry : ${detail.files}"
+								th:if="${entry.type == 'tree'}"
+								th:with="entryPath=${entry.path != null && entry.path.startsWith('/') ? entry.path.substring(1) : entry.path}"
+								th:value="${entryPath}"
+								th:text="${'/' + entryPath}">/docs</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="label" for="upload-file-name">File name</label>
+					<input id="upload-file-name" class="input" type="text" placeholder="new-file.txt" required />
+					<input id="upload-path" type="hidden" name="path"
+						   th:value="${currentPath != null && !currentPath.isEmpty() ? currentPath + '/new-file.txt' : 'new-file.txt'}" />
+				</div>
+				<div class="form-row">
+					<label class="label" for="upload-message">Commit message</label>
+					<input id="upload-message" class="input" type="text" name="message" placeholder="Add new file" required />
+				</div>
+				<div class="form-row">
+					<label class="label" for="upload-file">File</label>
+					<input id="upload-file" class="input" type="file" name="file" required />
+				</div>
+				<div class="modal__actions">
+					<button class="ghost" type="button" data-close-modal>Cancel</button>
+					<button class="primary" type="submit">Upload file</button>
+				</div>
+			</form>
+		</div>
+	</div>
 </div>
 <script>
 	const branchSelect = document.getElementById("branch-select");
@@ -277,6 +330,70 @@
 			}
 		});
 	});
+
+	const openModalButtons = document.querySelectorAll("[data-open-modal]");
+	const allModals = document.querySelectorAll(".modal");
+	const closeModalButtons = document.querySelectorAll("[data-close-modal]");
+
+	function closeAllModals() {
+		allModals.forEach((modal) => {
+			modal.classList.remove("is-open");
+			modal.setAttribute("aria-hidden", "true");
+		});
+	}
+
+	openModalButtons.forEach((button) => {
+		button.addEventListener("click", () => {
+			const modalId = button.getAttribute("data-open-modal");
+			const modal = document.getElementById(modalId);
+			if (!modal) {
+				return;
+			}
+			closeAllModals();
+			modal.classList.add("is-open");
+			modal.setAttribute("aria-hidden", "false");
+		});
+	});
+
+	closeModalButtons.forEach((button) => {
+		button.addEventListener("click", closeAllModals);
+	});
+
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape") {
+			closeAllModals();
+		}
+	});
+
+	const uploadForm = document.querySelector("#file-modal form");
+	if (uploadForm) {
+		const directorySelect = document.getElementById("upload-directory");
+		const fileNameInput = document.getElementById("upload-file-name");
+		const pathInput = document.getElementById("upload-path");
+
+		const resolveUploadPath = () => {
+			const directory = (directorySelect?.value || "").replace(/^\/+|\/+$/g, "");
+			const fileName = (fileNameInput?.value || "").trim().replace(/^\/+|\/+$/g, "");
+			if (!pathInput) {
+				return "";
+			}
+			const resolved = directory && fileName ? `${directory}/${fileName}` : (fileName || directory);
+			pathInput.value = resolved;
+			return resolved;
+		};
+
+		directorySelect?.addEventListener("change", resolveUploadPath);
+		fileNameInput?.addEventListener("input", resolveUploadPath);
+		resolveUploadPath();
+
+		uploadForm.addEventListener("submit", (event) => {
+			const resolved = resolveUploadPath();
+			if (!resolved) {
+				event.preventDefault();
+				alert("파일 경로를 선택해 주세요.");
+			}
+		});
+	}
 
 </script>
 </body>

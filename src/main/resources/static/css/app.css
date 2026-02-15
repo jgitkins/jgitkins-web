@@ -1004,6 +1004,14 @@ body {
   border: 1px solid var(--warning-border);
 }
 
+.success {
+  padding: 16px;
+  border-radius: 6px;
+  background: #edf9f0;
+  color: #176338;
+  border: 1px solid #b9e3c8;
+}
+
 .empty {
   display: grid;
   gap: 12px;
@@ -2212,6 +2220,7 @@ button.primary:disabled {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  padding-top: 10px;
 }
 
 .modal__token-name {

@@ -26,7 +26,11 @@
 			<details class="menu">
 				<summary class="menu__summary">
 					<img class="topbar__icon-image" th:src="@{/assets/svg/new-window-svgrepo-com.svg}" alt="Create"/>
-					<span class="menu__caret" aria-hidden="true">▾</span>
+					<span class="menu__caret" aria-hidden="true">
+						<svg viewBox="0 0 10 6" role="img" focusable="false">
+							<path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</span>
 				</summary>
 				<div class="menu__panel">
 					<a href="/repositories/new" class="menu__item">New repository</a>
@@ -37,7 +41,11 @@
 			<details class="menu">
 				<summary class="menu__summary">
 					<img class="topbar__icon-image" th:src="@{/assets/svg/profile-round-1342-svgrepo-com.svg}" alt="Profile"/>
-					<span class="menu__caret" aria-hidden="true">▾</span>
+					<span class="menu__caret" aria-hidden="true">
+						<svg viewBox="0 0 10 6" role="img" focusable="false">
+							<path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</span>
 				</summary>
 				<div class="menu__panel">
 					<a href="/settings/profile" class="menu__item">Profile</a>

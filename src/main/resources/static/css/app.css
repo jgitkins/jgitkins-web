@@ -126,8 +126,15 @@ body {
 }
 
 .menu__caret {
-  font-size: 12px;
   color: #cfcfcf;
+  display: inline-flex;
+  align-items: center;
+}
+
+.menu__caret svg {
+  width: 10px;
+  height: 6px;
+  display: block;
 }
 
 .menu__summary::-webkit-details-marker {

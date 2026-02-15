@@ -50,7 +50,7 @@
 					<div class="field">
 						<label for="repo-name">Repository name</label>
 						<input id="repo-name" class="input" type="text" placeholder="e.g. jgitkins-api" th:field="*{repoName}" />
-						<span class="field__hint">URL: https://jgitkins.io/<strong th:text="${ownerSlug}">owner</strong>/<strong th:text="${form.repoName}">repo</strong></span>
+						<span class="field__hint">URL: https://jgitkins.io/<strong th:text="${ownerSlug}">owner</strong>/<strong id="repo-name-hint" th:text="${#strings.isEmpty(form.repoName) ? 'repo' : form.repoName}">repo</strong></span>
 					</div>
 
 					<div class="field">
@@ -72,7 +72,7 @@
 								<input type="radio" th:field="*{visibility}" value="INTERNAL" />
 								<div>
 									<strong>Internal</strong>
-									<p>Visible to anyone inside your organization.</p>
+									<p>Best for shared internal code: organization members can view it, outsiders cannot.</p>
 								</div>
 							</label>
 							<label class="option-card">
@@ -122,7 +122,7 @@
 					<h3>
 						<span th:text="${ownerSlug}">owner</span>
 						/
-						<span th:text="${form.repoName}">repo</span>
+						<span id="repo-name-preview" th:text="${#strings.isEmpty(form.repoName) ? 'repo' : form.repoName}">repo</span>
 					</h3>
 					<p class="preview-desc" th:text="${form.description}">API service powering CI pipelines and release bots.</p>
 				</div>
@@ -152,6 +152,9 @@
 	const ownerTypeSelect = document.getElementById("repo-owner-type");
 	const orgSelectWrap = document.getElementById("org-select");
 	const orgSelect = document.getElementById("repo-owner-org");
+	const repoNameInput = document.getElementById("repo-name");
+	const repoNameHint = document.getElementById("repo-name-hint");
+	const repoNamePreview = document.getElementById("repo-name-preview");
 
 	const toggleOrgSelect = () => {
 		const isOrg = ownerTypeSelect.value === "ORGANIZATION";
@@ -162,6 +165,24 @@
 	if (ownerTypeSelect && orgSelectWrap && orgSelect) {
 		ownerTypeSelect.addEventListener("change", toggleOrgSelect);
 		toggleOrgSelect();
+	}
+
+	const syncRepoName = () => {
+		if (!repoNameInput) {
+			return;
+		}
+		const displayName = repoNameInput.value.trim() || "repo";
+		if (repoNameHint) {
+			repoNameHint.textContent = displayName;
+		}
+		if (repoNamePreview) {
+			repoNamePreview.textContent = displayName;
+		}
+	};
+
+	if (repoNameInput) {
+		repoNameInput.addEventListener("input", syncRepoName);
+		syncRepoName();
 	}
 </script>
 </body>

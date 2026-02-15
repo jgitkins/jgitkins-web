@@ -1703,7 +1703,7 @@ button {
 
 .repo-detail__main {
   display: grid;
-  gap: 16px;
+  gap: 0;
 }
 
 .repo-detail .repo-detail__toolbar {
@@ -1804,6 +1804,7 @@ button {
 .repo-detail__menu .menu__item--button,
 .repo-detail__menu .repo-detail__code-tabs .ghost {
   color: #000;
+  font-size: 13px;
 }
 
 .repo-detail__code-panel {

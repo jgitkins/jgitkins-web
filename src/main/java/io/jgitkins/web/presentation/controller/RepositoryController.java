@@ -165,6 +165,24 @@ public class RepositoryController {
 		return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
 	}
 
+	@PostMapping("/{namespace}/{repoName}/directories")
+	public String createDirectory(@PathVariable("namespace") String namespace,
+								  @PathVariable("repoName") String repoName,
+								  @RequestParam("branch") String branch,
+								  @RequestParam("directoryPath") String directoryPath,
+								  @RequestParam("message") String message,
+								  @RequestParam(name = "currentPath", required = false) String currentPath,
+								  RedirectAttributes redirectAttributes) {
+		var result = repositoryManageUseCase.createDirectoryByPath(namespace, repoName, branch, directoryPath, message);
+		if (result.errorMessage() != null) {
+			redirectAttributes.addFlashAttribute("directoryError", result.errorMessage());
+			return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
+		}
+
+		redirectAttributes.addFlashAttribute("directorySuccess", "디렉터리가 생성되었습니다.");
+		return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
+	}
+
 	private String resolveValidationError(BindingResult bindingResult) {
 		if (bindingResult == null || !bindingResult.hasErrors()) {
 			return null;

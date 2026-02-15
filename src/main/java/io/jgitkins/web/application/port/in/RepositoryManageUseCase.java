@@ -14,4 +14,10 @@ public interface RepositoryManageUseCase {
 											 String path,
 											 String message,
 											 MultipartFile file);
+
+	RepositoryFileUploadResult createDirectoryByPath(String namespace,
+													 String repoName,
+													 String branch,
+													 String directoryPath,
+													 String message);
 }

@@ -6,6 +6,44 @@
 	<title>Repository Detail</title>
 	<link rel="icon" type="image/png" th:href="@{/assets/img/ci2.png}">
 	<link rel="stylesheet" th:href="@{/assets/css/app.css}">
+	<style>
+		#branch-modal .modal__content,
+		#file-modal .modal__content {
+			font-family: "IBM Plex Sans", "Inter Tight", "Noto Sans", sans-serif;
+		}
+
+		#branch-modal .form,
+		#file-modal .form {
+			display: grid;
+			gap: 16px;
+		}
+
+		#branch-modal .form-row,
+		#file-modal .form-row {
+			display: grid;
+			gap: 8px;
+		}
+
+		#branch-modal .form-row .label,
+		#file-modal .form-row .label,
+		#directory-modal .form-row .label {
+			font-size: 13px;
+		}
+
+		#directory-modal .modal__content {
+			font-family: "IBM Plex Sans", "Inter Tight", "Noto Sans", sans-serif;
+		}
+
+		#directory-modal .form {
+			display: grid;
+			gap: 16px;
+		}
+
+		#directory-modal .form-row {
+			display: grid;
+			gap: 8px;
+		}
+	</style>
 </head>
 <body>
 <div th:replace="fragments/topbar :: topbar('repository-detail')"></div>
@@ -15,8 +53,10 @@
 	<section class="repo-detail" th:if="${detail.repository != null}">
 		<div class="alert" th:if="${branchError != null}" th:text="${branchError}"></div>
 		<div class="alert" th:if="${fileError != null}" th:text="${fileError}"></div>
+		<div class="alert" th:if="${directoryError != null}" th:text="${directoryError}"></div>
 		<div class="success" th:if="${branchSuccess != null}" th:text="${branchSuccess}"></div>
 		<div class="success" th:if="${fileSuccess != null}" th:text="${fileSuccess}"></div>
+		<div class="success" th:if="${directorySuccess != null}" th:text="${directorySuccess}"></div>
 <!--		<div class="repo-detail__stats">-->
 <!--			<div class="repo-detail__stat">-->
 <!--				<span>Commits</span>-->
@@ -88,6 +128,7 @@
 							<div class="menu__panel">
 								<button class="menu__item menu__item--button" type="button" data-open-modal="branch-modal">New branch</button>
 								<button class="menu__item menu__item--button" type="button" data-open-modal="file-modal">New file</button>
+								<button class="menu__item menu__item--button" type="button" data-open-modal="directory-modal">New directory</button>
 							</div>
 						</details>
 						<details class="menu repo-detail__menu">
@@ -215,7 +256,6 @@
 		<div class="modal__content">
 			<div class="modal__header">
 				<h2>Create Branch</h2>
-				<button class="modal__close" type="button" aria-label="Close" data-close-modal>✕</button>
 			</div>
 			<form th:action="|/${namespace}/${repoName}/branches|" method="post" class="form">
 				<input type="hidden" name="currentPath" th:value="${currentPath}" />
@@ -246,18 +286,13 @@
 		<div class="modal__content">
 			<div class="modal__header">
 				<h2>Upload File</h2>
-				<button class="modal__close" type="button" aria-label="Close" data-close-modal>✕</button>
 			</div>
 			<form th:action="|/${namespace}/${repoName}/files|" method="post" enctype="multipart/form-data" class="form">
 				<input type="hidden" name="currentPath" th:value="${currentPath}" />
 				<div class="form-row">
 					<label class="label" for="upload-branch">Branch</label>
-					<select id="upload-branch" class="input select" name="branch" required>
-						<option th:each="branch : ${detail.branches}"
-								th:value="${branch.name}"
-								th:text="${branch.defaultBranch ? branch.name + ' (default)' : branch.name}"
-								th:selected="${branch.name == detail.selectedBranch}">main</option>
-					</select>
+					<input id="upload-branch" class="input" type="text" th:value="${detail.selectedBranch}" readonly />
+					<input type="hidden" name="branch" th:value="${detail.selectedBranch}" />
 				</div>
 				<div class="form-row">
 					<label class="label" for="upload-directory">Path</label>
@@ -291,6 +326,52 @@
 				<div class="modal__actions">
 					<button class="ghost" type="button" data-close-modal>Cancel</button>
 					<button class="primary" type="submit">Upload file</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div id="directory-modal" class="modal" aria-hidden="true">
+		<div class="modal__backdrop" data-close-modal></div>
+		<div class="modal__content">
+			<div class="modal__header">
+				<h2>New Directory</h2>
+			</div>
+			<form th:action="|/${namespace}/${repoName}/directories|" method="post" class="form">
+				<input type="hidden" name="currentPath" th:value="${currentPath}" />
+				<div class="form-row">
+					<label class="label" for="directory-branch">Branch</label>
+					<input id="directory-branch" class="input" type="text" th:value="${detail.selectedBranch}" readonly />
+					<input type="hidden" name="branch" th:value="${detail.selectedBranch}" />
+				</div>
+				<div class="form-row">
+					<label class="label" for="directory-parent">Path</label>
+					<select id="directory-parent" class="input select">
+						<option value="" th:selected="${currentPath == null || currentPath.isEmpty()}">/</option>
+						<option th:if="${currentPath != null && !currentPath.isEmpty()}"
+								th:value="${currentPath}"
+								th:text="${'/' + currentPath}"
+								selected>/src</option>
+						<option th:each="entry : ${detail.files}"
+								th:if="${entry.type == 'tree'}"
+								th:with="entryPath=${entry.path != null && entry.path.startsWith('/') ? entry.path.substring(1) : entry.path}"
+								th:value="${entryPath}"
+								th:text="${'/' + entryPath}">/docs</option>
+					</select>
+				</div>
+				<div class="form-row">
+					<label class="label" for="directory-name">Directory name</label>
+					<input id="directory-name" class="input" type="text" placeholder="new-folder" required />
+					<input id="directory-path" type="hidden" name="directoryPath"
+						   th:value="${currentPath != null && !currentPath.isEmpty() ? currentPath + '/new-folder' : 'new-folder'}" />
+				</div>
+				<div class="form-row">
+					<label class="label" for="directory-message">Commit message</label>
+					<input id="directory-message" class="input" type="text" name="message" placeholder="Create new directory" required />
+				</div>
+				<div class="modal__actions">
+					<button class="ghost" type="button" data-close-modal>Cancel</button>
+					<button class="primary" type="submit">Create directory</button>
 				</div>
 			</form>
 		</div>
@@ -391,6 +472,36 @@
 			if (!resolved) {
 				event.preventDefault();
 				alert("파일 경로를 선택해 주세요.");
+			}
+		});
+	}
+
+	const directoryForm = document.querySelector("#directory-modal form");
+	if (directoryForm) {
+		const directoryParentSelect = document.getElementById("directory-parent");
+		const directoryNameInput = document.getElementById("directory-name");
+		const directoryPathInput = document.getElementById("directory-path");
+
+		const resolveDirectoryPath = () => {
+			const parent = (directoryParentSelect?.value || "").replace(/^\/+|\/+$/g, "");
+			const directoryName = (directoryNameInput?.value || "").trim().replace(/^\/+|\/+$/g, "");
+			if (!directoryPathInput) {
+				return "";
+			}
+			const resolved = parent && directoryName ? `${parent}/${directoryName}` : (directoryName || parent);
+			directoryPathInput.value = resolved;
+			return resolved;
+		};
+
+		directoryParentSelect?.addEventListener("change", resolveDirectoryPath);
+		directoryNameInput?.addEventListener("input", resolveDirectoryPath);
+		resolveDirectoryPath();
+
+		directoryForm.addEventListener("submit", (event) => {
+			const resolved = resolveDirectoryPath();
+			if (!resolved) {
+				event.preventDefault();
+				alert("디렉터리 경로를 입력해 주세요.");
 			}
 		});
 	}

@@ -9,6 +9,7 @@ import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
 import io.jgitkins.web.application.port.out.RepositoryPort;
 import io.jgitkins.web.infrastructure.util.PathUtils;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class RepositoryManageService implements RepositoryManageUseCase {
 	private static final Pattern BRANCH_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9._/-]+$");
 	private static final long MAX_UPLOAD_SIZE = 5L * 1024L * 1024L;
 	private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
-			".txt", ".md", ".java", ".kt", ".xml", ".yml", ".yaml", ".json", ".js", ".ts", ".css", ".html"
+			".txt", ".md", ".java", ".kt", ".xml", ".yml", ".yaml", ".json", ".js", ".ts", ".css", ".html", ".gitkeep"
 	);
 
 	private final RepositoryPort repositoryPort;
@@ -88,6 +89,45 @@ public class RepositoryManageService implements RepositoryManageUseCase {
 		} catch (IOException ex) {
 			return new RepositoryFileUploadResult("파일을 읽는 중 오류가 발생했습니다.");
 		}
+	}
+
+	@Override
+	public RepositoryFileUploadResult createDirectoryByPath(String namespace,
+															 String repoName,
+															 String branch,
+															 String directoryPath,
+															 String message) {
+		RepositorySummary repository = findRepository(namespace, repoName);
+		if (repository == null || repository.id() == null) {
+			return new RepositoryFileUploadResult("Repository not found.");
+		}
+		if (!StringUtils.hasText(branch)) {
+			return new RepositoryFileUploadResult("브랜치를 선택해 주세요.");
+		}
+		if (!StringUtils.hasText(directoryPath)) {
+			return new RepositoryFileUploadResult("디렉터리 경로를 입력해 주세요.");
+		}
+		if (!StringUtils.hasText(message)) {
+			return new RepositoryFileUploadResult("커밋 메시지를 입력해 주세요.");
+		}
+
+		String normalizedDirectory = directoryPath.trim().replace('\\', '/');
+		normalizedDirectory = normalizedDirectory.replaceAll("^/+", "").replaceAll("/+$", "");
+		if (!StringUtils.hasText(normalizedDirectory)) {
+			return new RepositoryFileUploadResult("유효한 디렉터리 경로를 입력해 주세요.");
+		}
+
+		String gitkeepPath = normalizedDirectory + "/.gitkeep";
+		RepositoryFileUploadRequest request = new RepositoryFileUploadRequest(
+				repository.id(),
+				branch.trim(),
+				gitkeepPath,
+				message.trim(),
+				".gitkeep",
+				"text/plain",
+				"keep".getBytes(StandardCharsets.UTF_8)
+		);
+		return repositoryPort.uploadFile(request);
 	}
 
 	private boolean isAllowedExtension(String filename) {

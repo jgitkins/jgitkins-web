@@ -23,4 +23,8 @@ public interface RepositoryPort {
 	List<RepositoryFileEntry> fetchRepositoryTree(String namespace, String repoName, String branch, String directory);
 
 	RepositoryCreateResult createRepository(RepositoryCreateRequest request);
+
+	RepositoryBranchCreateResult createBranch(Long repositoryId, String branchName, String sourceBranch);
+
+	RepositoryFileUploadResult uploadFile(RepositoryFileUploadRequest request);
 }

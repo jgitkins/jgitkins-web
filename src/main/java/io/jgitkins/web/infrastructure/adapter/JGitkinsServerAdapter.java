@@ -88,6 +88,16 @@ public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppT
 	}
 
 	@Override
+	public RepositoryBranchCreateResult createBranch(Long repositoryId, String branchName, String sourceBranch) {
+		return serverClient.createBranch(repositoryId, branchName, sourceBranch);
+	}
+
+	@Override
+	public RepositoryFileUploadResult uploadFile(RepositoryFileUploadRequest request) {
+		return serverClient.uploadFile(request);
+	}
+
+	@Override
 	public List<UserCredentialSummary> fetchPersonalAccessTokens() {
 		return serverClient.fetchPersonalAccessTokens();
 	}

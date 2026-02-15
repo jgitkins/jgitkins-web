@@ -1,10 +1,12 @@
 package io.jgitkins.web.presentation.controller;
 
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
+import io.jgitkins.web.application.dto.RepositoryBranchCreateResult;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
+import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
 import io.jgitkins.web.presentation.dto.RepositoryCreateForm;
 import io.jgitkins.web.presentation.support.RepositoryAccessSupport;
 import io.jgitkins.web.presentation.support.RepositoryCreateViewSupport;
@@ -21,12 +23,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,6 +42,7 @@ public class RepositoryController {
 	private final RepositoryCreateViewSupport createViewSupport;
 	private final RepositoryTreePathSupport treePathSupport;
 	private final RepositoryAccessSupport accessSupport;
+	private final RepositoryManageUseCase repositoryManageUseCase;
 	private final MessageSource messageSource;
 
 	@GetMapping("/repositories/new")
@@ -119,6 +124,47 @@ public class RepositoryController {
 		return "repositories/detail";
 	}
 
+	@PostMapping("/{namespace}/{repoName}/branches")
+	public String createBranch(@PathVariable("namespace") String namespace,
+							   @PathVariable("repoName") String repoName,
+							   @RequestParam("branchName") String branchName,
+							   @RequestParam(name = "sourceBranch", required = false) String sourceBranch,
+							   @RequestParam(name = "currentPath", required = false) String currentPath,
+							   @RequestParam(name = "currentBranch", required = false) String currentBranch,
+							   RedirectAttributes redirectAttributes) {
+		String baseBranch = org.springframework.util.StringUtils.hasText(sourceBranch) ? sourceBranch : currentBranch;
+		RepositoryBranchCreateResult result = repositoryManageUseCase.createBranchByPath(namespace, repoName, branchName, baseBranch);
+		if (result.errorMessage() != null) {
+			redirectAttributes.addFlashAttribute("branchError", result.errorMessage());
+			return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, currentBranch);
+		}
+
+		String selectedBranch = result.branch() != null && org.springframework.util.StringUtils.hasText(result.branch().name())
+				? result.branch().name()
+				: branchName;
+		redirectAttributes.addFlashAttribute("branchSuccess", "브랜치가 생성되었습니다.");
+		return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, selectedBranch);
+	}
+
+	@PostMapping("/{namespace}/{repoName}/files")
+	public String uploadFile(@PathVariable("namespace") String namespace,
+							 @PathVariable("repoName") String repoName,
+							 @RequestParam("branch") String branch,
+							 @RequestParam("path") String path,
+							 @RequestParam("message") String message,
+							 @RequestParam("file") MultipartFile file,
+							 @RequestParam(name = "currentPath", required = false) String currentPath,
+							 RedirectAttributes redirectAttributes) {
+		var result = repositoryManageUseCase.uploadFileByPath(namespace, repoName, branch, path, message, file);
+		if (result.errorMessage() != null) {
+			redirectAttributes.addFlashAttribute("fileError", result.errorMessage());
+			return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
+		}
+
+		redirectAttributes.addFlashAttribute("fileSuccess", "파일이 업로드되었습니다.");
+		return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
+	}
+
 	private String resolveValidationError(BindingResult bindingResult) {
 		if (bindingResult == null || !bindingResult.hasErrors()) {
 			return null;
@@ -132,5 +178,18 @@ public class RepositoryController {
 				"error.request.invalid",
 				LocaleContextHolder.getLocale()
 		);
+	}
+
+	private String buildRepositoryRedirect(String namespace, String repoName, String currentPath, String branch) {
+		StringBuilder builder = new StringBuilder();
+		if (org.springframework.util.StringUtils.hasText(currentPath)) {
+			builder.append("/").append(namespace).append("/").append(repoName).append("/tree/").append(currentPath.trim());
+		} else {
+			builder.append("/").append(namespace).append("/").append(repoName);
+		}
+		if (org.springframework.util.StringUtils.hasText(branch)) {
+			builder.append("?branch=").append(branch.trim());
+		}
+		return builder.toString();
 	}
 }

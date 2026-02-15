@@ -6,8 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jgitkins.web.application.dto.*;
 import io.jgitkins.web.presentation.common.ApiError;
 import io.jgitkins.web.presentation.common.ApiResponse;
+import java.io.ByteArrayInputStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
@@ -43,6 +47,9 @@ public class JGitkinsServerClient {
 			new ParameterizedTypeReference<>() {
 			};
 	private static final ParameterizedTypeReference<ApiResponse<List<BranchSummary>>> BRANCH_LIST_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
+	private static final ParameterizedTypeReference<ApiResponse<BranchSummary>> BRANCH_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
 	private static final ParameterizedTypeReference<ApiResponse<List<RepositoryFileEntry>>> FILE_LIST_TYPE =
@@ -287,6 +294,53 @@ public class JGitkinsServerClient {
 		}
 	}
 
+	public RepositoryBranchCreateResult createBranch(Long repositoryId, String branchName, String sourceBranch) {
+		try {
+			ApiResponse<BranchSummary> response = restClient.post()
+					.uri("/api/repositories/{repositoryId}/branches", repositoryId)
+					.body(new BranchCreatePayload(branchName, sourceBranch))
+					.retrieve()
+					.body(BRANCH_TYPE);
+			if (response == null) {
+				return new RepositoryBranchCreateResult(null, MESSAGE_EMPTY_RESPONSE);
+			}
+			if (response.error() != null) {
+				return new RepositoryBranchCreateResult(null, resolveApiErrorMessage(response));
+			}
+			if (response.data() == null) {
+				return new RepositoryBranchCreateResult(null, "브랜치 생성 응답이 비어 있습니다.");
+			}
+			return new RepositoryBranchCreateResult(response.data(), null);
+		} catch (RestClientResponseException ex) {
+			return new RepositoryBranchCreateResult(null, resolveErrorMessage(ex.getResponseBodyAsString(), MESSAGE_REQUEST_FAILED));
+		} catch (RestClientException ex) {
+			return new RepositoryBranchCreateResult(null, MESSAGE_SERVER_UNREACHABLE);
+		}
+	}
+
+	public RepositoryFileUploadResult uploadFile(RepositoryFileUploadRequest request) {
+		try {
+			MultipartBodyBuilder builder = new MultipartBodyBuilder();
+			builder.part("branch", request.branch());
+			builder.part("path", request.path());
+			builder.part("message", request.message());
+			builder.part("file", buildFileResource(request.content(), request.originalFilename()))
+					.contentType(resolveFileMediaType(request.contentType()));
+
+			restClient.post()
+					.uri("/api/repositories/{repositoryId}/files", request.repositoryId())
+					.contentType(MediaType.MULTIPART_FORM_DATA)
+					.body(builder.build())
+					.retrieve()
+					.toBodilessEntity();
+			return new RepositoryFileUploadResult(null);
+		} catch (RestClientResponseException ex) {
+			return new RepositoryFileUploadResult(resolveErrorMessage(ex.getResponseBodyAsString(), MESSAGE_REQUEST_FAILED));
+		} catch (RestClientException ex) {
+			return new RepositoryFileUploadResult(MESSAGE_SERVER_UNREACHABLE);
+		}
+	}
+
 	public List<UserCredentialSummary> fetchPersonalAccessTokens() {
 		try {
 			ApiResponse<List<UserCredentialSummary>> response = restClient.get()
@@ -395,5 +449,34 @@ public class JGitkinsServerClient {
 			// no-op
 		}
 		return fallbackMessage;
+	}
+
+	private InputStreamResource buildFileResource(byte[] content, String filename) {
+		byte[] safeContent = content == null ? new byte[0] : content;
+		return new InputStreamResource(new ByteArrayInputStream(safeContent)) {
+			@Override
+			public String getFilename() {
+				return filename;
+			}
+
+			@Override
+			public long contentLength() {
+				return safeContent.length;
+			}
+		};
+	}
+
+	private MediaType resolveFileMediaType(String contentType) {
+		if (!StringUtils.hasText(contentType)) {
+			return MediaType.APPLICATION_OCTET_STREAM;
+		}
+		try {
+			return MediaType.parseMediaType(contentType);
+		} catch (IllegalArgumentException ex) {
+			return MediaType.APPLICATION_OCTET_STREAM;
+		}
+	}
+
+	private record BranchCreatePayload(String name, String sourceBranch) {
 	}
 }

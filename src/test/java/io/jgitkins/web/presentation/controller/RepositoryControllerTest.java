@@ -7,9 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
+import io.jgitkins.web.application.dto.RepositoryBranchCreateResult;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
+import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
 import io.jgitkins.web.presentation.dto.RepositoryCreateForm;
 import io.jgitkins.web.presentation.support.RepositoryAccessSupport;
 import io.jgitkins.web.presentation.support.RepositoryCreateViewSupport;
@@ -21,12 +23,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 @ExtendWith(MockitoExtension.class)
 class RepositoryControllerTest {
@@ -44,6 +49,8 @@ class RepositoryControllerTest {
 	@Mock
 	private RepositoryAccessSupport accessSupport;
 	@Mock
+	private RepositoryManageUseCase repositoryManageUseCase;
+	@Mock
 	private MessageSource messageSource;
 
 	private RepositoryController controller;
@@ -57,10 +64,11 @@ class RepositoryControllerTest {
 				createViewSupport,
 				treePathSupport,
 				accessSupport,
+				repositoryManageUseCase,
 				messageSource
 		);
-		when(userProfileResolver.resolve(any())).thenReturn(new RepositoryUserProfile("alzar", "a@b.c"));
-		when(repositoryCreateUseCase.loadOwnerOptions()).thenReturn(new OrganizeFetchResult(List.of(), null));
+		Mockito.lenient().when(userProfileResolver.resolve(any())).thenReturn(new RepositoryUserProfile("alzar", "a@b.c"));
+		Mockito.lenient().when(repositoryCreateUseCase.loadOwnerOptions()).thenReturn(new OrganizeFetchResult(List.of(), null));
 	}
 
 	@Test
@@ -91,5 +99,29 @@ class RepositoryControllerTest {
 
 		assertEquals("redirect:/", view);
 		verify(repositoryCreateUseCase).createRepository(any());
+	}
+
+	@Test
+	void createBranch_redirectsToNewBranchOnSuccess() {
+		RedirectAttributesModelMap redirect = new RedirectAttributesModelMap();
+		when(repositoryManageUseCase.createBranchByPath("team", "demo", "feature/x", "main"))
+				.thenReturn(new RepositoryBranchCreateResult(new io.jgitkins.web.application.dto.BranchSummary(1L, "feature/x", false, false, false), null));
+
+		String view = controller.createBranch("team", "demo", "feature/x", "main", "src", "main", redirect);
+
+		assertEquals("redirect:/team/demo/tree/src?branch=feature/x", view);
+	}
+
+	@Test
+	void uploadFile_redirectsWithErrorWhenUploadFails() {
+		RedirectAttributesModelMap redirect = new RedirectAttributesModelMap();
+		MockMultipartFile file = new MockMultipartFile("file", "README.md", "text/markdown", "# hi".getBytes());
+		when(repositoryManageUseCase.uploadFileByPath("team", "demo", "main", "README.md", "add", file))
+				.thenReturn(new io.jgitkins.web.application.dto.RepositoryFileUploadResult("failed"));
+
+		String view = controller.uploadFile("team", "demo", "main", "README.md", "add", file, "", redirect);
+
+		assertEquals("redirect:/team/demo?branch=main", view);
+		assertEquals("failed", redirect.getFlashAttributes().get("fileError"));
 	}
 }

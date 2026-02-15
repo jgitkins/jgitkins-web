@@ -13,6 +13,10 @@
 	<div class="alert" th:if="${detail.errorMessage != null}" th:text="${detail.errorMessage}"></div>
 
 	<section class="repo-detail" th:if="${detail.repository != null}">
+		<div class="alert" th:if="${branchError != null}" th:text="${branchError}"></div>
+		<div class="alert" th:if="${fileError != null}" th:text="${fileError}"></div>
+		<div class="success" th:if="${branchSuccess != null}" th:text="${branchSuccess}"></div>
+		<div class="success" th:if="${fileSuccess != null}" th:text="${fileSuccess}"></div>
 <!--		<div class="repo-detail__stats">-->
 <!--			<div class="repo-detail__stat">-->
 <!--				<span>Commits</span>-->
@@ -82,8 +86,41 @@
 								</span>
 							</summary>
 							<div class="menu__panel">
-								<button class="menu__item menu__item--button" type="button">New branch</button>
-								<button class="menu__item menu__item--button" type="button">New file</button>
+								<form th:action="|/${namespace}/${repoName}/branches|" method="post" class="menu__item">
+									<input type="hidden" name="currentPath" th:value="${currentPath}" />
+									<input type="hidden" name="currentBranch" th:value="${detail.selectedBranch}" />
+									<div class="form-row">
+										<label class="label" for="new-branch-name">New branch</label>
+										<input id="new-branch-name" class="input" type="text" name="branchName" placeholder="feature/my-branch" required />
+									</div>
+									<div class="form-row">
+										<label class="label" for="source-branch">From</label>
+										<input id="source-branch" class="input" type="text" name="sourceBranch" th:value="${detail.selectedBranch}" />
+									</div>
+									<button class="ghost" type="submit">Create branch</button>
+								</form>
+								<form th:action="|/${namespace}/${repoName}/files|" method="post" enctype="multipart/form-data" class="menu__item">
+									<input type="hidden" name="currentPath" th:value="${currentPath}" />
+									<div class="form-row">
+										<label class="label" for="upload-branch">Branch</label>
+										<input id="upload-branch" class="input" type="text" name="branch" th:value="${detail.selectedBranch}" required />
+									</div>
+									<div class="form-row">
+										<label class="label" for="upload-path">Path</label>
+										<input id="upload-path" class="input" type="text" name="path"
+											   th:value="${currentPath != null && !currentPath.isEmpty() ? currentPath + '/' : ''}"
+											   placeholder="src/main/resources/new-file.txt" required />
+									</div>
+									<div class="form-row">
+										<label class="label" for="upload-message">Commit message</label>
+										<input id="upload-message" class="input" type="text" name="message" placeholder="Add new file" required />
+									</div>
+									<div class="form-row">
+										<label class="label" for="upload-file">File</label>
+										<input id="upload-file" class="input" type="file" name="file" required />
+									</div>
+									<button class="ghost" type="submit">Upload file</button>
+								</form>
 							</div>
 						</details>
 						<details class="menu repo-detail__menu">

@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": "16",
+        "id": 16,
         "title": "코드 리팩토링",
         "description": "기존 리팩토링 작업 전체를 하나의 에픽으로 통합 관리",
         "status": "done",
@@ -196,10 +196,10 @@
         "updatedAt": "2026-02-13T13:39:27.090Z"
       },
       {
-        "id": "17",
+        "id": 17,
         "title": "Repository Feature 확장",
         "description": "저장소 사용성 향상을 위한 브랜치 생성 및 파일 업로드 기능 추가",
-        "status": "done",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "details": "Repository 상세 화면에서 사용자가 새 브랜치를 생성하고 새 파일을 업로드할 수 있는 기능을 구현한다.",
@@ -226,19 +226,32 @@
             "parentTaskId": 17,
             "parentId": "17",
             "updatedAt": "2026-02-13T13:50:31.247Z"
+          },
+          {
+            "id": 3,
+            "title": "Find a file용 브랜치별 트리 캐시 설계",
+            "description": "jgitkins-web에서 Valkey 기반 브랜치/커밋 SHA 키 캐시로 트리 인덱스 조회 경로를 설계하고 연동 포인트를 정의한다.",
+            "details": "상세 진입 시 cache hit/miss 플로우(Valkey 조회 -> miss 시 jgit-server 질의 -> 캐시 저장), commit SHA 기반 키 전략, TTL/재검증 정책, 브랜치 전환 시 동작을 문서화하고 구현 범위를 분리한다.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 17,
+            "parentId": "17",
+            "updatedAt": "2026-02-15T09:22:30.000Z"
           }
         ],
-        "updatedAt": "2026-02-13T13:50:31.247Z"
+        "updatedAt": "2026-02-15T09:21:48.077Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-13T13:50:31.248Z",
+      "lastModified": "2026-02-15T09:21:48.078Z",
       "taskCount": 2,
-      "completedCount": 2,
+      "completedCount": 1,
       "tags": [
         "master"
-      ]
+      ],
+      "created": "2026-02-15T09:21:48.086Z",
+      "description": "Tasks for master context"
     }
   }
 }

@@ -23,7 +23,7 @@
             "legacyTaskId": 2
           }
         ],
-        "updatedAt": "2026-02-16T23:40:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
         "id": 2,
@@ -47,7 +47,7 @@
             "legacyTaskId": 1
           }
         ],
-        "updatedAt": "2026-02-16T23:40:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
         "id": 3,
@@ -59,7 +59,7 @@
         "details": "카테고리 기반 상위 Task",
         "testStrategy": "이슈별 재현 및 회귀 테스트",
         "subtasks": [],
-        "updatedAt": "2026-02-16T23:40:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
         "id": 4,
@@ -71,7 +71,7 @@
         "details": "카테고리 기반 상위 Task",
         "testStrategy": "이슈별 재현 및 회귀 테스트",
         "subtasks": [],
-        "updatedAt": "2026-02-16T23:40:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
         "id": 5,
@@ -83,19 +83,20 @@
         "details": "카테고리 기반 상위 Task",
         "testStrategy": "이슈별 재현 및 회귀 테스트",
         "subtasks": [],
-        "updatedAt": "2026-02-16T23:40:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-16T23:40:00+09:00",
+      "lastModified": "2026-02-16T23:43:00+09:00",
       "taskCount": 5,
       "completedCount": 1,
       "tags": [
         "master"
       ],
       "created": "2026-02-15T09:21:48.086Z",
-      "description": "Tasks for master context"
+      "description": "Tasks for master context",
+      "standard": "task-standard-v1"
     }
   }
 }

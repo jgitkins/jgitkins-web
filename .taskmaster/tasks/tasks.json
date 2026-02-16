@@ -24,16 +24,16 @@
           },
           {
             "id": 2,
-            "title": "[2.3] 저장소 트리 서빙 캐시(Valkey) 적용",
-            "description": "브랜치 HEAD(commit SHA) + 디렉터리 기반으로 트리 조회를 캐싱해 find/tree 조회 latency를 줄인다.",
-            "details": "RepositoryDetailService에서 tree 조회 시 commit SHA 키로 캐시 hit/miss를 분기하고 miss 시 서버 조회 후 TTL(5분)로 저장한다.",
+            "title": "[2.3] Find a file용 전체 파일 인덱스 캐시(Valkey) 적용",
+            "description": "브랜치 기준 전체 파일 목록 인덱스를 캐시해 Find a file 키업 검색 응답을 실시간으로 제공한다.",
+            "details": "RepositoryDetailService에서 branch HEAD(commit SHA) 기반 키로 전체 파일 인덱스를 캐시(5분 TTL)하고, /{namespace}/{repoName}/find-files 엔드포인트에서 키워드 필터 결과를 반환한다.",
             "status": "done",
             "dependencies": [
               1
             ],
             "parentTaskId": 1,
             "parentId": "1",
-            "updatedAt": "2026-02-17T01:53:00+09:00"
+            "updatedAt": "2026-02-17T09:00:00+09:00"
           },
           {
             "id": 3,
@@ -48,7 +48,7 @@
             "parentId": "1"
           }
         ],
-        "updatedAt": "2026-02-17T01:53:00+09:00"
+        "updatedAt": "2026-02-17T09:00:00+09:00"
       },
       {
         "id": 2,
@@ -113,7 +113,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-17T01:53:00+09:00",
+      "lastModified": "2026-02-17T09:00:00+09:00",
       "taskCount": 5,
       "completedCount": 1,
       "tags": [

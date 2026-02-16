@@ -4,6 +4,7 @@ import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.RepositoryBranchCreateResult;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
+import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,7 +31,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -122,6 +126,17 @@ public class RepositoryController {
 		model.addAttribute("currentPath", directory);
 		model.addAttribute("detail", detail);
 		return "repositories/detail";
+	}
+
+	@GetMapping("/{namespace}/{repoName}/find-files")
+	@ResponseBody
+	public ResponseEntity<List<RepositoryFileEntry>> findFiles(@PathVariable("namespace") String namespace,
+											   @PathVariable("repoName") String repoName,
+											   @RequestParam(name = "branch", required = false) String branch,
+											   @RequestParam(name = "q", required = false, defaultValue = "") String query,
+											   @RequestParam(name = "limit", required = false, defaultValue = "20") int limit) {
+		List<RepositoryFileEntry> files = repositoryDetailUseCase.searchRepositoryFilesByPath(namespace, repoName, branch, query, limit);
+		return ResponseEntity.ok(files);
 	}
 
 	@PostMapping("/{namespace}/{repoName}/branches")

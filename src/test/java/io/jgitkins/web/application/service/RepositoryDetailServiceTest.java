@@ -29,11 +29,14 @@ class RepositoryDetailServiceTest {
     @Mock
     private RepositoryTreeCacheSupport repositoryTreeCacheSupport;
 
+    @Mock
+    private RepositoryFileIndexCacheSupport repositoryFileIndexCacheSupport;
+
     private RepositoryDetailService service;
 
     @BeforeEach
     void setUp() {
-        service = new RepositoryDetailService(repositoryPort, repositoryTreeCacheSupport);
+        service = new RepositoryDetailService(repositoryPort, repositoryTreeCacheSupport, repositoryFileIndexCacheSupport);
     }
 
     @Test
@@ -54,6 +57,26 @@ class RepositoryDetailServiceTest {
         assertThat(result.files()).hasSize(1);
         assertThat(result.files().get(0).name()).isEqualTo("cached-file");
         verify(repositoryPort, never()).fetchRepositoryTree("users/alice", "demo", "main", "src");
+    }
+
+    @Test
+    void searchRepositoryFilesByPath_usesIndexCacheAndFiltersByKeyword() {
+        List<RepositoryFileEntry> cached = List.of(
+                new RepositoryFileEntry("1", "README.md", "README.md", "blob", "100644", 10L),
+                new RepositoryFileEntry("2", "RepoService.java", "src/RepoService.java", "blob", "100644", 100L),
+                new RepositoryFileEntry("3", "Other.java", "src/Other.java", "blob", "100644", 100L)
+        );
+
+        when(repositoryPort.fetchCommits("users/alice", "demo", "main"))
+                .thenReturn(List.of(new CommitSummary("c1", "alice", "a@test.com", "msg", LocalDateTime.now())));
+        when(repositoryFileIndexCacheSupport.get("users/alice", "demo", "main", "c1"))
+                .thenReturn(Optional.of(cached));
+
+        List<RepositoryFileEntry> result = service.searchRepositoryFilesByPath("users/alice", "demo", "main", "repo", 20);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).path()).isEqualTo("src/RepoService.java");
+        verify(repositoryPort, never()).fetchRepositoryFiles("users/alice", "demo", "main");
     }
 
     @Test

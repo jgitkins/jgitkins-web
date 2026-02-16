@@ -3,262 +3,93 @@
     "tasks": [
       {
         "id": 1,
-        "title": "코드 리팩토링",
-        "description": "기존 리팩토링 작업 전체를 하나의 에픽으로 통합 관리",
-        "status": "done",
-        "dependencies": [],
-        "priority": "high",
-        "details": "기존 Task 1~15를 모두 SubTask로 이동해 단일 상위 작업으로 관리합니다.",
-        "testStrategy": "각 서브태스크 완료 시 회귀 테스트를 수행하고 전체 검증을 실행합니다.",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "공통 경로 파싱 유틸로 중복 제거",
-            "description": "Repository 경로/namespace 파싱 로직을 단일 유틸 또는 도메인 서비스로 통합한다.",
-            "details": "ExploreController, RepositoryDetailService, NamespaceDetailService, DashboardService에 흩어진 parse/trim/lastSegment 로직을 공통화하고 단위 테스트를 추가한다.",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-10T12:51:17.501Z"
-          },
-          {
-            "id": 2,
-            "title": "PAT 만료일 필드 전달 누락 수정",
-            "description": "SettingsController의 expiration 검증 결과가 실제 요청 DTO로 전달되도록 수정한다.",
-            "details": "PersonalAccessTokenForm.expiration을 UserCredentialIssueRequest 및 서버 API 계약에 맞게 반영하고, 폼-DTO-클라이언트 경로를 일치시킨다.",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-10T12:58:10.330Z"
-          },
-          {
-            "id": 3,
-            "title": "로그 설정 정상화",
-            "description": "logback 루트 레벨 OFF를 환경별 합리적 레벨로 조정하고 debug=true를 제거한다.",
-            "details": "local은 INFO/DEBUG, 비로컬은 INFO/WARN 기반으로 조정하고 불필요한 과다 로그를 줄인다.",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-10T13:01:59.399Z"
-          },
-          {
-            "id": 4,
-            "title": "SecurityConfig 정규식 매처 단순화",
-            "description": "복잡한 RegexRequestMatcher 기반 접근 제어를 명시적인 패턴/구성으로 단순화한다.",
-            "details": "공개 라우트/인증 라우트를 분리 정의하고 신규 라우트 추가 시 회귀를 줄이는 구조로 바꾼다.",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-10T13:03:37.188Z"
-          },
-          {
-            "id": 5,
-            "title": "HTTP 로그 민감정보 보호",
-            "description": "HttpLogFilter의 응답 바디 로깅 정책을 안전하게 개선한다.",
-            "details": "마스킹 규칙, 최대 길이, 환경별 on/off, 정적 리소스 제외 정책을 재정의한다.",
-            "status": "done",
-            "dependencies": [
-              3
-            ],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-10T13:05:22.232Z"
-          },
-          {
-            "id": 6,
-            "title": "SOPS 환경 로더 안정성 강화",
-            "description": "SopsEnvironmentPostProcessor의 프로세스 실행/예외 처리를 견고하게 만든다.",
-            "details": "System.out 제거, 타임아웃/에러스트림 처리, 실패 메시지 표준화, 프로파일별 동작 정리",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-10T13:06:24.250Z"
-          },
-          {
-            "id": 7,
-            "title": "주석 처리된 레거시 코드 정리",
-            "description": "사용하지 않는 주석 파일/코드 블록을 삭제하거나 문서화된 대체 경로로 이동한다.",
-            "details": "HttpLogFilterOld, JgitkinsAdapter, RepositoryController 내 대형 주석 블록 정리",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-10T13:07:29.146Z"
-          },
-          {
-            "id": 8,
-            "title": "RepositoryController 비대화 해소",
-            "description": "RepositoryController 책임을 분리해 가독성과 유지보수성을 개선한다.",
-            "details": "검증, 사용자 프로필 해석, view model 구성, request 매핑 로직을 support/service로 분리",
-            "status": "done",
-            "dependencies": [
-              1
-            ],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-13T13:00:00Z"
-          },
-          {
-            "id": 9,
-            "title": "JGitkinsServerClient 에러 처리 일관화",
-            "description": "예외 처리/응답 매핑 스타일을 일관화하고 catch(Exception) 범위를 축소한다.",
-            "details": "공통 에러 매핑 메서드 도입, API 오류 메시지 표준화, null 반환 축소",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-13T13:20:00Z"
-          },
-          {
-            "id": 10,
-            "title": "Bean Validation 도입",
-            "description": "폼 검증 로직을 @Valid + Constraint 어노테이션 기반으로 전환한다.",
-            "details": "RepositoryCreateForm, OrganizeCreateForm, PersonalAccessTokenForm에 제약조건 추가 및 BindingResult 처리",
-            "status": "done",
-            "dependencies": [
-              8
-            ],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-13T13:34:02.079Z"
-          },
-          {
-            "id": 11,
-            "title": "오류 메시지 i18n 통합",
-            "description": "영/한 혼재 문자열을 메시지 소스로 통합한다.",
-            "details": "messages.properties, messages_ko.properties를 도입하고 컨트롤러 하드코딩 문자열 제거",
-            "status": "done",
-            "dependencies": [
-              10
-            ],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-13T13:36:32.507Z"
-          },
-          {
-            "id": 12,
-            "title": "Dashboard 커밋 조회 N+1 완화",
-            "description": "리포지토리별 커밋 조회 반복 호출을 줄여 응답 성능을 개선한다.",
-            "details": "배치 API 도입 또는 조회 제한/비동기 전략으로 latency를 줄인다.",
-            "status": "done",
-            "dependencies": [
-              1
-            ],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-13T13:37:26.338Z"
-          },
-          {
-            "id": 13,
-            "title": "세션 접근 코드 정리",
-            "description": "중복 getSession(true/false) 호출과 세션 키 접근 패턴을 정리한다.",
-            "details": "UsernameSetupController, OAuth2LoginSuccessHandler, SessionSupport 주변 중복 제거",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-13T13:28:27.123Z"
-          },
-          {
-            "id": 14,
-            "title": "테스트 베이스라인 구축",
-            "description": "서비스/컨트롤러 핵심 경로에 최소 회귀 테스트 세트를 구축한다.",
-            "details": "Repository/Settings/Organize 흐름 중심으로 단위+MVC 테스트 추가",
-            "status": "done",
-            "dependencies": [
-              1,
-              2,
-              8,
-              9,
-              10
-            ],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-13T13:39:27.090Z"
-          },
-          {
-            "id": 15,
-            "title": "Gradle 의존성 스코프 정리",
-            "description": "devtools 등 런타임 영향 의존성의 스코프를 재정의한다.",
-            "details": "spring-boot-devtools를 developmentOnly로 이동하고 빌드 산출물 영향도를 점검",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "1",
-            "updatedAt": "2026-02-13T13:31:58.405Z"
-          }
-        ],
-        "updatedAt": "2026-02-13T13:39:27.090Z"
-      },
-      {
-        "id": 2,
-        "title": "Repository Feature 확장",
-        "description": "저장소 사용성 향상을 위한 브랜치 생성 및 파일 업로드 기능 추가",
+        "title": "신규기능",
+        "description": "사용자 가치 전달을 위한 기능 개발/확장 작업",
         "status": "in-progress",
         "dependencies": [],
         "priority": "high",
-        "details": "Repository 상세 화면에서 사용자가 새 브랜치를 생성하고 새 파일을 업로드할 수 있는 기능을 구현한다.",
-        "testStrategy": "컨트롤러/서비스 단위 테스트 및 업로드 플로우 통합 테스트",
+        "details": "카테고리 기반 상위 Task",
+        "testStrategy": "하위 작업별 회귀 테스트",
         "subtasks": [
           {
             "id": 1,
-            "title": "New Branch 생성 기능",
-            "description": "사용자가 저장소에서 새 브랜치를 생성할 수 있는 UI/API 플로우 구현",
-            "details": "브랜치명 검증, 중복 브랜치 처리, 생성 성공 후 브랜치 목록/선택 상태 반영",
-            "status": "done",
+            "title": "[2] Repository Feature 확장",
+            "description": "저장소 사용성 향상을 위한 브랜치 생성 및 파일 업로드 기능 추가",
+            "details": "Repository 상세 화면에서 사용자가 새 브랜치를 생성하고 새 파일을 업로드할 수 있는 기능을 구현한다.",
+            "status": "in-progress",
             "dependencies": [],
-            "parentTaskId": 2,
-            "parentId": "2",
-            "updatedAt": "2026-02-13T13:50:31.240Z"
-          },
-          {
-            "id": 2,
-            "title": "New File 생성 기능 (File Upload)",
-            "description": "사용자가 파일을 업로드하여 새 파일을 저장소에 생성할 수 있는 기능 구현",
-            "details": "업로드 크기/확장자 검증, 경로 선택, 커밋 메시지 입력, 업로드 성공 후 트리/상세 화면 반영",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 2,
-            "parentId": "2",
-            "updatedAt": "2026-02-13T13:50:31.247Z"
-          },
-          {
-            "id": 3,
-            "title": "Find a file용 브랜치별 트리 캐시 설계",
-            "description": "jgitkins-web에서 Valkey 기반 브랜치/커밋 SHA 키 캐시로 트리 인덱스 조회 경로를 설계하고 연동 포인트를 정의한다.",
-            "details": "상세 진입 시 cache hit/miss 플로우(Valkey 조회 -> miss 시 jgit-server 질의 -> 캐시 저장), commit SHA 기반 키 전략, TTL/재검증 정책, 브랜치 전환 시 동작을 문서화하고 구현 범위를 분리한다.",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 2,
-            "parentId": "2",
-            "updatedAt": "2026-02-15T09:22:30.000Z"
-          },
-          {
-            "id": 4,
-            "title": "Repository 화면 기능 버튼 인증/인가 제어",
-            "description": "Public repository는 비로그인 접근을 허용하되, 브랜치 생성/파일 업로드/수정성 기능 버튼은 인증 및 권한 보유 사용자에게만 노출·실행 가능하도록 제한한다.",
-            "details": "Repository detail/tree 화면에서 쓰기 액션 UI를 권한 기반으로 분기하고, 서버 측에서도 동일 정책으로 재검증한다. 비인증/권한없음 사용자는 기능 버튼 비활성 또는 숨김 처리 및 API 호출 시 401/403 응답을 보장한다.",
-            "status": "pending",
-            "dependencies": [
-              1,
-              2
-            ],
-            "parentTaskId": 2,
-            "parentId": "2"
+            "parentTaskId": 1,
+            "parentId": "1",
+            "legacyTaskId": 2
           }
         ],
-        "updatedAt": "2026-02-16T22:56:00+09:00"
+        "updatedAt": "2026-02-16T23:40:00+09:00"
+      },
+      {
+        "id": 2,
+        "title": "리팩토링",
+        "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "details": "카테고리 기반 상위 Task",
+        "testStrategy": "하위 작업별 회귀 테스트",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "[1] 코드 리팩토링",
+            "description": "기존 리팩토링 작업 전체를 하나의 에픽으로 통합 관리",
+            "details": "기존 Task 1~15를 모두 SubTask로 이동해 단일 상위 작업으로 관리합니다.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "legacyTaskId": 1
+          }
+        ],
+        "updatedAt": "2026-02-16T23:40:00+09:00"
+      },
+      {
+        "id": 3,
+        "title": "보안",
+        "description": "인증/인가/자격증명/보안 회귀 강화 작업",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "카테고리 기반 상위 Task",
+        "testStrategy": "이슈별 재현 및 회귀 테스트",
+        "subtasks": [],
+        "updatedAt": "2026-02-16T23:40:00+09:00"
+      },
+      {
+        "id": 4,
+        "title": "운영/인프라",
+        "description": "배포/모니터링/CI-CD/운영 안정성 개선 작업",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "카테고리 기반 상위 Task",
+        "testStrategy": "이슈별 재현 및 회귀 테스트",
+        "subtasks": [],
+        "updatedAt": "2026-02-16T23:40:00+09:00"
+      },
+      {
+        "id": 5,
+        "title": "버그/핫픽스",
+        "description": "사용자 영향 버그 및 긴급 수정 작업",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "카테고리 기반 상위 Task",
+        "testStrategy": "이슈별 재현 및 회귀 테스트",
+        "subtasks": [],
+        "updatedAt": "2026-02-16T23:40:00+09:00"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-16T23:05:00+09:00",
-      "taskCount": 2,
+      "lastModified": "2026-02-16T23:40:00+09:00",
+      "taskCount": 5,
       "completedCount": 1,
       "tags": [
         "master"

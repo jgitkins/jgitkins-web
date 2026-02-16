@@ -237,14 +237,27 @@
             "parentTaskId": 17,
             "parentId": "17",
             "updatedAt": "2026-02-15T09:22:30.000Z"
+          },
+          {
+            "id": 4,
+            "title": "Repository 화면 기능 버튼 인증/인가 제어",
+            "description": "Public repository는 비로그인 접근을 허용하되, 브랜치 생성/파일 업로드/수정성 기능 버튼은 인증 및 권한 보유 사용자에게만 노출·실행 가능하도록 제한한다.",
+            "details": "Repository detail/tree 화면에서 쓰기 액션 UI를 권한 기반으로 분기하고, 서버 측에서도 동일 정책으로 재검증한다. 비인증/권한없음 사용자는 기능 버튼 비활성 또는 숨김 처리 및 API 호출 시 401/403 응답을 보장한다.",
+            "status": "pending",
+            "dependencies": [
+              1,
+              2
+            ],
+            "parentTaskId": 17,
+            "parentId": "17"
           }
         ],
-        "updatedAt": "2026-02-15T09:21:48.077Z"
+        "updatedAt": "2026-02-16T22:56:00+09:00"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-15T09:21:48.078Z",
+      "lastModified": "2026-02-16T22:56:00+09:00",
       "taskCount": 2,
       "completedCount": 1,
       "tags": [

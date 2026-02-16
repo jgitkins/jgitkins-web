@@ -1,4 +1,4 @@
-# Task ID: 17
+# Task ID: 2
 
 **Title:** Repository Feature 확장
 
@@ -20,7 +20,7 @@ Repository 상세 화면에서 사용자가 새 브랜치를 생성하고 새 �
 
 ## Subtasks
 
-### 17.1. New Branch 생성 기능
+### 2.1. New Branch 생성 기능
 
 **Status:** done  
 **Dependencies:** None  
@@ -31,7 +31,7 @@ Repository 상세 화면에서 사용자가 새 브랜치를 생성하고 새 �
 
 브랜치명 검증, 중복 브랜치 처리, 생성 성공 후 브랜치 목록/선택 상태 반영
 
-### 17.2. New File 생성 기능 (File Upload)
+### 2.2. New File 생성 기능 (File Upload)
 
 **Status:** done  
 **Dependencies:** None  
@@ -42,7 +42,7 @@ Repository 상세 화면에서 사용자가 새 브랜치를 생성하고 새 �
 
 업로드 크기/확장자 검증, 경로 선택, 커밋 메시지 입력, 업로드 성공 후 트리/상세 화면 반영
 
-### 17.3. Find a file용 브랜치별 트리 캐시 설계
+### 2.3. Find a file용 브랜치별 트리 캐시 설계
 
 **Status:** pending  
 **Dependencies:** None  
@@ -53,10 +53,10 @@ jgitkins-web에서 Valkey 기반 브랜치/커밋 SHA 키 캐시로 트리 인�
 
 상세 진입 시 cache hit/miss 플로우(Valkey 조회 -> miss 시 jgit-server 질의 -> 캐시 저장), commit SHA 기반 키 전략, TTL/재검증 정책, 브랜치 전환 시 동작을 문서화하고 구현 범위를 분리한다.
 
-### 17.4. Repository 화면 기능 버튼 인증/인가 제어
+### 2.4. Repository 화면 기능 버튼 인증/인가 제어
 
 **Status:** pending  
-**Dependencies:** 17.1, 17.2  
+**Dependencies:** 2.1, 2.2  
 
 Public repository는 비로그인 접근을 허용하되, 브랜치 생성/파일 업로드/수정성 기능 버튼은 인증 및 권한 보유 사용자에게만 노출·실행 가능하도록 제한한다.
 

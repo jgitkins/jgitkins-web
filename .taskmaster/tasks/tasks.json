@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 16,
+        "id": 1,
         "title": "코드 리팩토링",
         "description": "기존 리팩토링 작업 전체를 하나의 에픽으로 통합 관리",
         "status": "done",
@@ -18,8 +18,8 @@
             "details": "ExploreController, RepositoryDetailService, NamespaceDetailService, DashboardService에 흩어진 parse/trim/lastSegment 로직을 공통화하고 단위 테스트를 추가한다.",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-10T12:51:17.501Z"
           },
           {
@@ -29,8 +29,8 @@
             "details": "PersonalAccessTokenForm.expiration을 UserCredentialIssueRequest 및 서버 API 계약에 맞게 반영하고, 폼-DTO-클라이언트 경로를 일치시킨다.",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-10T12:58:10.330Z"
           },
           {
@@ -40,8 +40,8 @@
             "details": "local은 INFO/DEBUG, 비로컬은 INFO/WARN 기반으로 조정하고 불필요한 과다 로그를 줄인다.",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-10T13:01:59.399Z"
           },
           {
@@ -51,8 +51,8 @@
             "details": "공개 라우트/인증 라우트를 분리 정의하고 신규 라우트 추가 시 회귀를 줄이는 구조로 바꾼다.",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-10T13:03:37.188Z"
           },
           {
@@ -64,8 +64,8 @@
             "dependencies": [
               3
             ],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-10T13:05:22.232Z"
           },
           {
@@ -75,8 +75,8 @@
             "details": "System.out 제거, 타임아웃/에러스트림 처리, 실패 메시지 표준화, 프로파일별 동작 정리",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-10T13:06:24.250Z"
           },
           {
@@ -86,8 +86,8 @@
             "details": "HttpLogFilterOld, JgitkinsAdapter, RepositoryController 내 대형 주석 블록 정리",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-10T13:07:29.146Z"
           },
           {
@@ -99,8 +99,8 @@
             "dependencies": [
               1
             ],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-13T13:00:00Z"
           },
           {
@@ -110,8 +110,8 @@
             "details": "공통 에러 매핑 메서드 도입, API 오류 메시지 표준화, null 반환 축소",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-13T13:20:00Z"
           },
           {
@@ -123,8 +123,8 @@
             "dependencies": [
               8
             ],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-13T13:34:02.079Z"
           },
           {
@@ -136,8 +136,8 @@
             "dependencies": [
               10
             ],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-13T13:36:32.507Z"
           },
           {
@@ -149,8 +149,8 @@
             "dependencies": [
               1
             ],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-13T13:37:26.338Z"
           },
           {
@@ -160,8 +160,8 @@
             "details": "UsernameSetupController, OAuth2LoginSuccessHandler, SessionSupport 주변 중복 제거",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-13T13:28:27.123Z"
           },
           {
@@ -177,8 +177,8 @@
               9,
               10
             ],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-13T13:39:27.090Z"
           },
           {
@@ -188,15 +188,15 @@
             "details": "spring-boot-devtools를 developmentOnly로 이동하고 빌드 산출물 영향도를 점검",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 16,
-            "parentId": "16",
+            "parentTaskId": 1,
+            "parentId": "1",
             "updatedAt": "2026-02-13T13:31:58.405Z"
           }
         ],
         "updatedAt": "2026-02-13T13:39:27.090Z"
       },
       {
-        "id": 17,
+        "id": 2,
         "title": "Repository Feature 확장",
         "description": "저장소 사용성 향상을 위한 브랜치 생성 및 파일 업로드 기능 추가",
         "status": "in-progress",
@@ -212,8 +212,8 @@
             "details": "브랜치명 검증, 중복 브랜치 처리, 생성 성공 후 브랜치 목록/선택 상태 반영",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 17,
-            "parentId": "17",
+            "parentTaskId": 2,
+            "parentId": "2",
             "updatedAt": "2026-02-13T13:50:31.240Z"
           },
           {
@@ -223,8 +223,8 @@
             "details": "업로드 크기/확장자 검증, 경로 선택, 커밋 메시지 입력, 업로드 성공 후 트리/상세 화면 반영",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 17,
-            "parentId": "17",
+            "parentTaskId": 2,
+            "parentId": "2",
             "updatedAt": "2026-02-13T13:50:31.247Z"
           },
           {
@@ -234,8 +234,8 @@
             "details": "상세 진입 시 cache hit/miss 플로우(Valkey 조회 -> miss 시 jgit-server 질의 -> 캐시 저장), commit SHA 기반 키 전략, TTL/재검증 정책, 브랜치 전환 시 동작을 문서화하고 구현 범위를 분리한다.",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 17,
-            "parentId": "17",
+            "parentTaskId": 2,
+            "parentId": "2",
             "updatedAt": "2026-02-15T09:22:30.000Z"
           },
           {
@@ -248,8 +248,8 @@
               1,
               2
             ],
-            "parentTaskId": 17,
-            "parentId": "17"
+            "parentTaskId": 2,
+            "parentId": "2"
           }
         ],
         "updatedAt": "2026-02-16T22:56:00+09:00"
@@ -257,7 +257,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-16T22:56:00+09:00",
+      "lastModified": "2026-02-16T23:05:00+09:00",
       "taskCount": 2,
       "completedCount": 1,
       "tags": [

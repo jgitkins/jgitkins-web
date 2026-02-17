@@ -20,6 +20,8 @@ public interface RepositoryPort {
 
 	List<RepositoryFileEntry> fetchRepositoryFiles(String namespace, String repoName, String branch);
 
+	List<RepositoryFileIndexEntry> fetchRepositoryFileIndex(String namespace, String repoName, String branch);
+
 	List<RepositoryFileEntry> fetchRepositoryTree(String namespace, String repoName, String branch, String directory);
 
 	RepositoryCreateResult createRepository(RepositoryCreateRequest request);

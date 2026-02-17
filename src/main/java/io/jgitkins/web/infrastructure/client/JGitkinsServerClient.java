@@ -52,6 +52,9 @@ public class JGitkinsServerClient {
 	private static final ParameterizedTypeReference<ApiResponse<List<RepositoryFileEntry>>> FILE_LIST_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
+	private static final ParameterizedTypeReference<ApiResponse<List<RepositoryFileIndexEntry>>> FILE_INDEX_LIST_TYPE =
+			new ParameterizedTypeReference<>() {
+			};
 	private static final ParameterizedTypeReference<ApiResponse<RepositoryOverviewResult>> OVERVIEW_TYPE =
 			new ParameterizedTypeReference<>() {
 			};
@@ -229,6 +232,18 @@ public class JGitkinsServerClient {
 					.uri("/repositories/{namespace}/{repo}/files?ref={branch}", namespace, repoName, branch)
 					.retrieve()
 					.body(FILE_LIST_TYPE);
+			return extractList(response);
+		} catch (RestClientException ex) {
+			return List.of();
+		}
+	}
+
+	public List<RepositoryFileIndexEntry> fetchRepositoryFileIndex(String namespace, String repoName, String branch) {
+		try {
+			ApiResponse<List<RepositoryFileIndexEntry>> response = restClient.get()
+					.uri("/repositories/{namespace}/{repo}/files/index?ref={branch}", namespace, repoName, branch)
+					.retrieve()
+					.body(FILE_INDEX_LIST_TYPE);
 			return extractList(response);
 		} catch (RestClientException ex) {
 			return List.of();

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.RepositoryBranchCreateResult;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
+import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
@@ -123,5 +124,17 @@ class RepositoryControllerTest {
 
 		assertEquals("redirect:/team/demo?branch=main", view);
 		assertEquals("failed", redirect.getFlashAttributes().get("fileError"));
+	}
+
+	@Test
+	void findFileIndex_returnsIndexList() {
+		when(repositoryDetailUseCase.loadRepositoryFileIndexByPath("team", "demo", "main"))
+				.thenReturn(List.of(new RepositoryFileIndexEntry("README.md", "README.md", "blob")));
+
+		var response = controller.findFileIndex("team", "demo", "main");
+
+		assertEquals(200, response.getStatusCode().value());
+		assertEquals(1, response.getBody().size());
+		assertEquals("README.md", response.getBody().get(0).name());
 	}
 }

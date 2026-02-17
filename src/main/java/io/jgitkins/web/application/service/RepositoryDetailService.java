@@ -1,14 +1,18 @@
 package io.jgitkins.web.application.service;
 
 import io.jgitkins.web.application.dto.BranchSummary;
+import io.jgitkins.web.application.dto.CommitSummary;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.dto.RepositoryFileEntry;
+import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import io.jgitkins.web.application.dto.RepositoryOverviewResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.model.RepositoryKey;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.application.port.out.RepositoryPort;
 import io.jgitkins.web.infrastructure.util.PathUtils;
+import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +22,12 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class RepositoryDetailService implements RepositoryDetailUseCase {
 
+	private static final Duration TREE_CACHE_TTL = Duration.ofMinutes(5);
+	private static final Duration FILE_INDEX_CACHE_TTL = Duration.ofMinutes(5);
+
 	private final RepositoryPort repositoryPort;
+	private final RepositoryTreeCacheSupport repositoryTreeCacheSupport;
+	private final RepositoryFileIndexCacheSupport repositoryFileIndexCacheSupport;
 
 	@Override
 	public RepositoryDetailData loadRepositoryDetail(Long repositoryId, String branch) {
@@ -56,7 +65,15 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 			return baseDetail;
 		}
 		String selectedBranch = baseDetail.selectedBranch();
-		List<RepositoryFileEntry> files = repositoryPort.fetchRepositoryTree(namespace, repoName, selectedBranch, directory);
+		String normalizedDirectory = StringUtils.hasText(directory) ? directory.trim() : "";
+		String headCommit = resolveHeadCommit(namespace, repoName, selectedBranch);
+		List<RepositoryFileEntry> files = repositoryTreeCacheSupport
+				.get(namespace, repoName, selectedBranch, normalizedDirectory, headCommit)
+				.orElseGet(() -> {
+					List<RepositoryFileEntry> loaded = repositoryPort.fetchRepositoryTree(namespace, repoName, selectedBranch, normalizedDirectory);
+					repositoryTreeCacheSupport.put(namespace, repoName, selectedBranch, normalizedDirectory, headCommit, loaded, TREE_CACHE_TTL);
+					return loaded;
+				});
 		return new RepositoryDetailData(
 				baseDetail.repository(),
 				baseDetail.branches(),
@@ -98,6 +115,41 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 		);
 	}
 
+	@Override
+	public List<RepositoryFileIndexEntry> loadRepositoryFileIndexByPath(String namespace, String repoName, String branch) {
+		String selectedBranch = StringUtils.hasText(branch) ? branch.trim() : "main";
+		String headCommit = resolveHeadCommit(namespace, repoName, selectedBranch);
+		return repositoryFileIndexCacheSupport
+				.get(namespace, repoName, selectedBranch, headCommit)
+				.orElseGet(() -> {
+					List<RepositoryFileIndexEntry> loaded = repositoryPort.fetchRepositoryFileIndex(namespace, repoName, selectedBranch);
+					repositoryFileIndexCacheSupport.put(namespace, repoName, selectedBranch, headCommit, loaded, FILE_INDEX_CACHE_TTL);
+					return loaded;
+				});
+	}
+
+	@Override
+	public List<RepositoryFileIndexEntry> searchRepositoryFilesByPath(String namespace, String repoName, String branch, String query, int limit) {
+		String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
+		int safeLimit = Math.max(1, Math.min(limit, 100));
+		List<RepositoryFileIndexEntry> index = loadRepositoryFileIndexByPath(namespace, repoName, branch);
+
+		return index.stream()
+				.filter(entry -> entry != null && entry.path() != null)
+				.filter(entry -> "tree".equalsIgnoreCase(entry.type()) || "blob".equalsIgnoreCase(entry.type()) || entry.type() == null)
+				.filter(entry -> {
+					if (!StringUtils.hasText(normalizedQuery)) {
+						return true;
+					}
+					String path = entry.path() == null ? "" : entry.path().toLowerCase();
+					String name = entry.name() == null ? "" : entry.name().toLowerCase();
+					return path.contains(normalizedQuery) || name.contains(normalizedQuery);
+				})
+				.sorted(Comparator.comparing(RepositoryFileIndexEntry::path, Comparator.nullsLast(String::compareToIgnoreCase)))
+				.limit(safeLimit)
+				.toList();
+	}
+
 	private boolean matchesRepository(RepositorySummary repository, String namespace, String repoName) {
 		if (repository == null || !StringUtils.hasText(repoName)) {
 			return false;
@@ -115,6 +167,16 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 		String normalized = namespace.trim();
 		return key.namespace().equalsIgnoreCase(normalized)
 				|| PathUtils.lastSegment(key.namespace()).equalsIgnoreCase(normalized);
+	}
+
+	private String resolveHeadCommit(String namespace, String repoName, String selectedBranch) {
+		if (!StringUtils.hasText(selectedBranch)) {
+			return "no-branch";
+		}
+		return repositoryPort.fetchCommits(namespace, repoName, selectedBranch).stream()
+				.findFirst()
+				.map(CommitSummary::id)
+				.orElse("no-head");
 	}
 
 	private RepositoryKey resolveRepositoryKey(RepositorySummary repository) {

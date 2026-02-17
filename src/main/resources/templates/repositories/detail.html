@@ -114,8 +114,9 @@
 							</select>
 						</div>
 					</div>
-					<div class="repo-detail__toolbar-right">
-						<input class="search-input repo-detail__search-input" type="text" placeholder="Find a file" disabled aria-disabled="true" />
+					<div class="repo-detail__toolbar-right" style="position: relative;">
+						<input id="find-file-input" class="search-input repo-detail__search-input" type="text" placeholder="Find a file" autocomplete="off" />
+						<div id="find-file-results" class="menu__panel" style="position:absolute; top:42px; left:0; right:180px; max-height:260px; overflow:auto; display:none; z-index:20;"></div>
 						<details class="menu repo-detail__menu">
 							<summary class="menu__summary repo-detail__icon-button">
 								<img class="topbar__icon-image" th:src="@{/assets/svg/new-window-svgrepo-com.svg}" alt="Add"/>
@@ -377,7 +378,7 @@
 		</div>
 	</div>
 </div>
-<script>
+<script th:inline="javascript">
 	const branchSelect = document.getElementById("branch-select");
 	if (branchSelect) {
 		branchSelect.addEventListener("change", (event) => {
@@ -445,6 +446,76 @@
 			closeAllModals();
 		}
 	});
+
+	const findFileInput = document.getElementById("find-file-input");
+	const findFileResults = document.getElementById("find-file-results");
+	let findFileTimer = null;
+	let fileIndex = [];
+
+	function renderFindFileResults(items, branch) {
+		if (!findFileResults) {
+			return;
+		}
+		if (!items || items.length === 0) {
+			findFileResults.innerHTML = "<div class='menu__item'>No matching files</div>";
+			findFileResults.style.display = "block";
+			return;
+		}
+		findFileResults.innerHTML = items.map((item) => {
+			const path = item.path || item.name || "";
+			const safePath = path.replace(/^\/+/, "");
+			const href = `/${window.__repoNamespace}/${window.__repoName}/tree/${safePath}?branch=${encodeURIComponent(branch || "main")}`;
+			return `<a class='menu__item' href='${href}'>${path}</a>`;
+		}).join("");
+		findFileResults.style.display = "block";
+	}
+
+	if (findFileInput && findFileResults) {
+		window.__repoNamespace = "[[${namespace}]]";
+		window.__repoName = "[[${repoName}]]";
+		const initialBranch = branchSelect ? branchSelect.value : "[[${detail.selectedBranch}]]";
+
+		(async () => {
+			try {
+				const response = await fetch(`/${window.__repoNamespace}/${window.__repoName}/find-files/index?branch=${encodeURIComponent(initialBranch)}`);
+				if (!response.ok) {
+					throw new Error("find-file index request failed");
+				}
+				fileIndex = await response.json();
+			} catch (e) {
+				fileIndex = [];
+			}
+		})();
+
+		findFileInput.addEventListener("keyup", () => {
+			const keyword = findFileInput.value.trim().toLowerCase();
+			const branch = branchSelect ? branchSelect.value : initialBranch;
+			if (findFileTimer) {
+				clearTimeout(findFileTimer);
+			}
+			if (!keyword) {
+				findFileResults.style.display = "none";
+				findFileResults.innerHTML = "";
+				return;
+			}
+			findFileTimer = setTimeout(() => {
+				const matched = (fileIndex || [])
+					.filter((item) => {
+						const path = (item.path || "").toLowerCase();
+						const name = (item.name || "").toLowerCase();
+						return path.includes(keyword) || name.includes(keyword);
+					})
+					.slice(0, 20);
+				renderFindFileResults(matched, branch);
+			}, 120);
+		});
+
+		document.addEventListener("click", (event) => {
+			if (!findFileResults.contains(event.target) && event.target !== findFileInput) {
+				findFileResults.style.display = "none";
+			}
+		});
+	}
 
 	const uploadForm = document.querySelector("#file-modal form");
 	if (uploadForm) {

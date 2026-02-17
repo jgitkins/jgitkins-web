@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.RepositoryBranchCreateResult;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
-import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
@@ -128,11 +127,11 @@ class RepositoryControllerTest {
 	}
 
 	@Test
-	void findFiles_returnsSearchResultList() {
-		when(repositoryDetailUseCase.searchRepositoryFilesByPath("team", "demo", "main", "read", 20))
+	void findFileIndex_returnsIndexList() {
+		when(repositoryDetailUseCase.loadRepositoryFileIndexByPath("team", "demo", "main"))
 				.thenReturn(List.of(new RepositoryFileIndexEntry("README.md", "README.md", "blob")));
 
-		var response = controller.findFiles("team", "demo", "main", "read", 20);
+		var response = controller.findFileIndex("team", "demo", "main");
 
 		assertEquals(200, response.getStatusCode().value());
 		assertEquals(1, response.getBody().size());

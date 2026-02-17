@@ -450,6 +450,7 @@
 	const findFileInput = document.getElementById("find-file-input");
 	const findFileResults = document.getElementById("find-file-results");
 	let findFileTimer = null;
+	let fileIndex = [];
 
 	function renderFindFileResults(items, branch) {
 		if (!findFileResults) {
@@ -472,9 +473,23 @@
 	if (findFileInput && findFileResults) {
 		window.__repoNamespace = "[[${namespace}]]";
 		window.__repoName = "[[${repoName}]]";
+		const initialBranch = branchSelect ? branchSelect.value : "[[${detail.selectedBranch}]]";
+
+		(async () => {
+			try {
+				const response = await fetch(`/${window.__repoNamespace}/${window.__repoName}/find-files/index?branch=${encodeURIComponent(initialBranch)}`);
+				if (!response.ok) {
+					throw new Error("find-file index request failed");
+				}
+				fileIndex = await response.json();
+			} catch (e) {
+				fileIndex = [];
+			}
+		})();
+
 		findFileInput.addEventListener("keyup", () => {
-			const keyword = findFileInput.value.trim();
-			const branch = branchSelect ? branchSelect.value : "[[${detail.selectedBranch}]]";
+			const keyword = findFileInput.value.trim().toLowerCase();
+			const branch = branchSelect ? branchSelect.value : initialBranch;
 			if (findFileTimer) {
 				clearTimeout(findFileTimer);
 			}
@@ -483,18 +498,15 @@
 				findFileResults.innerHTML = "";
 				return;
 			}
-			findFileTimer = setTimeout(async () => {
-				try {
-					const response = await fetch(`/${window.__repoNamespace}/${window.__repoName}/find-files?branch=${encodeURIComponent(branch)}&q=${encodeURIComponent(keyword)}&limit=20`);
-					if (!response.ok) {
-						throw new Error("find-file request failed");
-					}
-					const data = await response.json();
-					renderFindFileResults(data, branch);
-				} catch (e) {
-					findFileResults.innerHTML = "<div class='menu__item'>Search failed</div>";
-					findFileResults.style.display = "block";
-				}
+			findFileTimer = setTimeout(() => {
+				const matched = (fileIndex || [])
+					.filter((item) => {
+						const path = (item.path || "").toLowerCase();
+						const name = (item.name || "").toLowerCase();
+						return path.includes(keyword) || name.includes(keyword);
+					})
+					.slice(0, 20);
+				renderFindFileResults(matched, branch);
 			}, 120);
 		});
 

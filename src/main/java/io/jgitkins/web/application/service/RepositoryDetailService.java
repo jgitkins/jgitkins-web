@@ -116,19 +116,23 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 	}
 
 	@Override
-	public List<RepositoryFileIndexEntry> searchRepositoryFilesByPath(String namespace, String repoName, String branch, String query, int limit) {
+	public List<RepositoryFileIndexEntry> loadRepositoryFileIndexByPath(String namespace, String repoName, String branch) {
 		String selectedBranch = StringUtils.hasText(branch) ? branch.trim() : "main";
-		String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
-		int safeLimit = Math.max(1, Math.min(limit, 100));
 		String headCommit = resolveHeadCommit(namespace, repoName, selectedBranch);
-
-		List<RepositoryFileIndexEntry> index = repositoryFileIndexCacheSupport
+		return repositoryFileIndexCacheSupport
 				.get(namespace, repoName, selectedBranch, headCommit)
 				.orElseGet(() -> {
 					List<RepositoryFileIndexEntry> loaded = repositoryPort.fetchRepositoryFileIndex(namespace, repoName, selectedBranch);
 					repositoryFileIndexCacheSupport.put(namespace, repoName, selectedBranch, headCommit, loaded, FILE_INDEX_CACHE_TTL);
 					return loaded;
 				});
+	}
+
+	@Override
+	public List<RepositoryFileIndexEntry> searchRepositoryFilesByPath(String namespace, String repoName, String branch, String query, int limit) {
+		String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
+		int safeLimit = Math.max(1, Math.min(limit, 100));
+		List<RepositoryFileIndexEntry> index = loadRepositoryFileIndexByPath(namespace, repoName, branch);
 
 		return index.stream()
 				.filter(entry -> entry != null && entry.path() != null)

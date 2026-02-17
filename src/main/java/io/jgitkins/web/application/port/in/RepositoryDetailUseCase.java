@@ -12,5 +12,7 @@ public interface RepositoryDetailUseCase {
 
 	RepositoryDetailData loadRepositoryTreeByPath(String namespace, String repoName, String branch, String directory);
 
+	List<RepositoryFileIndexEntry> loadRepositoryFileIndexByPath(String namespace, String repoName, String branch);
+
 	List<RepositoryFileIndexEntry> searchRepositoryFilesByPath(String namespace, String repoName, String branch, String query, int limit);
 }

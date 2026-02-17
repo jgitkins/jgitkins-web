@@ -73,6 +73,11 @@ public class JGitkinsServerAdapter implements OrganizePort, RepositoryPort, AppT
 	}
 
 	@Override
+	public List<RepositoryFileIndexEntry> fetchRepositoryFileIndex(String namespace, String repoName, String branch) {
+		return serverClient.fetchRepositoryFileIndex(namespace, repoName, branch);
+	}
+
+	@Override
 	public List<RepositoryFileEntry> fetchRepositoryTree(String namespace, String repoName, String branch, String directory) {
 		return serverClient.fetchRepositoryTree(namespace, repoName, branch, directory);
 	}

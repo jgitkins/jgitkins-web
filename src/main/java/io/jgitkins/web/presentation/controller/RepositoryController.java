@@ -5,6 +5,7 @@ import io.jgitkins.web.application.dto.RepositoryBranchCreateResult;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.dto.RepositoryFileEntry;
+import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
@@ -130,12 +131,12 @@ public class RepositoryController {
 
 	@GetMapping("/{namespace}/{repoName}/find-files")
 	@ResponseBody
-	public ResponseEntity<List<RepositoryFileEntry>> findFiles(@PathVariable("namespace") String namespace,
+	public ResponseEntity<List<RepositoryFileIndexEntry>> findFiles(@PathVariable("namespace") String namespace,
 											   @PathVariable("repoName") String repoName,
 											   @RequestParam(name = "branch", required = false) String branch,
 											   @RequestParam(name = "q", required = false, defaultValue = "") String query,
 											   @RequestParam(name = "limit", required = false, defaultValue = "20") int limit) {
-		List<RepositoryFileEntry> files = repositoryDetailUseCase.searchRepositoryFilesByPath(namespace, repoName, branch, query, limit);
+		List<RepositoryFileIndexEntry> files = repositoryDetailUseCase.searchRepositoryFilesByPath(namespace, repoName, branch, query, limit);
 		return ResponseEntity.ok(files);
 	}
 

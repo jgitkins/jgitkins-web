@@ -2,7 +2,7 @@ package io.jgitkins.web.application.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jgitkins.web.application.dto.RepositoryFileEntry;
+import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -17,12 +17,12 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class RepositoryFileIndexCacheSupport {
 
-    private static final TypeReference<List<RepositoryFileEntry>> FILE_LIST_TYPE = new TypeReference<>() { };
+    private static final TypeReference<List<RepositoryFileIndexEntry>> FILE_LIST_TYPE = new TypeReference<>() { };
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public Optional<List<RepositoryFileEntry>> get(String namespace, String repoName, String branch, String headCommit) {
+    public Optional<List<RepositoryFileIndexEntry>> get(String namespace, String repoName, String branch, String headCommit) {
         String key = buildKey(namespace, repoName, branch, headCommit);
         try {
             String raw = redisTemplate.opsForValue().get(key);
@@ -40,7 +40,7 @@ public class RepositoryFileIndexCacheSupport {
                     String repoName,
                     String branch,
                     String headCommit,
-                    List<RepositoryFileEntry> files,
+                    List<RepositoryFileIndexEntry> files,
                     Duration ttl) {
         String key = buildKey(namespace, repoName, branch, headCommit);
         try {

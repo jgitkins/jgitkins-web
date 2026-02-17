@@ -4,6 +4,7 @@ import io.jgitkins.web.application.dto.BranchSummary;
 import io.jgitkins.web.application.dto.CommitSummary;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.dto.RepositoryFileEntry;
+import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import io.jgitkins.web.application.dto.RepositoryOverviewResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.model.RepositoryKey;
@@ -115,16 +116,16 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 	}
 
 	@Override
-	public List<RepositoryFileEntry> searchRepositoryFilesByPath(String namespace, String repoName, String branch, String query, int limit) {
+	public List<RepositoryFileIndexEntry> searchRepositoryFilesByPath(String namespace, String repoName, String branch, String query, int limit) {
 		String selectedBranch = StringUtils.hasText(branch) ? branch.trim() : "main";
 		String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
 		int safeLimit = Math.max(1, Math.min(limit, 100));
 		String headCommit = resolveHeadCommit(namespace, repoName, selectedBranch);
 
-		List<RepositoryFileEntry> index = repositoryFileIndexCacheSupport
+		List<RepositoryFileIndexEntry> index = repositoryFileIndexCacheSupport
 				.get(namespace, repoName, selectedBranch, headCommit)
 				.orElseGet(() -> {
-					List<RepositoryFileEntry> loaded = repositoryPort.fetchRepositoryFiles(namespace, repoName, selectedBranch);
+					List<RepositoryFileIndexEntry> loaded = repositoryPort.fetchRepositoryFileIndex(namespace, repoName, selectedBranch);
 					repositoryFileIndexCacheSupport.put(namespace, repoName, selectedBranch, headCommit, loaded, FILE_INDEX_CACHE_TTL);
 					return loaded;
 				});
@@ -140,7 +141,7 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 					String name = entry.name() == null ? "" : entry.name().toLowerCase();
 					return path.contains(normalizedQuery) || name.contains(normalizedQuery);
 				})
-				.sorted(Comparator.comparing(RepositoryFileEntry::path, Comparator.nullsLast(String::compareToIgnoreCase)))
+				.sorted(Comparator.comparing(RepositoryFileIndexEntry::path, Comparator.nullsLast(String::compareToIgnoreCase)))
 				.limit(safeLimit)
 				.toList();
 	}

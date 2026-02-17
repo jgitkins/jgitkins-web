@@ -10,6 +10,7 @@ import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.RepositoryBranchCreateResult;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryFileEntry;
+import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import io.jgitkins.web.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
@@ -129,7 +130,7 @@ class RepositoryControllerTest {
 	@Test
 	void findFiles_returnsSearchResultList() {
 		when(repositoryDetailUseCase.searchRepositoryFilesByPath("team", "demo", "main", "read", 20))
-				.thenReturn(List.of(new RepositoryFileEntry("1", "README.md", "README.md", "blob", "100644", 10L)));
+				.thenReturn(List.of(new RepositoryFileIndexEntry("README.md", "README.md", "blob")));
 
 		var response = controller.findFiles("team", "demo", "main", "read", 20);
 

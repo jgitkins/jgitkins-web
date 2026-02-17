@@ -1,7 +1,7 @@
 package io.jgitkins.web.application.port.in;
 
 import io.jgitkins.web.application.dto.RepositoryDetailData;
-import io.jgitkins.web.application.dto.RepositoryFileEntry;
+import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import java.util.List;
 
 public interface RepositoryDetailUseCase {
@@ -12,5 +12,5 @@ public interface RepositoryDetailUseCase {
 
 	RepositoryDetailData loadRepositoryTreeByPath(String namespace, String repoName, String branch, String directory);
 
-	List<RepositoryFileEntry> searchRepositoryFilesByPath(String namespace, String repoName, String branch, String query, int limit);
+	List<RepositoryFileIndexEntry> searchRepositoryFilesByPath(String namespace, String repoName, String branch, String query, int limit);
 }

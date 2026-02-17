@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.web.application.dto.CommitSummary;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.dto.RepositoryFileEntry;
+import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import io.jgitkins.web.application.dto.RepositoryOverviewResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
 import io.jgitkins.web.application.port.out.RepositoryPort;
@@ -61,10 +62,10 @@ class RepositoryDetailServiceTest {
 
     @Test
     void searchRepositoryFilesByPath_usesIndexCacheAndFiltersByKeyword() {
-        List<RepositoryFileEntry> cached = List.of(
-                new RepositoryFileEntry("1", "README.md", "README.md", "blob", "100644", 10L),
-                new RepositoryFileEntry("2", "RepoService.java", "src/RepoService.java", "blob", "100644", 100L),
-                new RepositoryFileEntry("3", "Other.java", "src/Other.java", "blob", "100644", 100L)
+        List<RepositoryFileIndexEntry> cached = List.of(
+                new RepositoryFileIndexEntry("README.md", "README.md", "blob"),
+                new RepositoryFileIndexEntry("RepoService.java", "src/RepoService.java", "blob"),
+                new RepositoryFileIndexEntry("Other.java", "src/Other.java", "blob")
         );
 
         when(repositoryPort.fetchCommits("users/alice", "demo", "main"))
@@ -72,7 +73,7 @@ class RepositoryDetailServiceTest {
         when(repositoryFileIndexCacheSupport.get("users/alice", "demo", "main", "c1"))
                 .thenReturn(Optional.of(cached));
 
-        List<RepositoryFileEntry> result = service.searchRepositoryFilesByPath("users/alice", "demo", "main", "repo", 20);
+        List<RepositoryFileIndexEntry> result = service.searchRepositoryFilesByPath("users/alice", "demo", "main", "repo", 20);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).path()).isEqualTo("src/RepoService.java");

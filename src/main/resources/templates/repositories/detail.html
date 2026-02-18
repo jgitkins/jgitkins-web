@@ -451,6 +451,17 @@
 	const findFileResults = document.getElementById("find-file-results");
 	let findFileTimer = null;
 	let fileIndex = [];
+	let indexReady = false;
+
+	function normalizeIndexPayload(payload) {
+		if (Array.isArray(payload)) {
+			return payload;
+		}
+		if (payload && Array.isArray(payload.data)) {
+			return payload.data;
+		}
+		return [];
+	}
 
 	function renderFindFileResults(items, branch) {
 		if (!findFileResults) {
@@ -476,16 +487,26 @@
 		const initialBranch = branchSelect ? branchSelect.value : "[[${detail.selectedBranch}]]";
 
 		(async () => {
+			findFileResults.innerHTML = "<div class='menu__item'>Loading file index...</div>";
 			try {
 				const response = await fetch(`/${window.__repoNamespace}/${window.__repoName}/find-files/index?branch=${encodeURIComponent(initialBranch)}`);
 				if (!response.ok) {
 					throw new Error("find-file index request failed");
 				}
-				fileIndex = await response.json();
+				const payload = await response.json();
+				fileIndex = normalizeIndexPayload(payload);
 			} catch (e) {
 				fileIndex = [];
+				findFileResults.innerHTML = "<div class='menu__item'>Failed to load file index</div>";
 			}
+			indexReady = true;
 		})();
+
+		findFileInput.addEventListener("focus", () => {
+			if (!indexReady) {
+				findFileResults.style.display = "block";
+			}
+		});
 
 		findFileInput.addEventListener("keyup", () => {
 			const keyword = findFileInput.value.trim().toLowerCase();
@@ -499,6 +520,11 @@
 				return;
 			}
 			findFileTimer = setTimeout(() => {
+				if (!indexReady) {
+					findFileResults.innerHTML = "<div class='menu__item'>Loading file index...</div>";
+					findFileResults.style.display = "block";
+					return;
+				}
 				const matched = (fileIndex || [])
 					.filter((item) => {
 						const path = (item.path || "").toLowerCase();

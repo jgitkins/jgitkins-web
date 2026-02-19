@@ -53,15 +53,16 @@
             "title": "[2.5] Repository READ/WRITE 권한 명세 수립",
             "description": "저장소 상세 접근 시점 권한 판별 기준(READ/WRITE)과 UI/서버 정책을 문서화한다.",
             "details": "READ: Public 저장소는 누구나 조회 가능. WRITE: 소유자/조직 멤버/레포 멤버만 허용. WRITE 미보유 시 New branch/New file/New directory 비활성화, 서버 API에서도 동일 정책으로 강제 차단. 예외/오류 응답 코드(403/404)와 화면 메시지 정책을 명세한다.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               1
             ],
             "parentTaskId": 1,
-            "parentId": "1"
+            "parentId": "1",
+            "updatedAt": "2026-02-19T13:55:00+09:00"
           }
         ],
-        "updatedAt": "2026-02-19T12:50:00+09:00"
+        "updatedAt": "2026-02-19T13:55:00+09:00"
       },
       {
         "id": 2,

@@ -43,10 +43,47 @@
 			display: grid;
 			gap: 8px;
 		}
+
+		.repo-find-results {
+			position: absolute;
+			top: 42px;
+			left: 0;
+			width: clamp(280px, 46vw, 560px);
+			max-height: 340px;
+			overflow: auto;
+			display: none;
+			z-index: 20;
+		}
+
+		.repo-find-results .menu__item {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			line-height: 1.35;
+		}
+
+		.repo-find-results__icon {
+			width: 15px;
+			height: 15px;
+			flex: 0 0 auto;
+			color: #59636e;
+		}
+
+		.repo-find-results__path {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.repo-find-results__item--disabled {
+			cursor: not-allowed;
+			color: #8f99a4;
+			background: #f6f8fa;
+		}
 	</style>
 </head>
 <body>
-<div th:replace="fragments/topbar :: topbar('repository-detail')"></div>
+<div th:replace="~{fragments/topbar :: topbar('repository-detail')}"></div>
 <div class="page">
 	<div class="alert" th:if="${detail.errorMessage != null}" th:text="${detail.errorMessage}"></div>
 
@@ -116,7 +153,7 @@
 					</div>
 					<div class="repo-detail__toolbar-right" style="position: relative;">
 						<input id="find-file-input" class="search-input repo-detail__search-input" type="text" placeholder="Find a file" autocomplete="off" />
-						<div id="find-file-results" class="menu__panel" style="position:absolute; top:42px; left:0; right:180px; max-height:260px; overflow:auto; display:none; z-index:20;"></div>
+						<div id="find-file-results" class="menu__panel repo-find-results"></div>
 						<details class="menu repo-detail__menu">
 							<summary class="menu__summary repo-detail__icon-button">
 								<img class="topbar__icon-image" th:src="@{/assets/svg/new-window-svgrepo-com.svg}" alt="Add"/>
@@ -463,6 +500,65 @@
 		return [];
 	}
 
+	function escapeHtml(value) {
+		return String(value || "")
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#39;");
+	}
+
+	function normalizePath(value) {
+		return String(value || "").replace(/^\/+|\/+$/g, "");
+	}
+
+	function buildSearchIndex(entries) {
+		const raw = Array.isArray(entries) ? entries : [];
+		const dedup = new Map();
+		const directories = new Set();
+
+		raw.forEach((entry) => {
+			const path = normalizePath(entry?.path || entry?.name || "");
+			if (!path) {
+				return;
+			}
+			const type = String(entry?.type || "blob").toLowerCase();
+			const name = entry?.name || path.substring(path.lastIndexOf("/") + 1);
+			dedup.set(`${type}:${path}`, { name, path, type });
+
+			const segments = path.split("/");
+			for (let i = 1; i < segments.length; i += 1) {
+				directories.add(segments.slice(0, i).join("/"));
+			}
+		});
+
+		directories.forEach((directoryPath) => {
+			if (!dedup.has(`tree:${directoryPath}`)) {
+				const name = directoryPath.substring(directoryPath.lastIndexOf("/") + 1);
+				dedup.set(`tree:${directoryPath}`, { name, path: directoryPath, type: "tree" });
+			}
+		});
+
+		return Array.from(dedup.values())
+			.sort((a, b) => {
+				const typeA = (a.type || "").toLowerCase();
+				const typeB = (b.type || "").toLowerCase();
+				if (typeA !== typeB) {
+					return typeA === "tree" ? -1 : 1;
+				}
+				return (a.path || "").localeCompare((b.path || ""), undefined, { sensitivity: "base" });
+			});
+	}
+
+	function resultIcon(type) {
+		const normalized = (type || "").toLowerCase();
+		if (normalized === "tree") {
+			return "<svg class='repo-find-results__icon' viewBox='0 0 24 24' aria-hidden='true'><path d='M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v1H3V6zm0 4h20v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8z'/></svg>";
+		}
+		return "<svg class='repo-find-results__icon' viewBox='0 0 24 24' aria-hidden='true'><path d='M6 3h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm8 1.5V8h3.5L14 4.5z'/></svg>";
+	}
+
 	function renderFindFileResults(items, branch) {
 		if (!findFileResults) {
 			return;
@@ -473,18 +569,23 @@
 			return;
 		}
 		findFileResults.innerHTML = items.map((item) => {
-			const path = item.path || item.name || "";
-			const safePath = path.replace(/^\/+/, "");
-			const href = `/${window.__repoNamespace}/${window.__repoName}/tree/${safePath}?branch=${encodeURIComponent(branch || "main")}`;
-			return `<a class='menu__item' href='${href}'>${path}</a>`;
+			const path = normalizePath(item.path || item.name || "");
+			const type = String(item.type || "blob").toLowerCase();
+			const safePath = escapeHtml(path);
+			const icon = resultIcon(type);
+			if (type === "tree") {
+				const href = `/${window.__repoNamespace}/${window.__repoName}/tree/${path}?branch=${encodeURIComponent(branch || "main")}`;
+				return `<a class='menu__item' href='${href}'>${icon}<span class='repo-find-results__path'>${safePath}</span></a>`;
+			}
+			return `<span class='menu__item repo-find-results__item--disabled'>${icon}<span class='repo-find-results__path'>${safePath}</span></span>`;
 		}).join("");
 		findFileResults.style.display = "block";
 	}
 
 	if (findFileInput && findFileResults) {
-		window.__repoNamespace = "[[${namespace}]]";
-		window.__repoName = "[[${repoName}]]";
-		const initialBranch = branchSelect ? branchSelect.value : "[[${detail.selectedBranch}]]";
+		window.__repoNamespace = /*[[${namespace}]]*/ "";
+		window.__repoName = /*[[${repoName}]]*/ "";
+		const initialBranch = branchSelect ? branchSelect.value : (/*[[${detail.selectedBranch}]]*/ "main");
 
 		(async () => {
 			findFileResults.innerHTML = "<div class='menu__item'>Loading file index...</div>";
@@ -493,12 +594,12 @@
 				if (!response.ok) {
 					throw new Error("find-file index request failed");
 				}
-				const payload = await response.json();
-				fileIndex = normalizeIndexPayload(payload);
-			} catch (e) {
-				fileIndex = [];
-				findFileResults.innerHTML = "<div class='menu__item'>Failed to load file index</div>";
-			}
+					const payload = await response.json();
+					fileIndex = buildSearchIndex(normalizeIndexPayload(payload));
+				} catch (e) {
+					fileIndex = [];
+					findFileResults.innerHTML = "<div class='menu__item'>Failed to load file index</div>";
+				}
 			indexReady = true;
 		})();
 

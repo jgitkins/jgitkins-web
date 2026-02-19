@@ -202,6 +202,23 @@ public class JGitkinsServerClient {
 		}
 	}
 
+	public RepositoryOverviewResult fetchRepositoryOverviewByPath(String namespace, String repoName, String branch) {
+		try {
+			ApiResponse<RepositoryOverviewResult> response = restClient.get()
+					.uri(uriBuilder -> uriBuilder
+							.path("/api/internal/repositories/{namespace}/{repoName}/overview")
+							.queryParamIfPresent("branch", branch == null || branch.isBlank()
+									? java.util.Optional.empty()
+									: java.util.Optional.of(branch))
+							.build(namespace, repoName))
+					.retrieve()
+					.body(OVERVIEW_TYPE);
+			return extractData(response);
+		} catch (RestClientException ex) {
+			return null;
+		}
+	}
+
 	public List<CommitSummary> fetchCommits(String namespace, String repoName, String branch) {
 		try {
 			ApiResponse<List<CommitSummary>> response = restClient.get()

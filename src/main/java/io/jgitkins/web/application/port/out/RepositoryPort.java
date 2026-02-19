@@ -14,6 +14,8 @@ public interface RepositoryPort {
 
 	RepositoryOverviewResult fetchRepositoryOverview(Long repositoryId, String branch);
 
+	RepositoryOverviewResult fetchRepositoryOverviewByPath(String namespace, String repoName, String branch);
+
 	List<CommitSummary> fetchCommits(String namespace, String repoName, String branch);
 
 	List<BranchSummary> fetchBranches(Long repositoryId);

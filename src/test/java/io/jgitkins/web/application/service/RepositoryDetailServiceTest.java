@@ -1,20 +1,21 @@
 package io.jgitkins.web.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.web.application.dto.CommitSummary;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.dto.RepositoryFileEntry;
 import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
 import io.jgitkins.web.application.dto.RepositoryOverviewResult;
 import io.jgitkins.web.application.dto.RepositorySummary;
+import io.jgitkins.web.application.mapper.RepositoryDetailDataMapper;
 import io.jgitkins.web.application.port.out.RepositoryPort;
-import java.time.LocalDateTime;
+import io.jgitkins.web.application.service.support.RepositoryDetailDataFactory;
+import io.jgitkins.web.application.service.support.RepositoryFileSearchPolicy;
+import io.jgitkins.web.application.service.support.RepositoryKeyResolver;
 import java.util.List;
-import java.util.Optional;
+import org.mapstruct.factory.Mappers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,37 +28,34 @@ class RepositoryDetailServiceTest {
     @Mock
     private RepositoryPort repositoryPort;
 
-    @Mock
-    private RepositoryTreeCacheSupport repositoryTreeCacheSupport;
-
-    @Mock
-    private RepositoryFileIndexCacheSupport repositoryFileIndexCacheSupport;
-
     private RepositoryDetailService service;
 
     @BeforeEach
     void setUp() {
-        service = new RepositoryDetailService(repositoryPort, repositoryTreeCacheSupport, repositoryFileIndexCacheSupport);
+        RepositoryDetailDataMapper mapper = Mappers.getMapper(RepositoryDetailDataMapper.class);
+        service = new RepositoryDetailService(
+                repositoryPort,
+                new RepositoryDetailDataFactory(mapper),
+                new RepositoryFileSearchPolicy(),
+                new RepositoryKeyResolver()
+        );
     }
 
     @Test
-    void loadRepositoryTreeByPath_usesCachedTree_whenCacheHit() {
+    void loadRepositoryTreeByPath_loadsTreeFromPort() {
         RepositorySummary summary = repositorySummary();
         RepositoryOverviewResult overview = new RepositoryOverviewResult(summary, List.of(), List.of(), "main");
-        List<RepositoryFileEntry> cached = List.of(entry("cached-file"));
+        List<RepositoryFileEntry> loaded = List.of(entry("loaded-file"));
 
-        when(repositoryPort.fetchRepositories()).thenReturn(List.of(summary));
-        when(repositoryPort.fetchRepositoryOverview(1L, "main")).thenReturn(overview);
-        when(repositoryPort.fetchCommits("users/alice", "demo", "main"))
-                .thenReturn(List.of(new CommitSummary("c1", "alice", "a@test.com", "msg", LocalDateTime.now())));
-        when(repositoryTreeCacheSupport.get("users/alice", "demo", "main", "src", "c1"))
-                .thenReturn(Optional.of(cached));
+        when(repositoryPort.fetchRepositoryOverviewByPath("users/alice", "demo", "main")).thenReturn(overview);
+        when(repositoryPort.fetchRepositoryTree("users/alice", "demo", "main", "src"))
+                .thenReturn(loaded);
 
         RepositoryDetailData result = service.loadRepositoryTreeByPath("users/alice", "demo", "main", "src");
 
         assertThat(result.files()).hasSize(1);
-        assertThat(result.files().get(0).name()).isEqualTo("cached-file");
-        verify(repositoryPort, never()).fetchRepositoryTree("users/alice", "demo", "main", "src");
+        assertThat(result.files().get(0).name()).isEqualTo("loaded-file");
+        verify(repositoryPort).fetchRepositoryTree("users/alice", "demo", "main", "src");
     }
 
     @Test
@@ -68,30 +66,32 @@ class RepositoryDetailServiceTest {
                 new RepositoryFileIndexEntry("Other.java", "src/Other.java", "blob")
         );
 
-        when(repositoryPort.fetchCommits("users/alice", "demo", "main"))
-                .thenReturn(List.of(new CommitSummary("c1", "alice", "a@test.com", "msg", LocalDateTime.now())));
-        when(repositoryFileIndexCacheSupport.get("users/alice", "demo", "main", "c1"))
-                .thenReturn(Optional.of(cached));
+        when(repositoryPort.fetchRepositoryFileIndex("users/alice", "demo", "main")).thenReturn(cached);
 
         List<RepositoryFileIndexEntry> result = service.searchRepositoryFilesByPath("users/alice", "demo", "main", "repo", 20);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).path()).isEqualTo("src/RepoService.java");
-        verify(repositoryPort, never()).fetchRepositoryFiles("users/alice", "demo", "main");
+        verify(repositoryPort).fetchRepositoryFileIndex("users/alice", "demo", "main");
     }
 
     @Test
-    void loadRepositoryTreeByPath_fetchesAndCaches_whenCacheMiss() {
+    void loadRepositoryTreeByPath_returnsNotFound_whenOverviewMissing() {
+        when(repositoryPort.fetchRepositoryOverviewByPath("users/alice", "demo", "main")).thenReturn(null);
+
+        RepositoryDetailData result = service.loadRepositoryTreeByPath("users/alice", "demo", "main", "src");
+
+        assertThat(result.repository()).isNull();
+        assertThat(result.errorMessage()).isEqualTo("Repository not found.");
+    }
+
+    @Test
+    void loadRepositoryTreeByPath_loadsTree_whenOverviewExists() {
         RepositorySummary summary = repositorySummary();
         RepositoryOverviewResult overview = new RepositoryOverviewResult(summary, List.of(), List.of(), "main");
         List<RepositoryFileEntry> loaded = List.of(entry("loaded-file"));
 
-        when(repositoryPort.fetchRepositories()).thenReturn(List.of(summary));
-        when(repositoryPort.fetchRepositoryOverview(1L, "main")).thenReturn(overview);
-        when(repositoryPort.fetchCommits("users/alice", "demo", "main"))
-                .thenReturn(List.of(new CommitSummary("c1", "alice", "a@test.com", "msg", LocalDateTime.now())));
-        when(repositoryTreeCacheSupport.get("users/alice", "demo", "main", "src", "c1"))
-                .thenReturn(Optional.empty());
+        when(repositoryPort.fetchRepositoryOverviewByPath("users/alice", "demo", "main")).thenReturn(overview);
         when(repositoryPort.fetchRepositoryTree("users/alice", "demo", "main", "src")).thenReturn(loaded);
 
         RepositoryDetailData result = service.loadRepositoryTreeByPath("users/alice", "demo", "main", "src");
@@ -99,15 +99,6 @@ class RepositoryDetailServiceTest {
         assertThat(result.files()).hasSize(1);
         assertThat(result.files().get(0).name()).isEqualTo("loaded-file");
         verify(repositoryPort).fetchRepositoryTree("users/alice", "demo", "main", "src");
-        verify(repositoryTreeCacheSupport).put(
-                org.mockito.ArgumentMatchers.eq("users/alice"),
-                org.mockito.ArgumentMatchers.eq("demo"),
-                org.mockito.ArgumentMatchers.eq("main"),
-                org.mockito.ArgumentMatchers.eq("src"),
-                org.mockito.ArgumentMatchers.eq("c1"),
-                org.mockito.ArgumentMatchers.eq(loaded),
-                org.mockito.ArgumentMatchers.any()
-        );
     }
 
     private RepositorySummary repositorySummary() {

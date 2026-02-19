@@ -92,7 +92,7 @@ public class RepositoryController {
 								   @RequestParam(name = "branch", required = false) String branch,
 								   Authentication authentication,
 								   Model model) {
-		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryDetailByPath(namespace, repoName, branch);
+		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryByPath(namespace, repoName, branch, "");
 		if (accessSupport.requiresNotFoundForUnauthenticatedPrivate(
 				detail,
 				userProfileResolver.isAuthenticated(authentication)
@@ -114,7 +114,7 @@ public class RepositoryController {
 							 HttpServletRequest request,
 							 Model model) {
 		String directory = treePathSupport.resolveTreeDirectory(request);
-		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryTreeByPath(namespace, repoName, branch, directory);
+		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryByPath(namespace, repoName, branch, directory);
 		if (accessSupport.requiresNotFoundForUnauthenticatedPrivate(
 				detail,
 				userProfileResolver.isAuthenticated(authentication)

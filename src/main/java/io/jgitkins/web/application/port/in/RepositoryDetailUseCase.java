@@ -8,9 +8,7 @@ public interface RepositoryDetailUseCase {
 
 	RepositoryDetailData loadRepositoryDetail(Long repositoryId, String branch);
 
-	RepositoryDetailData loadRepositoryDetailByPath(String namespace, String repoName, String branch);
-
-	RepositoryDetailData loadRepositoryTreeByPath(String namespace, String repoName, String branch, String directory);
+	RepositoryDetailData loadRepositoryByPath(String namespace, String repoName, String branch, String directory);
 
 	List<RepositoryFileIndexEntry> loadRepositoryFileIndexByPath(String namespace, String repoName, String branch);
 

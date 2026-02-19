@@ -32,13 +32,7 @@ public class RepositoryDetailService implements RepositoryDetailUseCase {
 	}
 
 	@Override
-	public RepositoryDetailData loadRepositoryDetailByPath(String namespace, String repoName, String branch) {
-		RepositoryOverviewResult overview = repositoryPort.fetchRepositoryOverviewByPath(namespace, repoName, branch);
-		return buildDetail(overview);
-	}
-
-	@Override
-	public RepositoryDetailData loadRepositoryTreeByPath(String namespace, String repoName, String branch, String directory) {
+	public RepositoryDetailData loadRepositoryByPath(String namespace, String repoName, String branch, String directory) {
 		RepositoryOverviewResult overview = repositoryPort.fetchRepositoryOverviewByPath(namespace, repoName, branch);
 		RepositoryDetailData baseDetail = buildDetail(overview);
 		if (baseDetail.repository() == null) {

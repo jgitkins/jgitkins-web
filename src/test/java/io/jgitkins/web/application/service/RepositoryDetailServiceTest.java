@@ -42,7 +42,7 @@ class RepositoryDetailServiceTest {
     }
 
     @Test
-    void loadRepositoryTreeByPath_loadsTreeFromPort() {
+    void loadRepositoryByPath_loadsTreeFromPort() {
         RepositorySummary summary = repositorySummary();
         RepositoryOverviewResult overview = new RepositoryOverviewResult(summary, List.of(), List.of(), "main");
         List<RepositoryFileEntry> loaded = List.of(entry("loaded-file"));
@@ -51,7 +51,7 @@ class RepositoryDetailServiceTest {
         when(repositoryPort.fetchRepositoryTree("users/alice", "demo", "main", "src"))
                 .thenReturn(loaded);
 
-        RepositoryDetailData result = service.loadRepositoryTreeByPath("users/alice", "demo", "main", "src");
+        RepositoryDetailData result = service.loadRepositoryByPath("users/alice", "demo", "main", "src");
 
         assertThat(result.files()).hasSize(1);
         assertThat(result.files().get(0).name()).isEqualTo("loaded-file");
@@ -76,17 +76,17 @@ class RepositoryDetailServiceTest {
     }
 
     @Test
-    void loadRepositoryTreeByPath_returnsNotFound_whenOverviewMissing() {
+    void loadRepositoryByPath_returnsNotFound_whenOverviewMissing() {
         when(repositoryPort.fetchRepositoryOverviewByPath("users/alice", "demo", "main")).thenReturn(null);
 
-        RepositoryDetailData result = service.loadRepositoryTreeByPath("users/alice", "demo", "main", "src");
+        RepositoryDetailData result = service.loadRepositoryByPath("users/alice", "demo", "main", "src");
 
         assertThat(result.repository()).isNull();
         assertThat(result.errorMessage()).isEqualTo("Repository not found.");
     }
 
     @Test
-    void loadRepositoryTreeByPath_loadsTree_whenOverviewExists() {
+    void loadRepositoryByPath_loadsTree_whenOverviewExists() {
         RepositorySummary summary = repositorySummary();
         RepositoryOverviewResult overview = new RepositoryOverviewResult(summary, List.of(), List.of(), "main");
         List<RepositoryFileEntry> loaded = List.of(entry("loaded-file"));
@@ -94,7 +94,7 @@ class RepositoryDetailServiceTest {
         when(repositoryPort.fetchRepositoryOverviewByPath("users/alice", "demo", "main")).thenReturn(overview);
         when(repositoryPort.fetchRepositoryTree("users/alice", "demo", "main", "src")).thenReturn(loaded);
 
-        RepositoryDetailData result = service.loadRepositoryTreeByPath("users/alice", "demo", "main", "src");
+        RepositoryDetailData result = service.loadRepositoryByPath("users/alice", "demo", "main", "src");
 
         assertThat(result.files()).hasSize(1);
         assertThat(result.files().get(0).name()).isEqualTo("loaded-file");

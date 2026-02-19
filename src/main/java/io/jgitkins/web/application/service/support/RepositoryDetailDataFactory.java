@@ -19,12 +19,12 @@ public class RepositoryDetailDataFactory {
 	private final RepositoryDetailDataMapper repositoryDetailDataMapper;
 
 	public RepositoryDetailData notFound() {
-		return new RepositoryDetailData(null, List.of(), List.of(), null, null, null, null,
+		return new RepositoryDetailData(null, List.of(), List.of(), null, null, null, null, "NONE", false,
 				"Repository not found.");
 	}
 
 	public RepositoryDetailData pathMissing(RepositorySummary repository) {
-		return new RepositoryDetailData(repository, List.of(), List.of(), null, null, null, null,
+		return new RepositoryDetailData(repository, List.of(), List.of(), null, null, null, null, "NONE", false,
 				"Repository path is missing.");
 	}
 
@@ -41,7 +41,9 @@ public class RepositoryDetailDataFactory {
 				key.namespace(),
 				ownerSlug,
 				key.repoName(),
-				overview.selectedBranch()
+				overview.selectedBranch(),
+				overview.role(),
+				overview.writable()
 		);
 	}
 
@@ -55,6 +57,8 @@ public class RepositoryDetailDataFactory {
 				baseDetail.ownerSlug(),
 				baseDetail.repoName(),
 				baseDetail.selectedBranch(),
+				baseDetail.role(),
+				baseDetail.writable(),
 				baseDetail.errorMessage()
 		);
 	}

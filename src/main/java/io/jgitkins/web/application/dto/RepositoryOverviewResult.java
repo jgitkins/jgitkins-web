@@ -6,6 +6,8 @@ public record RepositoryOverviewResult(
 		RepositorySummary repository,
 		List<BranchSummary> branches,
 		List<RepositoryFileEntry> tree,
-		String selectedBranch
+		String selectedBranch,
+		String role,
+		boolean writable
 ) {
 }

@@ -19,6 +19,8 @@ public interface RepositoryDetailDataMapper {
 	@Mapping(target = "ownerSlug", source = "ownerSlug")
 	@Mapping(target = "repoName", source = "repoName")
 	@Mapping(target = "selectedBranch", expression = "java(resolveSelectedBranch(selectedBranch))")
+	@Mapping(target = "role", source = "role")
+	@Mapping(target = "writable", source = "writable")
 	@Mapping(target = "errorMessage", expression = "java((String) null)")
 	RepositoryDetailData toDetail(RepositorySummary repository,
 								 List<BranchSummary> branches,
@@ -26,7 +28,9 @@ public interface RepositoryDetailDataMapper {
 								 String namespace,
 								 String ownerSlug,
 								 String repoName,
-								 String selectedBranch);
+								 String selectedBranch,
+								 String role,
+								 boolean writable);
 
 	default String resolveSelectedBranch(String selectedBranch) {
 		return StringUtils.hasText(selectedBranch) ? selectedBranch : "main";

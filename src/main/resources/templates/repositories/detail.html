@@ -164,9 +164,11 @@
 								</span>
 							</summary>
 							<div class="menu__panel">
-								<button class="menu__item menu__item--button" type="button" data-open-modal="branch-modal">New branch</button>
-								<button class="menu__item menu__item--button" type="button" data-open-modal="file-modal">New file</button>
-								<button class="menu__item menu__item--button" type="button" data-open-modal="directory-modal">New directory</button>
+								<button class="menu__item menu__item--button" type="button" data-open-modal="branch-modal" th:if="${detail.writable}">New branch</button>
+								<button class="menu__item menu__item--button" type="button" data-open-modal="file-modal" th:if="${detail.writable}">New file</button>
+								<button class="menu__item menu__item--button" type="button" data-open-modal="directory-modal" th:if="${detail.writable}">New directory</button>
+								<span class="menu__item is-disabled" th:if="${!detail.writable}" aria-disabled="true"
+									  th:text="${'No write access (' + detail.role + ')'}">No write access</span>
 							</div>
 						</details>
 						<details class="menu repo-detail__menu">
@@ -295,7 +297,7 @@
 			<div class="modal__header">
 				<h2>Create Branch</h2>
 			</div>
-			<form th:action="|/${namespace}/${repoName}/branches|" method="post" class="form">
+			<form th:if="${detail.writable}" th:action="|/${namespace}/${repoName}/branches|" method="post" class="form">
 				<input type="hidden" name="currentPath" th:value="${currentPath}" />
 				<input type="hidden" name="currentBranch" th:value="${detail.selectedBranch}" />
 				<div class="form-row">
@@ -316,6 +318,9 @@
 					<button class="primary" type="submit">Create</button>
 				</div>
 			</form>
+			<div class="empty" th:if="${!detail.writable}">
+				<p th:text="${'You do not have write permission. role=' + detail.role}">You do not have write permission.</p>
+			</div>
 		</div>
 	</div>
 
@@ -325,7 +330,7 @@
 			<div class="modal__header">
 				<h2>Upload File</h2>
 			</div>
-			<form th:action="|/${namespace}/${repoName}/files|" method="post" enctype="multipart/form-data" class="form">
+			<form th:if="${detail.writable}" th:action="|/${namespace}/${repoName}/files|" method="post" enctype="multipart/form-data" class="form">
 				<input type="hidden" name="currentPath" th:value="${currentPath}" />
 				<div class="form-row">
 					<label class="label" for="upload-branch">Branch</label>
@@ -366,6 +371,9 @@
 					<button class="primary" type="submit">Upload file</button>
 				</div>
 			</form>
+			<div class="empty" th:if="${!detail.writable}">
+				<p th:text="${'You do not have write permission. role=' + detail.role}">You do not have write permission.</p>
+			</div>
 		</div>
 	</div>
 
@@ -375,7 +383,7 @@
 			<div class="modal__header">
 				<h2>New Directory</h2>
 			</div>
-			<form th:action="|/${namespace}/${repoName}/directories|" method="post" class="form">
+			<form th:if="${detail.writable}" th:action="|/${namespace}/${repoName}/directories|" method="post" class="form">
 				<input type="hidden" name="currentPath" th:value="${currentPath}" />
 				<div class="form-row">
 					<label class="label" for="directory-branch">Branch</label>
@@ -412,6 +420,9 @@
 					<button class="primary" type="submit">Create directory</button>
 				</div>
 			</form>
+			<div class="empty" th:if="${!detail.writable}">
+				<p th:text="${'You do not have write permission. role=' + detail.role}">You do not have write permission.</p>
+			</div>
 		</div>
 	</div>
 </div>

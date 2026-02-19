@@ -10,6 +10,8 @@ public record RepositoryDetailData(
 		String ownerSlug,
 		String repoName,
 		String selectedBranch,
+		String role,
+		boolean writable,
 		String errorMessage
 ) {
 }

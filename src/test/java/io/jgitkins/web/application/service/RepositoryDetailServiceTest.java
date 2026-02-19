@@ -44,7 +44,7 @@ class RepositoryDetailServiceTest {
     @Test
     void loadRepositoryByPath_loadsTreeFromPort() {
         RepositorySummary summary = repositorySummary();
-        RepositoryOverviewResult overview = new RepositoryOverviewResult(summary, List.of(), List.of(), "main");
+        RepositoryOverviewResult overview = new RepositoryOverviewResult(summary, List.of(), List.of(), "main", "OWNER", true);
         List<RepositoryFileEntry> loaded = List.of(entry("loaded-file"));
 
         when(repositoryPort.fetchRepositoryOverviewByPath("users/alice", "demo", "main")).thenReturn(overview);
@@ -88,7 +88,7 @@ class RepositoryDetailServiceTest {
     @Test
     void loadRepositoryByPath_loadsTree_whenOverviewExists() {
         RepositorySummary summary = repositorySummary();
-        RepositoryOverviewResult overview = new RepositoryOverviewResult(summary, List.of(), List.of(), "main");
+        RepositoryOverviewResult overview = new RepositoryOverviewResult(summary, List.of(), List.of(), "main", "OWNER", true);
         List<RepositoryFileEntry> loaded = List.of(entry("loaded-file"));
 
         when(repositoryPort.fetchRepositoryOverviewByPath("users/alice", "demo", "main")).thenReturn(overview);

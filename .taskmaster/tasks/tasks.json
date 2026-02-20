@@ -68,7 +68,7 @@
         "id": 2,
         "title": "리팩토링",
         "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
-        "status": "done",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "details": "카테고리 기반 상위 Task",
@@ -84,9 +84,20 @@
             "parentTaskId": 2,
             "parentId": "2",
             "legacyTaskId": 1
+          },
+          {
+            "id": 2,
+            "title": "[R2] 미사용 코드 제거 및 헥사고날 경계 정리",
+            "description": "웹 모듈의 의미없는/미사용 코드를 제거하고 헥사고날 아키텍처 관점에서 계층 책임을 재정렬한다.",
+            "details": "1) dead code/import/template/js 정리, 2) application/service가 infrastructure 세부사항을 직접 알지 않도록 포트 중심으로 경계 재정리, 3) controller-service-port-adapter 책임 분리 재점검, 4) 리팩토링 후 단위/회귀 테스트 갱신.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-02-20T18:55:00+09:00"
           }
         ],
-        "updatedAt": "2026-02-16T23:43:00+09:00"
+        "updatedAt": "2026-02-20T18:55:00+09:00"
       },
       {
         "id": 3,

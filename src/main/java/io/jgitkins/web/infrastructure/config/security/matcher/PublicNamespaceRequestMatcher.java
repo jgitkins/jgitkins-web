@@ -13,8 +13,7 @@ public class PublicNamespaceRequestMatcher implements RequestMatcher {
 	private static final Set<String> RESERVED_SEGMENTS = Set.of(
 			"assets", "css", "js", "img", "svg", "favicon.ico", "webjars",
 			"settings", "notifications", "explore", "fragments", "repositories",
-			"oauth2", "login", "error", "actuator"
-	);
+			"oauth2", "login", "error", "actuator");
 
 	@Override
 	public boolean matches(HttpServletRequest request) {
@@ -39,7 +38,12 @@ public class PublicNamespaceRequestMatcher implements RequestMatcher {
 		if (segments.size() == 2) {
 			return true;
 		}
-		return segments.size() >= 3 && "-".equals(segments.get(1));
+		if (segments.size() >= 3) {
+			String secondSegment = segments.get(1);
+			String thirdSegment = segments.get(2).toLowerCase(Locale.ROOT);
+			return "-".equals(secondSegment) || "tree".equals(thirdSegment) || "find-files".equals(thirdSegment);
+		}
+		return false;
 	}
 
 	private String normalizePath(HttpServletRequest request) {

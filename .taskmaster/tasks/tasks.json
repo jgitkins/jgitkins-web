@@ -68,7 +68,7 @@
         "id": 2,
         "title": "리팩토링",
         "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
-        "status": "done",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "details": "카테고리 기반 상위 Task",
@@ -84,9 +84,66 @@
             "parentTaskId": 2,
             "parentId": "2",
             "legacyTaskId": 1
+          },
+          {
+            "id": 2,
+            "title": "애플리케이션 계층 인프라 의존성 제거 (캐시 로직 분리)",
+            "description": "",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "계층 간 DTO 강결합 해소 및 매퍼 구조화",
+            "description": "",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Presentation 종속적인 Facade(Support)를 Application 레이어로 승격(이동)",
+            "description": "",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "RestClient 예외 처리 횡단 관심사 중앙화 및 예외 변환 적용",
+            "description": "",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 6,
+            "title": "Global Exception Handler (@ControllerAdvice) 및 API 규격 표준화 적용",
+            "description": "",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 7,
+            "title": "Outbound Port 설계의 객체지향적 세분화 (단일 책임, 인터페이스 분리 원칙 위배 해소)",
+            "description": "",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2
           }
         ],
-        "updatedAt": "2026-02-16T23:43:00+09:00"
+        "updatedAt": "2026-02-23T14:25:20.645Z"
       },
       {
         "id": 3,
@@ -127,15 +184,14 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-19T12:50:00+09:00",
+      "lastModified": "2026-02-23T14:25:20.646Z",
       "taskCount": 5,
-      "completedCount": 1,
+      "completedCount": 0,
       "tags": [
         "master"
       ],
-      "created": "2026-02-15T09:21:48.086Z",
-      "description": "Tasks for master context",
-      "standard": "task-standard-v1"
+      "created": "2026-02-23T14:27:44.073Z",
+      "description": "Tasks for master context"
     }
   }
 }

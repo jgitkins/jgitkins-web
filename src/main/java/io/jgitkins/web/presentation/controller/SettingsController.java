@@ -1,13 +1,11 @@
 package io.jgitkins.web.presentation.controller;
 
-import io.jgitkins.web.application.dto.UserCredentialIssueRequest;
-import io.jgitkins.web.application.port.in.PersonalAccessTokenIssueUseCase;
-import io.jgitkins.web.application.port.in.PersonalAccessTokenQueryUseCase;
+import io.jgitkins.web.application.dto.UserCredentialIssueResult;
+import io.jgitkins.web.application.port.in.facade.SettingsFacadeUseCase;
 import io.jgitkins.web.presentation.dto.PersonalAccessTokenForm;
+import io.jgitkins.web.presentation.support.SettingsViewSupport;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,9 +19,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class SettingsController {
 
-	private final PersonalAccessTokenQueryUseCase personalAccessTokenQueryUseCase;
-	private final PersonalAccessTokenIssueUseCase personalAccessTokenIssueUseCase;
-	private final MessageSource messageSource;
+	private final SettingsFacadeUseCase settingsFacadeUseCase;
+	private final SettingsViewSupport settingsViewSupport;
 
 	@GetMapping("/settings/profile")
 	public String profile() {
@@ -37,7 +34,7 @@ public class SettingsController {
 
 	@GetMapping("/settings/personal-access-tokens")
 	public String personalAccessTokens(Model model) {
-		model.addAttribute("tokens", personalAccessTokenQueryUseCase.fetchPersonalAccessTokens());
+		model.addAttribute("tokens", settingsFacadeUseCase.getPersonalAccessTokens());
 		return "settings/personal-access-tokens/index";
 	}
 
@@ -48,40 +45,35 @@ public class SettingsController {
 
 	@PostMapping("/settings/personal-access-tokens")
 	public String createPersonalAccessToken(@Valid @ModelAttribute PersonalAccessTokenForm form,
-											BindingResult bindingResult,
-											Model model,
-											RedirectAttributes redirectAttributes) {
+			BindingResult bindingResult,
+			Model model,
+			RedirectAttributes redirectAttributes) {
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("error", getMessage("validation.pat.fields.required"));
+			model.addAttribute("error", settingsViewSupport.getMessage("validation.pat.fields.required"));
 			return "settings/personal-access-tokens/new";
 		}
 
 		try {
-			var issued = personalAccessTokenIssueUseCase.issueToken(
-					new UserCredentialIssueRequest(form.getName(), form.getDescription(), form.getExpiration())
-			);
+			UserCredentialIssueResult issued = settingsFacadeUseCase
+					.issueToken(settingsViewSupport.toIssueRequest(form));
 			redirectAttributes.addFlashAttribute("issuedToken", issued.token());
 			return "redirect:/settings/personal-access-tokens";
 		} catch (RuntimeException ex) {
-			model.addAttribute("error", getMessage("error.token.create_failed"));
+			model.addAttribute("error", settingsViewSupport.getMessage("error.token.create_failed"));
 			return "settings/personal-access-tokens/new";
 		}
 	}
 
 	@PostMapping("/settings/personal-access-tokens/{credentialId}/delete")
 	public String deletePersonalAccessToken(@PathVariable("credentialId") Long credentialId,
-											Model model) {
+			Model model) {
 		try {
-			personalAccessTokenIssueUseCase.revokeToken(credentialId);
+			settingsFacadeUseCase.revokeToken(credentialId);
 		} catch (RuntimeException ex) {
-			model.addAttribute("error", getMessage("error.token.delete_failed"));
-			model.addAttribute("tokens", personalAccessTokenQueryUseCase.fetchPersonalAccessTokens());
+			model.addAttribute("error", settingsViewSupport.getMessage("error.token.delete_failed"));
+			model.addAttribute("tokens", settingsFacadeUseCase.getPersonalAccessTokens());
 			return "settings/personal-access-tokens/index";
 		}
 		return "redirect:/settings/personal-access-tokens";
-	}
-
-	private String getMessage(String code) {
-		return messageSource.getMessage(code, null, code, LocaleContextHolder.getLocale());
 	}
 }

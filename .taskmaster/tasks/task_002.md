@@ -50,12 +50,12 @@
 
 ### 2.3. 계층 간 DTO 강결합 해소 및 매퍼 구조화
 
-**Status:** pending  
+**Status:** cancelled
 
 **Dependencies:** None  
 
-
-계층 간 DTO 결합을 완화하고 매퍼 구조를 명확히 분리합니다.
+**Details:**
+BFF 모듈 특성상 DTO 단일화 유지가 합리적이므로 해당 작업을 취소합니다.
 
 ### 2.4. Presentation 종속적인 Facade(Support)를 Application 레이어로 승격(이동)
 

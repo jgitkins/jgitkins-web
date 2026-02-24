@@ -99,8 +99,8 @@
             "id": 3,
             "title": "계층 간 DTO 강결합 해소 및 매퍼 구조화",
             "description": "",
-            "details": "",
-            "status": "pending",
+            "details": "BFF 모듈 특성상 DTO 단일화 유지가 합리적이므로 해당 작업 취소",
+            "status": "cancelled",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "undefined"

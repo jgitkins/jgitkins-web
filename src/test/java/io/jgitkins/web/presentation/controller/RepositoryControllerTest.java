@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.web.application.dto.RepositoryBranchCreateResult;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
-import io.jgitkins.web.application.dto.RepositoryCreateInitData;
+import io.jgitkins.web.application.dto.RepositoryCreateContext;
 import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
 import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
 import io.jgitkins.web.application.port.in.facade.RepositoryCreateFacadeUseCase;
@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
@@ -72,7 +73,7 @@ class RepositoryControllerTest {
         Mockito.lenient().when(userProfileResolver.resolve(any()))
                 .thenReturn(new RepositoryUserProfile("alzar", "a@b.c"));
         Mockito.lenient().when(repositoryCreateFacadeUseCase.getInitData(any(), any(), any()))
-                .thenReturn(new RepositoryCreateInitData(List.of(), null, new RepositoryUserProfile("alzar", "a@b.c"),
+                .thenReturn(new RepositoryCreateContext(List.of(), null, new RepositoryUserProfile("alzar", "a@b.c"),
                         "alzar", "alzar"));
     }
 

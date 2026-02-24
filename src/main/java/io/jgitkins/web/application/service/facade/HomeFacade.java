@@ -1,11 +1,9 @@
 package io.jgitkins.web.application.service.facade;
 
-import io.jgitkins.web.application.dto.DashboardData;
-import io.jgitkins.web.application.dto.HomeViewData;
-import io.jgitkins.web.application.port.in.DashboardUseCase;
+import io.jgitkins.web.application.dto.HomeDashboardSummary;
+import io.jgitkins.web.application.dto.DashboardSummary;
+import io.jgitkins.web.application.port.in.facade.DashboardFacadeUseCase;
 import io.jgitkins.web.application.port.in.facade.HomeFacadeUseCase;
-import io.jgitkins.web.presentation.dto.DashboardView;
-import io.jgitkins.web.presentation.mapper.DashboardViewMapper;
 import io.jgitkins.web.presentation.support.SessionSupport;
 import io.jgitkins.web.presentation.support.UserDisplayNameResolver;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,27 +17,25 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class HomeFacade implements HomeFacadeUseCase {
 
-    private final DashboardUseCase dashboardUseCase;
-    private final DashboardViewMapper dashboardViewMapper;
+    private final DashboardFacadeUseCase dashboardFacadeUseCase;
     private final UserDisplayNameResolver userDisplayNameResolver;
     private final SessionSupport sessionSupport;
 
     @Override
-    public HomeViewData getHomeViewData(Authentication authentication, HttpServletRequest request) {
+    public HomeDashboardSummary getHomeViewData(Authentication authentication, HttpServletRequest request) {
         HttpSession session = sessionSupport.resolveSession(request);
         String username = sessionSupport.resolveUsername(session);
 
-        // Dashboard 조립
-        DashboardData dashboardData = dashboardUseCase.buildDashboardForUser(username);
-        DashboardView dashboardView = dashboardViewMapper.toDashboardView(dashboardData);
+        // Dashboard 조립 (DashboardFacade 활용)
+        DashboardSummary dashboardSummary = dashboardFacadeUseCase.getDashboardSummary(username);
 
         // 기타 정보 추출
         String displayName = userDisplayNameResolver.resolve(authentication);
         boolean pendingUsername = sessionSupport.isPendingUsername(session);
         String usernameSetupError = sessionSupport.popUsernameSetupError(session);
 
-        return new HomeViewData(
-                dashboardView,
+        return new HomeDashboardSummary(
+                dashboardSummary,
                 displayName,
                 pendingUsername,
                 usernameSetupError,

@@ -1,7 +1,7 @@
 package io.jgitkins.web.application.service.facade;
 
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
-import io.jgitkins.web.application.dto.RepositoryCreateInitData;
+import io.jgitkins.web.application.dto.RepositoryCreateContext;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.OrganizeSummary;
@@ -20,14 +20,14 @@ public class RepositoryCreateFacade implements RepositoryCreateFacadeUseCase {
     private final RepositoryCreateUseCase repositoryCreateUseCase;
 
     @Override
-    public RepositoryCreateInitData getInitData(RepositoryUserProfile profile, String ownerType, Long organizeId) {
+    public RepositoryCreateContext getInitData(RepositoryUserProfile profile, String ownerType, Long organizeId) {
         OrganizeFetchResult organizeResult = repositoryCreateUseCase.loadOwnerOptions();
         List<OrganizeSummary> organizes = organizeResult.organizes();
 
         String ownerLabel = resolveOwnerLabel(profile);
         String ownerSlug = resolveOwnerSlug(ownerType, organizeId, profile, organizes);
 
-        return new RepositoryCreateInitData(
+        return new RepositoryCreateContext(
                 organizes,
                 organizeResult.errorMessage(),
                 profile,

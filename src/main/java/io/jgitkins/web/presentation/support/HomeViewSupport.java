@@ -1,6 +1,6 @@
 package io.jgitkins.web.presentation.support;
 
-import io.jgitkins.web.application.dto.HomeViewData;
+import io.jgitkins.web.application.dto.HomeDashboardSummary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
@@ -9,7 +9,7 @@ import org.springframework.ui.Model;
 @RequiredArgsConstructor
 public class HomeViewSupport {
 
-	public void populateModel(Model model, HomeViewData data) {
+	public void populateModel(Model model, HomeDashboardSummary data) {
 		model.addAttribute("dashboard", data.dashboard());
 		model.addAttribute("displayName", data.displayName());
 		model.addAttribute("pendingUsername", data.pendingUsername());

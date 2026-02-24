@@ -1,10 +1,9 @@
 package io.jgitkins.web.application.dto;
 
-import io.jgitkins.web.presentation.dto.DashboardView;
 import java.time.LocalDateTime;
 
-public record HomeViewData(
-        DashboardView dashboard,
+public record HomeDashboardSummary(
+        DashboardSummary dashboard,
         String displayName,
         boolean pendingUsername,
         String usernameSetupError,

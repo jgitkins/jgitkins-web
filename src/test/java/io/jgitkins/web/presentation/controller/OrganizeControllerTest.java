@@ -2,16 +2,15 @@ package io.jgitkins.web.presentation.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.jgitkins.web.application.dto.OrganizeCreateResult;
 import io.jgitkins.web.application.dto.OrganizeSummary;
-import io.jgitkins.web.application.port.in.OrganizeCreateUseCase;
+import io.jgitkins.web.application.port.in.facade.OrganizeCreateFacadeUseCase;
 import io.jgitkins.web.presentation.dto.OrganizeCreateForm;
+import io.jgitkins.web.presentation.support.OrganizeCreateViewSupport;
 import io.jgitkins.web.presentation.support.SessionUserSupport;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.MessageSource;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -30,19 +28,17 @@ import org.springframework.validation.BindingResult;
 class OrganizeControllerTest {
 
 	@Mock
-	private OrganizeCreateUseCase organizeCreateUseCase;
+	private OrganizeCreateFacadeUseCase organizeCreateFacadeUseCase;
+	@Mock
+	private OrganizeCreateViewSupport organizeCreateViewSupport;
 	@Mock
 	private SessionUserSupport sessionUserSupport;
-	@Mock
-	private MessageSource messageSource;
 
 	private OrganizeController controller;
 
 	@BeforeEach
 	void setUp() {
-		controller = new OrganizeController(organizeCreateUseCase, sessionUserSupport, messageSource);
-		Mockito.lenient().when(messageSource.getMessage(eq("error.auth.login_required"), isNull(), eq("error.auth.login_required"), any()))
-				.thenReturn("로그인이 필요합니다. 다시 로그인해 주세요.");
+		controller = new OrganizeController(organizeCreateFacadeUseCase, organizeCreateViewSupport, sessionUserSupport);
 	}
 
 	@Test
@@ -56,7 +52,7 @@ class OrganizeControllerTest {
 
 		assertEquals("organizes/new", view);
 		assertEquals("조직 이름을 입력해 주세요.", model.getAttribute("formError"));
-		verify(organizeCreateUseCase, never()).createOrganize(any());
+		verify(organizeCreateFacadeUseCase, never()).createOrganize(any());
 	}
 
 	@Test
@@ -66,12 +62,13 @@ class OrganizeControllerTest {
 		BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
 		Model model = new ConcurrentModel();
 		when(sessionUserSupport.resolveUserId()).thenReturn(Optional.empty());
+		when(organizeCreateViewSupport.getMessage("error.auth.login_required")).thenReturn("로그인이 필요합니다.");
 
 		String view = controller.createOrganize(form, bindingResult, model);
 
 		assertEquals("organizes/new", view);
-		assertEquals("로그인이 필요합니다. 다시 로그인해 주세요.", model.getAttribute("formError"));
-		verify(organizeCreateUseCase, never()).createOrganize(any());
+		assertEquals("로그인이 필요합니다.", model.getAttribute("formError"));
+		verify(organizeCreateFacadeUseCase, never()).createOrganize(any());
 	}
 
 	@Test
@@ -82,12 +79,13 @@ class OrganizeControllerTest {
 		BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
 		Model model = new ConcurrentModel();
 		when(sessionUserSupport.resolveUserId()).thenReturn(Optional.of(7L));
-		when(organizeCreateUseCase.createOrganize(any()))
+		when(organizeCreateViewSupport.toRequest(any(), any())).thenReturn(null);
+		when(organizeCreateFacadeUseCase.createOrganize(any()))
 				.thenReturn(new OrganizeCreateResult(new OrganizeSummary(1L, "my-org", "desc", 7L, null, null), null));
 
 		String view = controller.createOrganize(form, bindingResult, model);
 
 		assertEquals("redirect:/", view);
-		verify(organizeCreateUseCase).createOrganize(any());
+		verify(organizeCreateFacadeUseCase).createOrganize(any());
 	}
 }

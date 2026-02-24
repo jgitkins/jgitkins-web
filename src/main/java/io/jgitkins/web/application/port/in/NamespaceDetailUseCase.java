@@ -1,8 +1,8 @@
 package io.jgitkins.web.application.port.in;
 
-import io.jgitkins.web.application.dto.NamespaceDetailResult;
+import io.jgitkins.web.application.dto.NamespaceSummary;
 
 public interface NamespaceDetailUseCase {
 
-	NamespaceDetailResult loadNamespaceDetail(String namespace);
+	NamespaceSummary loadNamespaceDetail(String namespace);
 }

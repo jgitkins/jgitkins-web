@@ -1,6 +1,6 @@
 package io.jgitkins.web.application.service;
 
-import io.jgitkins.web.application.dto.NamespaceDetailResult;
+import io.jgitkins.web.application.dto.NamespaceSummary;
 import io.jgitkins.web.application.dto.OrganizeFetchResult;
 import io.jgitkins.web.application.dto.OrganizeMemberSummary;
 import io.jgitkins.web.application.dto.OrganizeSummary;
@@ -25,14 +25,14 @@ public class NamespaceDetailService implements NamespaceDetailUseCase {
 	private final RepositoryPort repositoryPort;
 
 	@Override
-	public NamespaceDetailResult loadNamespaceDetail(String namespace) {
+	public NamespaceSummary loadNamespaceDetail(String namespace) {
 		if (!StringUtils.hasText(namespace)) {
-			return new NamespaceDetailResult(false, null, null, List.of(), List.of(), "이름이 필요합니다.");
+			return new NamespaceSummary(false, null, null, List.of(), List.of(), "이름이 필요합니다.");
 		}
 
 		OrganizeFetchResult organizeResult = organizePort.fetchOrganizes();
 		if (organizeResult.errorMessage() != null) {
-			return new NamespaceDetailResult(false, namespace, null, List.of(), List.of(), organizeResult.errorMessage());
+			return new NamespaceSummary(false, namespace, null, List.of(), List.of(), organizeResult.errorMessage());
 		}
 
 		List<RepositorySummary> repositories = repositoryPort.fetchRepositories();
@@ -46,14 +46,13 @@ public class NamespaceDetailService implements NamespaceDetailUseCase {
 					.filter(repo -> repo.ownerId() != null && repo.ownerId().equals(organize.get().id()))
 					.collect(Collectors.toList());
 			List<OrganizeMemberSummary> members = organizePort.fetchOrganizeMembers(organize.get().id());
-			return new NamespaceDetailResult(
+			return new NamespaceSummary(
 					true,
 					organize.get().name(),
 					organize.get().description(),
 					organizeRepos,
 					members,
-					null
-			);
+					null);
 		}
 
 		List<RepositorySummary> userRepos = repositories.stream()
@@ -61,14 +60,13 @@ public class NamespaceDetailService implements NamespaceDetailUseCase {
 				.filter(repo -> namespace.equalsIgnoreCase(resolveNamespaceSlug(resolveNamespace(repo))))
 				.collect(Collectors.toList());
 
-		return new NamespaceDetailResult(
+		return new NamespaceSummary(
 				false,
 				namespace,
 				"Personal namespace",
 				userRepos,
 				List.of(),
-				null
-		);
+				null);
 	}
 
 	private String resolveNamespace(RepositorySummary repository) {

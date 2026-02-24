@@ -1,6 +1,6 @@
 package io.jgitkins.web.presentation.support;
 
-import io.jgitkins.web.application.dto.RepositoryCreateInitData;
+import io.jgitkins.web.application.dto.RepositoryCreateContext;
 import io.jgitkins.web.application.dto.RepositoryCreateRequest;
 import io.jgitkins.web.presentation.dto.RepositoryCreateForm;
 import lombok.RequiredArgsConstructor;
@@ -14,69 +14,44 @@ import org.springframework.context.i18n.LocaleContextHolder;
 @RequiredArgsConstructor
 public class RepositoryCreateViewSupport {
 
-    private final MessageSource messageSource;
+	private final MessageSource messageSource;
 
-    public void populateModel(Model model,
-                              RepositoryCreateInitData initData,
-                              RepositoryCreateForm form,
-                              String formError) {
-        model.addAttribute("form", form);
-        model.addAttribute("data", initData);
-        model.addAttribute("formError", formError);
-    }
+	public void populateModel(Model model,
+			RepositoryCreateContext context,
+			RepositoryCreateForm form,
+			String formError) {
+		model.addAttribute("form", form);
+		model.addAttribute("data", context);
+		model.addAttribute("formError", formError);
+	}
 
-    public String validateForm(RepositoryCreateForm form) {
-        if (!StringUtils.hasText(form.getRepoName())) {
-            return getMessage("validation.repository.name.required");
-        }
-        String ownerType = normalizeOwnerType(form.getOwnerType());
-        if (!StringUtils.hasText(ownerType)) {
-            return getMessage("validation.repository.owner.required");
-        }
-        if ("ORGANIZATION".equals(ownerType) && form.getOrganizeId() == null) {
-            return getMessage("validation.repository.organization.required");
-        }
-        return null;
-    }
+	public String validateForm(RepositoryCreateForm form) {
+		if (!StringUtils.hasText(form.getRepoName())) {
+			return getMessage("validation.repo.name.required");
+		}
+		if (!form.getRepoName().matches("^[a-zA-Z0-9._-]+$")) {
+			return getMessage("validation.repo.name.pattern");
+		}
+		return null;
+	}
 
-    public RepositoryCreateRequest toRequest(RepositoryCreateForm form, RepositoryUserProfile profile) {
-        String ownerType = normalizeOwnerType(form.getOwnerType());
-        Long organizeId = resolveOrganizeId(ownerType, form.getOrganizeId());
-        String message = resolveInitialMessage(form);
-        String branch = StringUtils.hasText(form.getMainBranch()) ? form.getMainBranch() : "main";
-        return new RepositoryCreateRequest(
-                form.getRepoName(),
-                branch,
-                profile.name(),
-                profile.email(),
-                form.isReadme(),
-                message,
-                ownerType,
-                organizeId,
-                form.getVisibility(),
-                form.getDescription(),
-                null);
-    }
+	public RepositoryCreateRequest toRequest(RepositoryCreateForm form, RepositoryUserProfile profile) {
+		return new RepositoryCreateRequest(
+				form.getRepoName(),
+				form.getMainBranch(),
+				profile.name(),
+				profile.email(),
+				form.isReadme(),
+				form.getMessage(),
+				form.getOwnerType(),
+				form.getOrganizeId(),
+				form.getVisibility(),
+				form.getDescription(),
+				null // contextPath
+		);
+	}
 
-    private String normalizeOwnerType(String ownerType) {
-        return StringUtils.hasText(ownerType) ? ownerType.trim().toUpperCase() : null;
-    }
-
-    private Long resolveOrganizeId(String ownerType, Long organizeId) {
-        if (!"ORGANIZATION".equals(ownerType)) {
-            return null;
-        }
-        return organizeId;
-    }
-
-    private String resolveInitialMessage(RepositoryCreateForm form) {
-        if (!form.isReadme()) {
-            return null;
-        }
-        return StringUtils.hasText(form.getMessage()) ? form.getMessage() : "Initial commit";
-    }
-
-    private String getMessage(String code) {
-        return messageSource.getMessage(code, null, code, LocaleContextHolder.getLocale());
-    }
+	private String getMessage(String code) {
+		return messageSource.getMessage(code, null, code, LocaleContextHolder.getLocale());
+	}
 }

@@ -1,9 +1,7 @@
 package io.jgitkins.web.presentation.support;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import io.jgitkins.web.application.dto.HomeViewData;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
@@ -11,24 +9,14 @@ import org.springframework.ui.Model;
 @RequiredArgsConstructor
 public class HomeViewSupport {
 
-	private final DashboardViewSupport dashboardViewSupport;
-	private final UserDisplayNameResolver userDisplayNameResolver;
-	private final SessionSupport sessionSupport;
+	public void populateModel(Model model, HomeViewData data) {
+		model.addAttribute("dashboard", data.dashboard());
+		model.addAttribute("displayName", data.displayName());
+		model.addAttribute("pendingUsername", data.pendingUsername());
+		model.addAttribute("lastUpdated", data.lastUpdated());
 
-	public void addAuthenticatedHomeAttributes(Model model,
-											   Authentication authentication,
-											   HttpServletRequest request) {
-
-		HttpSession session = sessionSupport.resolveSession(request);
-		String username = sessionSupport.resolveUsername(session);
-		dashboardViewSupport.addDashboardAttributes(model, username);
-		String usernameSetupError = sessionSupport.popUsernameSetupError(session);
-		if (usernameSetupError != null) {
-			model.addAttribute("usernameSetupError", usernameSetupError);
+		if (data.usernameSetupError() != null) {
+			model.addAttribute("usernameSetupError", data.usernameSetupError());
 		}
-
-
-		model.addAttribute("pendingUsername", sessionSupport.isPendingUsername(session));
-		model.addAttribute("displayName", userDisplayNameResolver.resolve(authentication));
 	}
 }

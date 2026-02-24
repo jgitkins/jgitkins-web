@@ -1,5 +1,7 @@
 package io.jgitkins.web.presentation.controller;
 
+import io.jgitkins.web.application.port.in.facade.HomeFacadeUseCase;
+import io.jgitkins.web.application.dto.HomeViewData;
 import io.jgitkins.web.presentation.support.HomeViewSupport;
 import io.jgitkins.web.presentation.support.SecuritySupport;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +15,15 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class HomeController {
 
+	private final HomeFacadeUseCase homeFacadeUseCase;
 	private final HomeViewSupport homeViewSupport;
 	private final SecuritySupport securitySupport;
 
 	@GetMapping("/")
 	public String root(Authentication authentication, Model model, HttpServletRequest request) {
 		if (securitySupport.isAuthenticated(authentication)) {
-			homeViewSupport.addAuthenticatedHomeAttributes(model, authentication, request);
+			HomeViewData homeData = homeFacadeUseCase.getHomeViewData(authentication, request);
+			homeViewSupport.populateModel(model, homeData);
 			return "dashboard/index";
 		}
 		return "index";

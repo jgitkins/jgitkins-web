@@ -57,14 +57,16 @@
 **Details:**
 BFF 모듈 특성상 DTO 단일화 유지가 합리적이므로 해당 작업을 취소합니다.
 
-### 2.4. Presentation 종속적인 Facade(Support)를 Application 레이어로 승격(이동)
+### 2.4. Presentation 종속적인 Facade(Support) 구조 개선 (Application Facade 분리)
 
-**Status:** pending  
+**Status:** in-progress
 
 **Dependencies:** None  
 
-
-Presentation 종속 Support/Façade 성격의 로직을 Application 레이어로 이동합니다.
+**Details:**
+Presentation 계층의 Support 클래스들이 여러 UseCase를 오케스트레이션하여 발생하는 아키텍처 계층과 책임 분리 문제를 해결합니다.
+비즈니스 흐름을 제어하는 오케스트레이션 로직은 Application 계층 하위에 `Facade UseCase`로 분리하고, 
+결과를 Spring MVC의 Model에 매핑하는 순수 UI 로직만 Presentation 계층의 `Support(Mapper)`에 남김으로써 관심사를 명확히 분리합니다.
 
 ### 2.5. RestClient 예외 처리 횡단 관심사 중앙화 및 예외 변환 적용
 

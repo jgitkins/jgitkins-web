@@ -107,10 +107,10 @@
           },
           {
             "id": 4,
-            "title": "Presentation 종속적인 Facade(Support)를 Application 레이어로 승격(이동)",
-            "description": "",
-            "details": "",
-            "status": "pending",
+            "title": "Presentation 종속적인 Facade(Support) 구조 개선 (Application Facade 분리)",
+            "description": "Support 클래스의 UseCase 오케스트레이션 로직을 Application Facade로 추출",
+            "details": "비즈니스 흐름을 제어하는 오케스트레이션 로직은 Application 계층 하위에 Facade UseCase로 분리하고, 결과를 Spring MVC의 Model에 매핑하는 순수 UI 로직만 Presentation 계층에 남겨 관심사를 명확히 분리합니다.",
+            "status": "in-progress",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "undefined"

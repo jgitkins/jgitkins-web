@@ -11,15 +11,15 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-02-19T12:22:18+0900",
+    date = "2026-02-24T23:00:08+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 18.0.2 (Amazon.com Inc.)"
 )
 @Component
 public class RepositoryDetailDataMapperImpl implements RepositoryDetailDataMapper {
 
     @Override
-    public RepositoryDetailData toDetail(RepositorySummary repository, List<BranchSummary> branches, List<RepositoryFileEntry> files, String namespace, String ownerSlug, String repoName, String selectedBranch) {
-        if ( repository == null && branches == null && files == null && namespace == null && ownerSlug == null && repoName == null && selectedBranch == null ) {
+    public RepositoryDetailData toDetail(RepositorySummary repository, List<BranchSummary> branches, List<RepositoryFileEntry> files, String namespace, String ownerSlug, String repoName, String selectedBranch, String role, boolean writable) {
+        if ( repository == null && branches == null && files == null && namespace == null && ownerSlug == null && repoName == null && selectedBranch == null && role == null ) {
             return null;
         }
 
@@ -41,11 +41,15 @@ public class RepositoryDetailDataMapperImpl implements RepositoryDetailDataMappe
         ownerSlug1 = resolveSelectedBranch( ownerSlug );
         String repoName1 = null;
         repoName1 = resolveSelectedBranch( repoName );
+        String role1 = null;
+        role1 = resolveSelectedBranch( role );
+        boolean writable1 = false;
+        writable1 = writable;
 
         String selectedBranch1 = resolveSelectedBranch(selectedBranch);
         String errorMessage = (String) null;
 
-        RepositoryDetailData repositoryDetailData = new RepositoryDetailData( repository1, branches1, files1, namespace1, ownerSlug1, repoName1, selectedBranch1, errorMessage );
+        RepositoryDetailData repositoryDetailData = new RepositoryDetailData( repository1, branches1, files1, namespace1, ownerSlug1, repoName1, selectedBranch1, role1, writable1, errorMessage );
 
         return repositoryDetailData;
     }

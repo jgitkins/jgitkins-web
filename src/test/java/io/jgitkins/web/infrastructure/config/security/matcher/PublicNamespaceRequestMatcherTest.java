@@ -28,9 +28,9 @@ class PublicNamespaceRequestMatcherTest {
 	}
 
 	@Test
-	void doesNotMatch_unexpectedDeepPathWithoutNamespaceDashRoute() {
-		assertFalse(matcher.matches(request("/alice/repo/tree")));
-		assertFalse(matcher.matches(request("/alice/repo/tree/src")));
+	void matches_deepPathWithTreeOrFindFilesRoute() {
+		assertTrue(matcher.matches(request("/alice/repo/tree")));
+		assertTrue(matcher.matches(request("/alice/repo/tree/src")));
 	}
 
 	private MockHttpServletRequest request(String uri) {

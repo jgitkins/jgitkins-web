@@ -5,19 +5,15 @@ import io.jgitkins.web.application.dto.RepositoryCreateContext;
 import io.jgitkins.web.application.dto.RepositoryCreateResult;
 import io.jgitkins.web.application.dto.RepositoryDetailData;
 import io.jgitkins.web.application.dto.RepositoryFileIndexEntry;
-import io.jgitkins.web.application.port.in.RepositoryDetailUseCase;
-import io.jgitkins.web.application.port.in.RepositoryManageUseCase;
-import io.jgitkins.web.application.port.in.facade.RepositoryCreateFacadeUseCase;
+import io.jgitkins.web.application.port.in.facade.RepositoryFacadeUseCase;
 import io.jgitkins.web.presentation.dto.RepositoryCreateForm;
-import io.jgitkins.web.presentation.support.RepositoryAccessSupport;
-import io.jgitkins.web.presentation.support.RepositoryCreateViewSupport;
 import io.jgitkins.web.presentation.support.RepositoryTreePathSupport;
 import io.jgitkins.web.presentation.support.RepositoryUserProfile;
 import io.jgitkins.web.presentation.support.RepositoryUserProfileResolver;
+import io.jgitkins.web.presentation.support.RepositoryViewSupport;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,31 +29,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
-
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
 public class RepositoryController {
 
-	private final RepositoryCreateFacadeUseCase repositoryCreateFacadeUseCase;
-	private final RepositoryDetailUseCase repositoryDetailUseCase;
+	private final RepositoryFacadeUseCase repositoryFacadeUseCase;
 	private final RepositoryUserProfileResolver userProfileResolver;
-	private final RepositoryCreateViewSupport createViewSupport;
+	private final RepositoryViewSupport repositoryViewSupport;
 	private final RepositoryTreePathSupport treePathSupport;
-	private final RepositoryAccessSupport accessSupport;
-	private final RepositoryManageUseCase repositoryManageUseCase;
-	private final MessageSource messageSource;
 
 	@GetMapping("/repositories/new")
 	public String newRepository(Authentication authentication, Model model) {
 		RepositoryCreateForm form = new RepositoryCreateForm();
 		RepositoryUserProfile profile = userProfileResolver.resolve(authentication);
-		RepositoryCreateContext context = repositoryCreateFacadeUseCase.getInitData(profile, form.getOwnerType(),
+		RepositoryCreateContext context = repositoryFacadeUseCase.getInitData(profile, form.getOwnerType(),
 				form.getOrganizeId());
-		createViewSupport.populateModel(model, context, form, null);
+		repositoryViewSupport.populateCreateModel(model, context, form, null);
 		return "repositories/new";
 	}
 
@@ -67,22 +57,22 @@ public class RepositoryController {
 			Authentication authentication,
 			Model model) {
 		RepositoryUserProfile profile = userProfileResolver.resolve(authentication);
-		RepositoryCreateContext context = repositoryCreateFacadeUseCase.getInitData(profile, form.getOwnerType(),
+		RepositoryCreateContext context = repositoryFacadeUseCase.getInitData(profile, form.getOwnerType(),
 				form.getOrganizeId());
 
 		String validationError = resolveValidationError(bindingResult);
 		if (validationError == null) {
-			validationError = createViewSupport.validateForm(form);
+			validationError = repositoryViewSupport.validateForm(form);
 		}
 		if (validationError != null) {
-			createViewSupport.populateModel(model, context, form, validationError);
+			repositoryViewSupport.populateCreateModel(model, context, form, validationError);
 			return "repositories/new";
 		}
 
-		RepositoryCreateResult result = repositoryCreateFacadeUseCase
-				.createRepository(createViewSupport.toRequest(form, profile));
+		RepositoryCreateResult result = repositoryFacadeUseCase
+				.createRepository(repositoryViewSupport.toRequest(form, profile));
 		if (result.errorMessage() != null) {
-			createViewSupport.populateModel(model, context, form, result.errorMessage());
+			repositoryViewSupport.populateCreateModel(model, context, form, result.errorMessage());
 			return "repositories/new";
 		}
 
@@ -95,15 +85,12 @@ public class RepositoryController {
 			@RequestParam(name = "branch", required = false) String branch,
 			Authentication authentication,
 			Model model) {
-		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryByPath(namespace, repoName, branch, "");
-		if (accessSupport.requiresNotFoundForUnauthenticatedPrivate(detail,
-				userProfileResolver.isAuthenticated(authentication))) {
+		RepositoryDetailData detail = repositoryFacadeUseCase.getRepositoryDetail(namespace, repoName, branch, "",
+				userProfileResolver.isAuthenticated(authentication));
+		if (detail == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-		model.addAttribute("namespace", namespace);
-		model.addAttribute("repoName", repoName);
-		model.addAttribute("currentPath", "");
-		model.addAttribute("detail", detail);
+		repositoryViewSupport.populateDetailModel(model, namespace, repoName, "", detail);
 		return "repositories/detail";
 	}
 
@@ -115,17 +102,12 @@ public class RepositoryController {
 			HttpServletRequest request,
 			Model model) {
 		String directory = treePathSupport.resolveTreeDirectory(request);
-		RepositoryDetailData detail = repositoryDetailUseCase.loadRepositoryByPath(namespace, repoName, branch,
-				directory);
-		if (accessSupport.requiresNotFoundForUnauthenticatedPrivate(
-				detail,
-				userProfileResolver.isAuthenticated(authentication))) {
+		RepositoryDetailData detail = repositoryFacadeUseCase.getRepositoryDetail(namespace, repoName, branch,
+				directory, userProfileResolver.isAuthenticated(authentication));
+		if (detail == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-		model.addAttribute("namespace", namespace);
-		model.addAttribute("repoName", repoName);
-		model.addAttribute("currentPath", directory);
-		model.addAttribute("detail", detail);
+		repositoryViewSupport.populateDetailModel(model, namespace, repoName, directory, detail);
 		return "repositories/detail";
 	}
 
@@ -134,8 +116,7 @@ public class RepositoryController {
 	public ResponseEntity<List<RepositoryFileIndexEntry>> findFileIndex(@PathVariable("namespace") String namespace,
 			@PathVariable("repoName") String repoName,
 			@RequestParam(name = "branch", required = false) String branch) {
-		List<RepositoryFileIndexEntry> files = repositoryDetailUseCase.loadRepositoryFileIndexByPath(namespace,
-				repoName, branch);
+		List<RepositoryFileIndexEntry> files = repositoryFacadeUseCase.getFileIndex(namespace, repoName, branch);
 		return ResponseEntity.ok(files);
 	}
 
@@ -147,9 +128,8 @@ public class RepositoryController {
 			@RequestParam(name = "currentPath", required = false) String currentPath,
 			@RequestParam(name = "currentBranch", required = false) String currentBranch,
 			RedirectAttributes redirectAttributes) {
-		String baseBranch = org.springframework.util.StringUtils.hasText(sourceBranch) ? sourceBranch : currentBranch;
-		RepositoryBranchCreateResult result = repositoryManageUseCase.createBranchByPath(namespace, repoName,
-				branchName, baseBranch);
+		RepositoryBranchCreateResult result = repositoryFacadeUseCase.createBranch(namespace, repoName, branchName,
+				sourceBranch, currentBranch);
 		if (result.errorMessage() != null) {
 			redirectAttributes.addFlashAttribute("branchError", result.errorMessage());
 			return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, currentBranch);
@@ -159,7 +139,8 @@ public class RepositoryController {
 				&& org.springframework.util.StringUtils.hasText(result.branch().name())
 						? result.branch().name()
 						: branchName;
-		redirectAttributes.addFlashAttribute("branchSuccess", "브랜치가 생성되었습니다.");
+		redirectAttributes.addFlashAttribute("branchSuccess",
+				repositoryViewSupport.getMessage("success.branch.created"));
 		return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, selectedBranch);
 	}
 
@@ -172,13 +153,13 @@ public class RepositoryController {
 			@RequestParam("file") MultipartFile file,
 			@RequestParam(name = "currentPath", required = false) String currentPath,
 			RedirectAttributes redirectAttributes) {
-		var result = repositoryManageUseCase.uploadFileByPath(namespace, repoName, branch, path, message, file);
+		var result = repositoryFacadeUseCase.uploadFile(namespace, repoName, branch, path, message, file);
 		if (result.errorMessage() != null) {
 			redirectAttributes.addFlashAttribute("fileError", result.errorMessage());
 			return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
 		}
 
-		redirectAttributes.addFlashAttribute("fileSuccess", "파일이 업로드되었습니다.");
+		redirectAttributes.addFlashAttribute("fileSuccess", repositoryViewSupport.getMessage("success.file.uploaded"));
 		return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
 	}
 
@@ -190,13 +171,14 @@ public class RepositoryController {
 			@RequestParam("message") String message,
 			@RequestParam(name = "currentPath", required = false) String currentPath,
 			RedirectAttributes redirectAttributes) {
-		var result = repositoryManageUseCase.createDirectoryByPath(namespace, repoName, branch, directoryPath, message);
+		var result = repositoryFacadeUseCase.createDirectory(namespace, repoName, branch, directoryPath, message);
 		if (result.errorMessage() != null) {
 			redirectAttributes.addFlashAttribute("directoryError", result.errorMessage());
 			return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
 		}
 
-		redirectAttributes.addFlashAttribute("directorySuccess", "디렉터리가 생성되었습니다.");
+		redirectAttributes.addFlashAttribute("directorySuccess",
+				repositoryViewSupport.getMessage("success.directory.created"));
 		return "redirect:" + buildRepositoryRedirect(namespace, repoName, currentPath, branch);
 	}
 
@@ -207,11 +189,7 @@ public class RepositoryController {
 		if (bindingResult.getFieldError() != null) {
 			return bindingResult.getFieldError().getDefaultMessage();
 		}
-		return messageSource.getMessage(
-				"error.request.invalid",
-				null,
-				"error.request.invalid",
-				LocaleContextHolder.getLocale());
+		return repositoryViewSupport.getMessage("error.request.invalid");
 	}
 
 	private String buildRepositoryRedirect(String namespace, String repoName, String currentPath, String branch) {
@@ -228,3 +206,4 @@ public class RepositoryController {
 		return builder.toString();
 	}
 }
+

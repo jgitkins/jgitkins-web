@@ -59,7 +59,7 @@ BFF 모듈 특성상 DTO 단일화 유지가 합리적이므로 해당 작업을
 
 ### 2.4. Presentation 종속적인 Facade(Support) 구조 개선 (Application Facade 분리)
 
-**Status:** in-progress
+**Status:** done  
 
 **Dependencies:** None  
 

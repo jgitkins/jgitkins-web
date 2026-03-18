@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface RepositoryFacadeUseCase {
 
-    RepositoryCreateContext getInitData(RepositoryUserProfile profile, String ownerType, Long organizeId);
+    RepositoryCreateContext getInitData(RepositoryUserProfile profile, String username, String ownerType, Long organizeId);
 
     RepositoryCreateResult createRepository(RepositoryCreateRequest request);
 

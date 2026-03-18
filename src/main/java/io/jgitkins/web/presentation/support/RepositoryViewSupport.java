@@ -23,6 +23,10 @@ public class RepositoryViewSupport {
 			String formError) {
 		model.addAttribute("form", form);
 		model.addAttribute("data", context);
+		model.addAttribute("organizes", context.organizes());
+		model.addAttribute("organizeError", context.organizeError());
+		model.addAttribute("ownerLabel", context.ownerLabel());
+		model.addAttribute("ownerSlug", context.ownerSlug());
 		model.addAttribute("formError", formError);
 	}
 

@@ -23,10 +23,10 @@ public class RepositoryFacade implements RepositoryFacadeUseCase {
     private final OrganizePort organizePort;
 
     @Override
-    public RepositoryCreateContext getInitData(RepositoryUserProfile profile, String ownerType, Long organizeId) {
+    public RepositoryCreateContext getInitData(RepositoryUserProfile profile, String username, String ownerType, Long organizeId) {
         OrganizeFetchResult result = organizePort.fetchOrganizes();
         String ownerLabel = resolveOwnerLabel(profile, ownerType, organizeId, result.organizes());
-        String ownerSlug = resolveOwnerSlug(profile, ownerType, organizeId, result.organizes());
+        String ownerSlug = resolveOwnerSlug(username, ownerType, organizeId, result.organizes());
 
         return new RepositoryCreateContext(
                 result.organizes(),
@@ -101,7 +101,7 @@ public class RepositoryFacade implements RepositoryFacadeUseCase {
         return profile.name() != null ? profile.name() : profile.email();
     }
 
-    private String resolveOwnerSlug(RepositoryUserProfile profile, String ownerType, Long organizeId,
+    private String resolveOwnerSlug(String username, String ownerType, Long organizeId,
             List<OrganizeSummary> organizes) {
         if ("ORGANIZATION".equalsIgnoreCase(ownerType) && organizeId != null) {
             return organizes.stream()
@@ -110,6 +110,6 @@ public class RepositoryFacade implements RepositoryFacadeUseCase {
                     .findFirst()
                     .orElse("unknown");
         }
-        return profile.name() != null ? profile.name() : "user";
+        return StringUtils.hasText(username) ? username.trim() : "user";
     }
 }

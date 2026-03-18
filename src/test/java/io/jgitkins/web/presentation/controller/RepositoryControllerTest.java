@@ -17,15 +17,18 @@ import io.jgitkins.web.presentation.support.RepositoryTreePathSupport;
 import io.jgitkins.web.presentation.support.RepositoryUserProfile;
 import io.jgitkins.web.presentation.support.RepositoryUserProfileResolver;
 import io.jgitkins.web.presentation.support.RepositoryViewSupport;
+import io.jgitkins.web.presentation.support.SessionSupport;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
@@ -44,6 +47,8 @@ class RepositoryControllerTest {
     private RepositoryViewSupport repositoryViewSupport;
     @Mock
     private RepositoryTreePathSupport treePathSupport;
+    @Mock
+    private SessionSupport sessionSupport;
 
     private RepositoryController controller;
 
@@ -53,12 +58,15 @@ class RepositoryControllerTest {
                 repositoryFacadeUseCase,
                 userProfileResolver,
                 repositoryViewSupport,
-                treePathSupport);
+                treePathSupport,
+                sessionSupport);
         RepositoryUserProfile profile = new RepositoryUserProfile("alzar", "a@b.c");
         Mockito.lenient().when(userProfileResolver.resolve(any()))
                 .thenReturn(profile);
-        Mockito.lenient().when(repositoryFacadeUseCase.getInitData(any(), any(), any()))
+        Mockito.lenient().when(repositoryFacadeUseCase.getInitData(any(), any(), any(), any()))
                 .thenReturn(new RepositoryCreateContext(List.of(), null, profile, "alzar", "alzar"));
+        Mockito.lenient().when(sessionSupport.resolveUsername(any()))
+                .thenReturn("alzar");
     }
 
     @Test
@@ -67,8 +75,9 @@ class RepositoryControllerTest {
         BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
         bindingResult.rejectValue("repoName", "NotBlank", "Repository name is required.");
         Model model = new ConcurrentModel();
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
-        String view = controller.createRepository(form, bindingResult, null, model);
+        String view = controller.createRepository(form, bindingResult, null, request, model);
 
         assertEquals("repositories/new", view);
         verify(repositoryViewSupport).populateCreateModel(any(), any(), any(), any());
@@ -81,14 +90,30 @@ class RepositoryControllerTest {
         form.setRepoName("demo");
         BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
         Model model = new ConcurrentModel();
+        MockHttpServletRequest request = new MockHttpServletRequest();
         when(repositoryViewSupport.validateForm(form)).thenReturn(null);
         when(repositoryViewSupport.toRequest(any(), any())).thenReturn(null);
         when(repositoryFacadeUseCase.createRepository(any())).thenReturn(new RepositoryCreateResult(null, null));
 
-        String view = controller.createRepository(form, bindingResult, null, model);
+        String view = controller.createRepository(form, bindingResult, null, request, model);
 
         assertEquals("redirect:/", view);
         verify(repositoryFacadeUseCase).createRepository(any());
+    }
+
+    @Test
+    void newRepository_usesSessionUsernameForInitData() {
+        Model model = new ConcurrentModel();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        HttpSession session = request.getSession(true);
+        when(sessionSupport.resolveSession(request)).thenReturn(session);
+        when(sessionSupport.resolveUsername(session)).thenReturn("alzar");
+
+        String view = controller.newRepository(null, request, model);
+
+        assertEquals("repositories/new", view);
+        verify(repositoryFacadeUseCase).getInitData(any(), org.mockito.ArgumentMatchers.eq("alzar"), any(), any());
+        verify(repositoryViewSupport).populateCreateModel(any(), any(), any(), any());
     }
 
     @Test

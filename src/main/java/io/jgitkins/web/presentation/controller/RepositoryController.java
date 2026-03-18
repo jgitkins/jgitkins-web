@@ -11,6 +11,7 @@ import io.jgitkins.web.presentation.support.RepositoryTreePathSupport;
 import io.jgitkins.web.presentation.support.RepositoryUserProfile;
 import io.jgitkins.web.presentation.support.RepositoryUserProfileResolver;
 import io.jgitkins.web.presentation.support.RepositoryViewSupport;
+import io.jgitkins.web.presentation.support.SessionSupport;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -40,12 +41,14 @@ public class RepositoryController {
 	private final RepositoryUserProfileResolver userProfileResolver;
 	private final RepositoryViewSupport repositoryViewSupport;
 	private final RepositoryTreePathSupport treePathSupport;
+	private final SessionSupport sessionSupport;
 
 	@GetMapping("/repositories/new")
-	public String newRepository(Authentication authentication, Model model) {
+	public String newRepository(Authentication authentication, HttpServletRequest request, Model model) {
 		RepositoryCreateForm form = new RepositoryCreateForm();
 		RepositoryUserProfile profile = userProfileResolver.resolve(authentication);
-		RepositoryCreateContext context = repositoryFacadeUseCase.getInitData(profile, form.getOwnerType(),
+		String username = sessionSupport.resolveUsername(sessionSupport.resolveSession(request));
+		RepositoryCreateContext context = repositoryFacadeUseCase.getInitData(profile, username, form.getOwnerType(),
 				form.getOrganizeId());
 		repositoryViewSupport.populateCreateModel(model, context, form, null);
 		return "repositories/new";
@@ -55,9 +58,11 @@ public class RepositoryController {
 	public String createRepository(@Valid @ModelAttribute("form") RepositoryCreateForm form,
 			BindingResult bindingResult,
 			Authentication authentication,
+			HttpServletRequest request,
 			Model model) {
 		RepositoryUserProfile profile = userProfileResolver.resolve(authentication);
-		RepositoryCreateContext context = repositoryFacadeUseCase.getInitData(profile, form.getOwnerType(),
+		String username = sessionSupport.resolveUsername(sessionSupport.resolveSession(request));
+		RepositoryCreateContext context = repositoryFacadeUseCase.getInitData(profile, username, form.getOwnerType(),
 				form.getOrganizeId());
 
 		String validationError = resolveValidationError(bindingResult);
@@ -206,4 +211,3 @@ public class RepositoryController {
 		return builder.toString();
 	}
 }
-
